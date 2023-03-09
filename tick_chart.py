@@ -1,9 +1,5 @@
-import plotly.graph_objects as go
-
-from fileinput      import input
-from util.parsers   import tas_rec
-from util.sc_dt     import ts_to_ds
-from sys            import argv
+import  plotly.graph_objects    as      go
+from    fileinput               import  input
 
 
 # pipe input from read_tas.py
