@@ -8,6 +8,10 @@ from sys            import argv
 
 # pipe input from read_tas.py
 
+# e.g.: 
+#       python read_tas.py RBJ23-HOJ23.FUT_SPREAD.CME 0.0001 0 0 | python tick_chart.py
+#       python read_tas.py HON23-HOQ23.FUT_SPREAD.CME 0.0001 0 0 | grep 2023-03-08 | python tick_chart.py
+
 if __name__ == "__main__":
 
     fig = go.Figure()

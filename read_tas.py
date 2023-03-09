@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     fn          = argv[1]
     price_adj   = float(argv[2])
-    precision   = len(argv[2].split(".")[1])
+    precision   = len(argv[2].split(".")[1]) if "." in argv[2] else len(argv[2])
     loop        = int(argv[3])
     to_seek     = int(argv[4])
 
