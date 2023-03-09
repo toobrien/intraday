@@ -14,6 +14,7 @@ if __name__ == "__main__":
 
     fn          = argv[1]
     price_adj   = float(argv[2])
+    precision   = len(argv[2].split(".")[1])
     loop        = int(argv[3])
     to_seek     = int(argv[4])
 
@@ -31,7 +32,7 @@ if __name__ == "__main__":
 
                 print(
                     ts_to_ds(r[tas_rec.timestamp], "%Y-%m-%d %H:%M:%S.%f"),
-                    f"{r[tas_rec.price]: 10.4f}",
+                    f"{r[tas_rec.price]: 10.{precision}f}",
                     f"{r[tas_rec.qty]: 10d}",
                     "bid".rjust(10) if r[tas_rec.side] == 0 else "ask".rjust(10),
                 )
