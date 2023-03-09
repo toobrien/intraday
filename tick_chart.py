@@ -12,12 +12,13 @@ if __name__ == "__main__":
 
     fig = go.Figure()
 
-    x   = []
-    y   = []
-    txt = []
-    clr = []
-    
-    i = 0
+    x       = []
+    y       = []
+    hist_y  = []
+    txt     = []
+    clr     = []
+    i       = 0
+    prices  = set()
 
     for line in input():
 
@@ -25,27 +26,42 @@ if __name__ == "__main__":
 
         date    = parts[0]
         time    = parts[1]
-        price   = parts[2]
-        qty     = parts[3]
+        price   = float(parts[2])
+        qty     = int(parts[3])
         side    = parts[4]
 
         x.append(i)
-        y.append(float(price))
+        y.append(price)
         txt.append(f"{date}<br>{time}<br>{qty}")
         clr.append("#FF0000" if side == "bid" else "#0000FF")
+
+        prices.add(price)
+        hist_y += ([ price ] * qty)
 
         i += 1
 
     fig.add_trace(
         go.Scatter(
             {
-                "x":    x,
-                "y":    y,
-                "text": txt,
-                "mode": "markers",
+                "name":    "ticks",
+                "x":        x,
+                "y":        y,
+                "text":     txt,
+                "mode":     "markers",
                 "marker": {
                     "color": clr
                 }
+            }
+        )
+    )
+
+    fig.add_trace(
+        go.Histogram(
+            {
+                "name":     "vap",
+                "y":        hist_y,
+                "nbinsy":    len(prices),
+                "opacity":  0.3
             }
         )
     )
