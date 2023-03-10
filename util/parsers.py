@@ -47,7 +47,7 @@ INTRADAY_REC_LEN    = calcsize(INTRADAY_REC_FMT)
 INTRADAY_REC_UNPACK = Struct(INTRADAY_REC_FMT).unpack_from
 
 
-def parse_tas_header(fd: BinaryIO)->tuple:
+def parse_tas_header(fd: BinaryIO) -> tuple:
     
     header_bytes    = fd.read(INTRADAY_HEADER_LEN)
     header          = Struct(INTRADAY_HEADER_FMT).unpack_from(header_bytes)
@@ -77,6 +77,31 @@ def parse_tas(fd: BinaryIO, checkpoint: int) -> List:
         )
 
         tas_recs.append(tas_rec)
+
+    return tas_recs
+
+
+def bulk_parse_tas(fd: BinaryIO, checkpoint: int) -> List:
+
+    buf         = fd.read()
+    ptr         = checkpoint * INTRADAY_REC_LEN
+    tas_recs    = []
+    struct      = Struct(INTRADAY_REC_FMT)
+
+    while ptr < len(buf):
+
+        ir = struct.unpack_from(buf, ptr)
+
+        ptr += INTRADAY_REC_LEN
+
+        tas_recs.append(
+            (
+                ir[intraday_rec.timestamp],
+                ir[intraday_rec.close],
+                ir[intraday_rec.bid_vol] if ir[intraday_rec.bid_vol] else ir[intraday_rec.ask_vol],
+                0 if ir[intraday_rec.bid_vol] > 0 else 1
+            )
+        )
 
     return tas_recs
 

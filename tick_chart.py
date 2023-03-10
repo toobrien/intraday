@@ -1,7 +1,6 @@
 import  plotly.graph_objects    as      go
 from    fileinput               import  input
 
-
 # pipe input from read_tas.py
 
 # e.g.: 
@@ -41,7 +40,7 @@ if __name__ == "__main__":
         i += 1
 
     fig.add_trace(
-        go.Scatter(
+        go.Scattergl(
             {
                 "name":    "ticks",
                 "x":        x,
@@ -67,4 +66,3 @@ if __name__ == "__main__":
     )
 
     fig.show()
-        
