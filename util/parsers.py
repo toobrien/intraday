@@ -1,10 +1,11 @@
-from enum       import IntEnum
-from numpy      import datetime64
-from os         import fstat
-from struct     import calcsize, Struct
-from sys        import argv
-from time       import time
-from typing     import BinaryIO, List
+from    enum        import  IntEnum
+from    numpy       import  datetime64
+from    os          import  fstat
+import  pyarrow     as      pa
+from    struct      import  calcsize, Struct
+from    sys         import  argv
+from    time        import  time
+from    typing      import  BinaryIO, List
 
 
 SC_EPOCH = datetime64("1899-12-30")
@@ -121,6 +122,43 @@ def transform_tas(rs: List, price_adj: float):
         )
         for r in rs
     ]
+
+
+def tas_to_pq(fd: BinaryIO, multiplier: int):
+
+    parse_tas_header(fd)
+
+    buf     = fd.read()
+    ptr     = 0
+    struct  = Struct(INTRADAY_REC_FMT)
+
+    ts      = []
+    close   = []
+    qty     = []
+    side    = []
+
+    while ptr < len(buf):
+
+        ir = struct.unpack_from(buf, ptr)
+
+        ptr += INTRADAY_REC_LEN
+
+        ts.append(ir[intraday_rec.timestamp])
+        close.append(ir[intraday_rec.close] * multiplier)
+        qty.append(intraday_rec.bid_vol if ir[intraday_rec.bid_vol] else ir[intraday_rec.ask_vol])
+        side.append(0 if ir[intraday_rec.bid_vol] > 0 else 1)
+    
+    ts      = pa.array(ts, type = pa.int64())
+    close   = pa.array(close, type = pa.float32())
+    qty     = pa.array(qty, type = pa.int32())
+    side    = pa.array(side, type = pa.int8())
+
+    table   = pa.table(
+                        [ ts, close, qty, side],
+                        names = [ "ts", "close", "qty", "side" ]
+                    )
+
+    return table
 
 
 # MARKET DEPTH
