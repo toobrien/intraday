@@ -1,5 +1,6 @@
-import  plotly.graph_objects    as      go
 from    fileinput               import  input
+import  plotly.graph_objects    as      go
+from    plotly.subplots         import  make_subplots
 
 # pipe input from read_tas.py
 
@@ -11,13 +12,16 @@ if __name__ == "__main__":
 
     fig = go.Figure()
 
-    x       = []
-    y       = []
-    hist_y  = []
-    txt     = []
-    clr     = []
-    i       = 0
-    prices  = set()
+    x           = []
+    y           = []
+    hist_y      = []
+    txt         = []
+    clr         = []
+    clr_delta   = []
+    delta       = []
+    delta_      = 0
+    i           = 0
+    prices      = set()
 
     for line in input():
 
@@ -37,7 +41,18 @@ if __name__ == "__main__":
         prices.add(price)
         hist_y += ([ price ] * qty)
 
+        delta_ += qty * -1 if side == "bid" else qty
+        delta.append(delta_)
+        clr_delta.append("#FF0000" if delta_ <= 0 else "#0000FF")
+
         i += 1
+
+    fig = make_subplots(
+        rows                = 2,
+        cols                = 1,
+        row_heights         = [ 0.8, 0.2 ],
+        vertical_spacing    = 0.025
+    )
 
     fig.add_trace(
         go.Scattergl(
@@ -51,7 +66,9 @@ if __name__ == "__main__":
                     "color": clr
                 }
             }
-        )
+        ),
+        row = 1,
+        col = 1
     )
 
     fig.add_trace(
@@ -62,7 +79,22 @@ if __name__ == "__main__":
                 "nbinsy":    len(prices),
                 "opacity":  0.3
             }
-        )
+        ),
+        row = 1,
+        col = 1
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            {
+                "name": "delta",
+                "x":    x,
+                "y":    delta,
+                "line": { "color": "#0000FF" }
+            }
+        ),
+        row = 2,
+        col = 1
     )
 
     fig.show()
