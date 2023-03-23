@@ -51,6 +51,7 @@ if __name__ == "__main__":
         rows                = 2,
         cols                = 1,
         row_heights         = [ 0.8, 0.2 ],
+        shared_xaxes        = True,
         vertical_spacing    = 0.025
     )
 
