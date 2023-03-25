@@ -26,6 +26,8 @@ def get_index(instrument_id: str, day: str = None):
         
         except Exception as e:
 
+            # no index or day not in index
+
             print(e)
 
     return res
@@ -51,13 +53,12 @@ def update_index(instrument_id: str):
         index       = {}
         scid_offset = 0
         additive    = False
-        
-        print(f"created\t{index_fn}")
 
     else:
 
         # update existing index
 
+        index       = loads(open(index_path, "r").read())
         scid_offset = index[sorted(list(index.keys()))[-1]]
         additive    = True
 
@@ -67,7 +68,15 @@ def update_index(instrument_id: str):
     _           = parse_tas_header(scid_fd)
     recs        = bulk_parse_tas(scid_fd, scid_offset)
 
-    prev_day = ts_to_ds(recs[0][tas_rec.timestamp], FMT)
+    if recs:
+
+        prev_day = ts_to_ds(recs[0][tas_rec.timestamp], FMT)
+
+    else:
+
+        print(f"no records for {instrument_id}")
+
+        return
 
     for i in range(len(recs)):
 
@@ -81,7 +90,13 @@ def update_index(instrument_id: str):
 
     index_fd.write(dumps(index))
 
-    print(f"updated\t{index_fn}")
+    if additive:
+    
+        print(f"updated\t{index_fn}")
+    
+    else:
+
+        print(f"created\t{index_fn}")
 
 
 if __name__ == "__main__":
