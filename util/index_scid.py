@@ -2,7 +2,7 @@ from json       import dumps, loads
 from os         import listdir
 from parsers    import bulk_parse_tas, parse_tas_header, tas_rec
 from sc_dt      import ts_to_ds
-
+from time       import time
 
 CONFIG      = loads(open("./config.json", "r").read())
 SC_ROOT     = CONFIG["sc_root"]
@@ -64,42 +64,37 @@ def update_index(instrument_id: str):
 
     # add to index
     
-    index_fd    = open(index_path, "w")
     _           = parse_tas_header(scid_fd)
     recs        = bulk_parse_tas(scid_fd, scid_offset)
+    num_recs    = len(recs)
 
     if recs:
 
+        index_fd = open(index_path, "w")
         prev_day = ts_to_ds(recs[0][tas_rec.timestamp], FMT)
+    
+        for i in range(num_recs):
+
+            rec = recs[i]
+            day = ts_to_ds(rec[tas_rec.timestamp], FMT)
+
+            if day != prev_day:
+
+                index[day]  = i if not additive else i + scid_offset
+                prev_day    = day
+
+        index_fd.write(dumps(index, indent = 4))
 
     else:
 
         print(f"no records for {instrument_id}")
 
-        return
-
-    for i in range(len(recs)):
-
-        rec = recs[i]
-        day = ts_to_ds(rec[tas_rec.timestamp], FMT)
-
-        if day != prev_day:
-
-            index[day]  = i if not additive else i + scid_offset
-            prev_day    = day
-
-    index_fd.write(dumps(index))
-
-    if additive:
-    
-        print(f"updated\t{index_fn}")
-    
-    else:
-
-        print(f"created\t{index_fn}")
+    return num_recs
 
 
 if __name__ == "__main__":
+
+    start = time()
 
     fns = [
         fn for fn in
@@ -113,6 +108,10 @@ if __name__ == "__main__":
 
         fn = fns[i]
 
-        print(f"{fn:50s}\t{i + 1}/{num_fns}")
+        t0 = time()
 
-        update_index(fn[:-5])
+        parsed = update_index(fn[:-5])
+
+        print(f"{fn:50s}\t{i + 1}/{num_fns}\t{parsed: 10d}\t{time() - t0:0.1f}s")
+
+    print(f"\n{time() - start:0.1f}s elapsed")
