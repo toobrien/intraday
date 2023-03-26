@@ -83,7 +83,13 @@ def update_index(instrument_id: str):
                 index[day]  = i if not additive else i + scid_offset
                 prev_day    = day
 
-        index_fd.write(dumps(index, indent = 4))
+        if index:
+        
+            index_fd.write(dumps(index, indent = 4))
+
+        else:
+
+            print(f"no index for {instrument_id}")
 
     else:
 
