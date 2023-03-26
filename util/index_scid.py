@@ -1,5 +1,5 @@
 from json       import dumps, loads
-from os         import listdir
+from os         import listdir, remove
 from parsers    import bulk_parse_tas, parse_tas_header, tas_rec
 from sc_dt      import ts_to_ds
 from time       import time
@@ -88,6 +88,10 @@ def update_index(instrument_id: str):
             index_fd.write(dumps(index, indent = 4))
 
         else:
+
+            # < 1 index unit of data
+            
+            remove(index_path)
 
             print(f"no index for {instrument_id}")
 
