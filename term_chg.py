@@ -1,6 +1,6 @@
 from json           import loads
-from util.parsers   import bulk_parse_tas, parse_tas_header, tas_rec, transform_tas
-from util.sc_dt     import ts_to_ds
+from util.parsers   import tas_rec
+from util.tas_tools import get_tas
 from sys            import argv
 
 # example usage:
@@ -8,23 +8,20 @@ from sys            import argv
 # NG                            symbol
 # 0.001                         price multiplier
 # J23:12                        12 consecutive terms, starting at J23
-# "2023-03-22 06:00:00.000000"  start ts
-# "2023-03-22 07:00:00.000000"  end ts
+# "2023-03-22T06:00:00.000000"  start ts
+# "2023-03-22T07:00:00.000000"  end ts
 # 1                             print tas records
 
 
 SC_ROOT     = loads(open("./config.json").read())["sc_root"]
 MONTHS      = [ "F", "G", "H", "J", "K", "M", "N", "Q", "U", "V", "X", "Z"]
-FMT         = "%Y-%m-%d %H:%M:%S.%f"
+FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 FIELD_WIDTH = 10
 
 def process_records(
-    fd,
+    recs,
     contract_id,
-    multiplier,
     precision,
-    start,
-    end,
     print_recs
 ):
 
@@ -32,49 +29,34 @@ def process_records(
 
         print(f"{contract_id}\n")
 
-    _       = parse_tas_header(fd)
-    recs    = bulk_parse_tas(fd, 0)
-    recs    = transform_tas(recs, multiplier)
 
-    start_price = None
-    end_price   = None
+    start_price = recs[0][tas_rec.price]
+    end_price   = recs[-1][tas_rec.price]
     count       = 0
     at_bid      = 0
     at_ask      = 0
 
-    for i in range(len(recs)):
+    for rec in recs:
 
-        r   = recs[i]
-        ds  = ts_to_ds(r[tas_rec.timestamp], FMT)
+        price       = f"{rec[tas_rec.price]: {FIELD_WIDTH}.{precision}f}"
+        qty         = f"{rec[tas_rec.qty]: {FIELD_WIDTH}d}"
+        side        = None
 
-        if start <= ds < end:
+        if rec[tas_rec.side] == 0:
 
-            start_price = r[tas_rec.price] if not start_price else start_price
-            price       = f"{r[tas_rec.price]: {FIELD_WIDTH}.{precision}f}"
-            qty         = f"{r[tas_rec.qty]: {FIELD_WIDTH}d}"
-            side        = None
+            at_bid  += 1
+            side    =  "bid".rjust(FIELD_WIDTH)
+        
+        else:
 
-            if r[tas_rec.side] == 0:
+            at_ask  += 1
+            side    =  "ask".rjust(FIELD_WIDTH)
 
-                at_bid  += 1
-                side    =  "bid".rjust(FIELD_WIDTH)
-            
-            else:
+        count += 1
 
-                at_ask  += 1
-                side    =  "ask".rjust(FIELD_WIDTH)
+        if print_recs:
 
-            count += 1
-
-            if print_recs:
-
-                print(ds, price, qty, side)
-
-        elif ds >= end:
-
-            end_price = recs[i - 1][tas_rec.price]
-
-            break
+            print(rec[tas_rec.timestamp].ljust(20), price, qty, side)
 
     if print_recs:
     
@@ -108,21 +90,18 @@ if __name__ == "__main__":
         try:
 
             contract_id = f"{symbol}{MONTHS[i]}{year}"
-            fn          = f"{SC_ROOT}/Data/{contract_id}_FUT_CME.scid"
+            recs        = get_tas(f"{contract_id}_FUT_CME", FMT, multiplier, start, end)
 
-            with open(fn, "rb") as fd:
+            if recs:
 
                 results.append(
-                    process_records(
-                        fd,
-                        contract_id,
-                        multiplier,
-                        precision, 
-                        start,
-                        end,
-                        print_recs
+                        process_records(
+                            recs,
+                            contract_id,
+                            precision,
+                            print_recs
+                        )
                     )
-                )
 
             year    =  year if i != 11 else year + 1
             i       =  (i + 1) % 12

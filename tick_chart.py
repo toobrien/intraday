@@ -1,14 +1,29 @@
 from    fileinput               import  input
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
+from    sys                     import  argv
+from    util.parsers            import  tas_rec
+from    util.tas_tools          import  get_tas
 
-# pipe input from read_tas.py
 
-# e.g.: 
-#       python read_tas.py RBJ23-HOJ23.FUT_SPREAD.CME 0.0001 0 0 | python tick_chart.py
-#       python read_tas.py HON23-HOQ23.FUT_SPREAD.CME 0.0001 0 0 | grep 2023-03-08 | python tick_chart.py
+FMT = "%Y-%m-%dT%H:%M:%S.%f"
+
+# start/end time are %Y-%m-%d
 
 if __name__ == "__main__":
+
+    contract_id = argv[1]
+    multiplier  = float(argv[2])
+    start       = argv[3] if len(argv) > 3 else None
+    end         = argv[4] if len(argv) > 4 else None
+
+    recs = get_tas(contract_id, FMT, multiplier, start, end)
+
+    if not recs:
+
+        print("no records matched")
+
+        exit()
 
     fig = go.Figure()
 
@@ -23,25 +38,24 @@ if __name__ == "__main__":
     i           = 0
     prices      = set()
 
-    for line in input():
+    for rec in recs:
 
-        parts = line.split()
-
+        parts   = rec[tas_rec.timestamp].split("T")
         date    = parts[0]
         time    = parts[1]
-        price   = float(parts[2])
-        qty     = int(parts[3])
-        side    = parts[4]
+        price   = rec[tas_rec.price]
+        qty     = rec[tas_rec.qty]
+        side    = rec[tas_rec.side]
 
         x.append(i)
         y.append(price)
         txt.append(f"{date}<br>{time}<br>{qty}")
-        clr.append("#FF0000" if side == "bid" else "#0000FF")
+        clr.append("#0000FF" if side else "#FF0000")
 
         prices.add(price)
         hist_y += ([ price ] * qty)
 
-        delta_ += qty * -1 if side == "bid" else qty
+        delta_ += qty if side else -qty
         delta.append(delta_)
         clr_delta.append("#FF0000" if delta_ <= 0 else "#0000FF")
 

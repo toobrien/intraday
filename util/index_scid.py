@@ -1,8 +1,8 @@
-from json       import dumps, loads
-from os         import listdir, remove
-from parsers    import bulk_parse_tas, parse_tas_header, tas_rec
-from sc_dt      import ts_to_ds
-from time       import time
+from json           import dumps, loads
+from os             import listdir, remove
+from util.parsers   import bulk_parse_tas, parse_tas_header, tas_rec
+from util.sc_dt     import ts_to_ds
+from time           import time
 
 CONFIG      = loads(open("./config.json", "r").read())
 SC_ROOT     = CONFIG["sc_root"]

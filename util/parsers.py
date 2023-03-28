@@ -2,6 +2,7 @@ from    enum        import  IntEnum
 from    numpy       import  datetime64
 from    os          import  fstat
 import  pyarrow     as      pa
+from    util.sc_dt  import  ts_to_ds
 from    struct      import  calcsize, Struct
 from    sys         import  argv
 from    time        import  time
@@ -107,15 +108,14 @@ def bulk_parse_tas(fd: BinaryIO, checkpoint: int) -> List:
     return tas_recs
 
 
-def transform_tas(rs: List, price_adj: float):
+def transform_tas(rs: List, price_adj: float, fmt: str = None):
 
     # - truncate microsecond int64 to millisecond datestring (optional -- change schema to TEXT type)
     # - adjust price using "real-time price multiplier"
 
     return [
         (
-            #(SC_EPOCH + timedelta64(r[tas_rec.timestamp], "us")).astype(datetime).strftime("%Y-%m-%d %H:%M:%S.%f"),
-            r[tas_rec.timestamp],
+            r[tas_rec.timestamp] if not fmt else ts_to_ds(r[tas_rec.timestamp], fmt),
             r[tas_rec.price] * price_adj,
             r[tas_rec.qty],
             r[tas_rec.side]
