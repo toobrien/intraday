@@ -5,7 +5,8 @@ from    util.parsers            import  tas_rec
 from    util.tas_tools          import  get_tas
 
 
-FMT = "%Y-%m-%dT%H:%M:%S.%f"
+FMT         = "%Y-%m-%dT%H:%M:%S.%f"
+MIN_SIZE    = 3
 
 # start/end time are %Y-%m-%d
 
@@ -28,6 +29,7 @@ if __name__ == "__main__":
 
     x           = []
     y           = []
+    sizes       = []
     hist_y      = []
     txt         = []
     clr         = []
@@ -35,6 +37,9 @@ if __name__ == "__main__":
     delta       = []
     delta_      = 0
     i           = 0
+    prev_price  = recs[0][tas_rec.price]
+    prev_side   = recs[0][tas_rec.side]
+    size        = 0
     prices      = set()
 
     for rec in recs:
@@ -46,10 +51,24 @@ if __name__ == "__main__":
         qty     = rec[tas_rec.qty]
         side    = rec[tas_rec.side]
 
-        x.append(i)
-        y.append(price)
-        txt.append(f"{date}<br>{time}<br>{qty}")
-        clr.append("#0000FF" if side else "#FF0000")
+        if price != prev_price or side != prev_side:
+
+            x.append(i)
+            y.append(price)
+            sizes.append(size)
+            txt.append(f"{date}<br>{time}<br>{size - MIN_SIZE}")
+            clr.append("#0000FF" if side else "#FF0000")
+
+            prev_side   = side
+            prev_price  = price
+            size        = MIN_SIZE + qty
+
+        else:
+
+            size += qty
+
+            
+        i += 1
 
         prices.add(price)
         hist_y += ([ price ] * qty)
@@ -57,8 +76,6 @@ if __name__ == "__main__":
         delta_ += qty if side else -qty
         delta.append(delta_)
         clr_delta.append("#FF0000" if delta_ <= 0 else "#0000FF")
-
-        i += 1
 
     fig = make_subplots(
         rows                = 2,
@@ -72,11 +89,12 @@ if __name__ == "__main__":
     fig.add_trace(
         go.Scattergl(
             {
-                "name":    "ticks",
-                "x":        x,
-                "y":        y,
-                "text":     txt,
-                "mode":     "markers",
+                "name":         "ticks",
+                "x":            x,
+                "y":            y,
+                "text":         txt,
+                "mode":         "markers",
+                "marker_size":  sizes,
                 "marker": {
                     "color": clr
                 }
