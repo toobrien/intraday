@@ -65,7 +65,8 @@ if __name__ == "__main__":
         cols                = 1,
         row_heights         = [ 0.8, 0.2 ],
         shared_xaxes        = True,
-        vertical_spacing    = 0.025
+        vertical_spacing    = 0.025,
+        subplot_titles = (contract_id, "")
     )
 
     fig.add_trace(
