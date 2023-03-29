@@ -6,7 +6,6 @@ from    util.tas_tools          import  get_tas
 
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
-MIN_SIZE    = 3
 
 # start/end time are %Y-%m-%d
 
@@ -56,18 +55,17 @@ if __name__ == "__main__":
             x.append(i)
             y.append(price)
             sizes.append(size)
-            txt.append(f"{date}<br>{time}<br>{size - MIN_SIZE}")
+            txt.append(f"{date}<br>{time}<br>{size}")
             clr.append("#0000FF" if side else "#FF0000")
 
             prev_side   = side
             prev_price  = price
-            size        = MIN_SIZE + qty
+            size        = qty
 
         else:
 
             size += qty
 
-            
         i += 1
 
         prices.add(price)
@@ -96,7 +94,10 @@ if __name__ == "__main__":
                 "mode":         "markers",
                 "marker_size":  sizes,
                 "marker": {
-                    "color": clr
+                    "color":    clr,
+                    "sizemode": "area",
+                    "sizeref":  2. * max(sizes) / (40.**2),
+                    "sizemin":  3
                 }
             }
         ),
