@@ -27,19 +27,22 @@ if __name__ == "__main__":
 
     fig = go.Figure()
 
-    x           = []
-    y           = []
-    sizes       = []
-    hist_y      = []
-    txt         = []
-    clr         = []
-    delta       = []
-    delta_      = 0
-    i           = 0
-    prev_price  = recs[0][tas_rec.price]
-    prev_side   = recs[0][tas_rec.side]
-    size        = 0
-    prices      = set()
+    x               = []
+    y               = []
+    sizes           = []
+    hist_y          = []
+    txt             = []
+    clr             = []
+    delta           = []
+    delta_          = 0
+    i               = 0
+    marker_i        = 0
+    prev_price      = recs[0][tas_rec.price]
+    prev_side       = recs[0][tas_rec.side]
+    marker_start    = recs[0][tas_rec.timestamp]
+    prev_ts         = recs[0][tas_rec.timestamp]
+    size            = 0
+    prices          = set()
 
     for rec in recs:
 
@@ -54,24 +57,29 @@ if __name__ == "__main__":
 
             # ticks
 
+            marker_text = f"{date}<br>{time}<br>{size}" if i - 1 == marker_i else f"{date}<br>{marker_start}<br>{prev_ts}<br>{size}"
+
             x.append(i)
-            y.append(price)
+            y.append(prev_price)
             sizes.append(size)
-            txt.append(f"{date}<br>{time}<br>{size}")
-            clr.append("#0000FF" if side else "#FF0000")
+            txt.append(marker_text)
+            clr.append("#0000FF" if prev_side else "#FF0000")
 
             # delta
 
             delta_ += size if side else -size
             delta.append(delta_)
 
-            prev_side   = side
-            prev_price  = price
-            size        = qty
+            prev_side       = side
+            prev_price      = price
+            size            = qty
+            marker_i        = i
+            marker_start    = time
 
         else:
 
-            size += qty
+            prev_ts =  time
+            size    += qty
 
         i += 1
 
