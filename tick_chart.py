@@ -32,7 +32,6 @@ if __name__ == "__main__":
     hist_y      = []
     txt         = []
     clr         = []
-    clr_delta   = []
     delta       = []
     delta_      = 0
     i           = 0
@@ -52,11 +51,18 @@ if __name__ == "__main__":
 
         if price != prev_price or side != prev_side:
 
+            # ticks
+
             x.append(i)
             y.append(price)
             sizes.append(size)
             txt.append(f"{date}<br>{time}<br>{size}")
             clr.append("#0000FF" if side else "#FF0000")
+
+            # delta
+
+            delta_ += size if side else -size
+            delta.append(delta_)
 
             prev_side   = side
             prev_price  = price
@@ -68,12 +74,10 @@ if __name__ == "__main__":
 
         i += 1
 
+        # profile
+
         prices.add(price)
         hist_y += ([ price ] * qty)
-
-        delta_ += qty if side else -qty
-        delta.append(delta_)
-        clr_delta.append("#FF0000" if delta_ <= 0 else "#0000FF")
 
     fig = make_subplots(
         rows                = 2,
@@ -97,7 +101,7 @@ if __name__ == "__main__":
                     "color":    clr,
                     "sizemode": "area",
                     "sizeref":  2. * max(sizes) / (40.**2),
-                    "sizemin":  3
+                    "sizemin":  4
                 }
             }
         ),
