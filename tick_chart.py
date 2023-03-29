@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
             # delta
 
-            delta_ += size if side else -size
+            delta_ += size if prev_side else -size
             delta.append(delta_)
 
             prev_side       = side
