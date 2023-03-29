@@ -12,6 +12,7 @@ FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 if __name__ == "__main__":
 
     contract_id = argv[1]
+    title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
     multiplier  = float(argv[2])
     start       = argv[3] if len(argv) > 3 else None
     end         = argv[4] if len(argv) > 4 else None
@@ -85,13 +86,13 @@ if __name__ == "__main__":
         row_heights         = [ 0.8, 0.2 ],
         shared_xaxes        = True,
         vertical_spacing    = 0.025,
-        subplot_titles = (contract_id, "")
+        subplot_titles = (title, "")
     )
 
     fig.add_trace(
         go.Scattergl(
             {
-                "name":         "ticks",
+                "name":         title,
                 "x":            x,
                 "y":            y,
                 "text":         txt,
