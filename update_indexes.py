@@ -4,33 +4,12 @@ from util.parsers   import bulk_parse_tas, parse_tas_header, tas_rec
 from util.sc_dt     import ts_to_ds
 from time           import time
 
+
 CONFIG      = loads(open("./config.json", "r").read())
 SC_ROOT     = CONFIG["sc_root"]
-IDX_ROOT    = CONFIG["idx_root"]
-INDEXES     = {}
-INDEX_FNS   = listdir(IDX_ROOT)
 FMT         = "%Y-%m-%d"
-
-
-def get_index(instrument_id: str, day: str = None):
-
-    res = None
-
-    if instrument_id not in INDEXES:
-        
-        try:
-        
-            INDEXES[instrument_id] = loads(open(f"{IDX_ROOT}/{instrument_id}.json").read())
-
-            res = INDEXES[instrument_id][day] if day else INDEXES[instrument_id]
-        
-        except Exception as e:
-
-            # no index or day not in index
-
-            print(e)
-
-    return res
+IDX_ROOT    = CONFIG["idx_root"]
+INDEX_FNS   = listdir(IDX_ROOT)
 
 
 def update_index(instrument_id: str):

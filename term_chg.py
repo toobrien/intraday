@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
         try:
         
-            delta_pct = f"{delta / count: 0.2f}" 
+            delta_pct = f"{delta / count * 100: 0.2f}%" 
         
         except:
 

@@ -1,10 +1,33 @@
-from json               import loads
-from util.index_scid    import get_index
-from util.parsers       import bulk_parse_tas, parse_tas_header, tas_rec, transform_tas
-from bisect             import bisect_left, bisect_right
+from json          import loads
+from util.parsers  import bulk_parse_tas, parse_tas_header, tas_rec, transform_tas
+from bisect        import bisect_left, bisect_right
 
-SC_ROOT = loads(open("./config.json", "r").read())["sc_root"]
 
+CONFIG      = loads(open("./config.json", "r").read())
+SC_ROOT     = CONFIG["sc_root"]
+IDX_ROOT    = CONFIG["idx_root"]
+INDEXES     = {}
+
+
+def get_index(instrument_id: str, day: str = None):
+
+    res = None
+
+    if instrument_id not in INDEXES:
+        
+        try:
+        
+            INDEXES[instrument_id] = loads(open(f"{IDX_ROOT}/{instrument_id}.json").read())
+
+            res = INDEXES[instrument_id][day] if day else INDEXES[instrument_id]
+        
+        except Exception as e:
+
+            # no index or day not in index
+
+            print(e)
+
+    return res
 
 # valid formats for "start" date:
 # 
