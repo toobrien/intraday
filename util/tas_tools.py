@@ -1,7 +1,7 @@
 from json          import loads
 from util.parsers  import bulk_parse_tas, parse_tas_header, tas_rec, transform_tas
 from bisect        import bisect_left, bisect_right
-
+from util.sc_dt    import ds_to_ts
 
 CONFIG      = loads(open("./config.json", "r").read())
 SC_ROOT     = CONFIG["sc_root"]
@@ -39,8 +39,8 @@ def get_index(instrument_id: str, day: str = None):
 
 def get_tas(
     contract_id:    str, 
-    ts_fmt:         str,
     multiplier:     float,
+    ts_fmt:         str = None,
     start:          str = None, 
     end:            str = None
 ):
@@ -54,9 +54,9 @@ def get_tas(
 
         if " " in start:
 
-            idx = start.split(" ")[0]
+            start.replace(" ", "T")
         
-        elif "T" in start:
+        if "T" in start:
 
             idx = start.split("T")[0]
 
@@ -72,9 +72,23 @@ def get_tas(
 
             print("start date not available")
 
+        if not ts_fmt:
+
+            start = ds_to_ts(start)
+
     else:
 
         to_seek = 0
+
+    if end:
+
+        if " " in end:
+
+            end.replace(" ", "T")
+
+        if not ts_fmt:
+
+            end = ds_to_ts(end)
 
     if valid:
 

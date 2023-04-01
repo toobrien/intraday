@@ -17,7 +17,7 @@ if __name__ == "__main__":
     start       = argv[3] if len(argv) > 3 else None
     end         = argv[4] if len(argv) > 4 else None
 
-    recs = get_tas(contract_id, FMT, multiplier, start, end)
+    recs = get_tas(contract_id, multiplier, FMT, start, end)
 
     if not recs:
 
