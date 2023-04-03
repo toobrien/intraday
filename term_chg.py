@@ -1,13 +1,13 @@
-from json           import loads
-from util.parsers   import tas_rec
-from util.tas_tools import get_tas
-from sys            import argv
+from json               import loads
+from util.parsers       import tas_rec
+from util.tas_tools     import get_terms
+from sys                import argv
 
 # example usage:
 
-# NG                            symbol
+# NGJ23                         starting symbol
 # 0.001                         price multiplier
-# J23:12                        12 consecutive terms, starting at J23
+# 12                            12 consecutive terms, starting at J23
 # "2023-03-22T06:00:00.000000"  start ts
 # "2023-03-22T07:00:00.000000"  end ts
 # 1                             print tas records
@@ -70,53 +70,37 @@ def process_records(
 
 if __name__ == "__main__":
 
-    symbol                  = argv[1]
+    init_symbol             = argv[1]
     multiplier              = argv[2]
     precision               = len(multiplier.split(".")[1]) if "." in multiplier else len(multiplier)
-    first_term, n_months    = argv[3].split(":")
+    multiplier              = float(multiplier)
+    n_months                = int(argv[3])
     start                   = argv[4]
     end                     = argv[5]
     print_recs              = int(argv[6])
-
-    multiplier  = float(multiplier)
-    first_month = first_term[0]
-    year        = int(first_term[1:])
-    n_months    = int(n_months)
     
+    terms   = get_terms(
+                init_symbol,
+                multiplier,
+                n_months,
+                FMT,
+                start,
+                end,
+                print_recs
+            )
     results = []
-    
-    i = MONTHS.index(first_month)
 
-    while n_months > 0:
+    for contract_id, recs in terms.items():
 
-        try:
+        results.append(
+            process_records(
+                recs,
+                contract_id,
+                precision,
+                print_recs
+            )
+        )
 
-            contract_id = f"{symbol}{MONTHS[i]}{year}"
-            recs        = get_tas(f"{contract_id}_FUT_CME", FMT, multiplier, start, end)
-
-            if recs:
-
-                results.append(
-                        process_records(
-                            recs,
-                            contract_id,
-                            precision,
-                            print_recs
-                        )
-                    )
-
-            year    =  year if i != 11 else year + 1
-            i       =  (i + 1) % 12
-
-        except Exception as e:
-
-            # print exception and keep going on file not found
-            # (for non-serial contracts)
-
-            print(e)
-
-        n_months -= 1
-    
     print(start, "\t", end, "\n")
 
     print(

@@ -1,20 +1,30 @@
 from    sys                     import  argv
 from    util.parsers            import  tas_rec
-from    util.tas_tools          import  get_tas
-from    util.sc_dt              import  ts_to_ds
+from    util.tas_tools          import  get_ohlcv, get_terms
+
 
 if __name__ == "__main__":
 
-    contract_id = argv[1]
-    multiplier  = float(argv[2])
-    start       = argv[3]
-    end         = argv[4]
+    init_symbol             = argv[1]
+    multiplier              = argv[2]
+    precision               = len(multiplier.split(".")[1]) if "." in multiplier else len(multiplier)
+    multiplier              = float(multiplier)
+    n_months                = int(argv[3])
+    start                   = argv[4]
+    end                     = argv[5]
 
-    recs = get_tas(contract_id, multiplier, None, start, end)
 
-    for rec in recs[:10]:
+    recs = get_terms(
+                init_symbol, 
+                multiplier, 
+                n_months,
+                None,       # dont use datestrings when getting bar data
+                start, 
+                end
+            )
 
-        ts = rec[tas_rec.timestamp]
-        ds = ts_to_ds(ts, "%Y-%m-%dT%H:%M:%S.%f")
+    bars = get_ohlcv(recs, "1:M")
         
-        print(ds)
+    for bar in bars[0:10]:
+
+        print(bar)

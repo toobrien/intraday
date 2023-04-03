@@ -1,12 +1,15 @@
-from json          import loads
-from util.parsers  import bulk_parse_tas, parse_tas_header, tas_rec, transform_tas
-from bisect        import bisect_left, bisect_right
-from util.sc_dt    import ds_to_ts
+from json           import loads
+from util.parsers   import bulk_parse_tas, parse_tas_header, tas_rec, transform_tas
+from bisect         import bisect_left, bisect_right
+from typing         import List
+from util.sc_dt     import ds_to_ts
+
 
 CONFIG      = loads(open("./config.json", "r").read())
 SC_ROOT     = CONFIG["sc_root"]
 IDX_ROOT    = CONFIG["idx_root"]
 INDEXES     = {}
+MONTHS      = [ "F", "G", "H", "J", "K", "M", "N", "Q", "U", "V", "X", "Z"]
 
 
 def get_index(instrument_id: str, day: str = None):
@@ -28,6 +31,7 @@ def get_index(instrument_id: str, day: str = None):
             print(e)
 
     return res
+
 
 # valid formats for "start" date:
 # 
@@ -112,4 +116,141 @@ def get_tas(
             recs = recs[i:j]
         
     return recs
+
+
+def get_terms(
+    init_symbol:    str,
+    multiplier:     float,
+    n_months:       int,
+    fmt:            str = None,
+    start:          str = None,
+    end:            str = None
+):
+
+    symbol      = init_symbol[:-3]
+    first_month = init_symbol[-3]
+    year        = int(init_symbol[-2:])
+    
+    results = {}
+    
+    i = MONTHS.index(first_month)
+
+    while n_months > 0:
+
+        try:
+
+            contract_id = f"{symbol}{MONTHS[i]}{year}"
+            recs        = get_tas(f"{contract_id}_FUT_CME", multiplier, fmt, start, end)
+
+            if recs:
+
+                results[contract_id] = recs
+
+            year    =  year if i != 11 else year + 1
+            i       =  (i + 1) % 12
+
+        except Exception as e:
+
+            # print exception and keep going on file not found
+            # (for non-serial contracts)
+
+            print(e)
+
+        n_months -= 1
+    
+    return results
+
+def get_ohlcv(
+    recs: List, 
+    resolution: str,
+    trim_empty: bool = False
+):
+
+    parts       = resolution.split(":")
+    step_us     = int(parts[0])
+    unit        = parts[1]
+    
+    if unit == "U":
+
+        step_us *= 1
+
+    elif unit == "MS":
+
+        step_us *= 1e6
+
+    elif unit == "S":
+
+        step_us *= 1e6
+
+    elif unit == "M":
+
+        step_us *= 6e7
+
+    elif unit == "H":
+
+        step_us *= 3.6e8
+
+    elif unit == "D":
+
+        step_us *= 8.64e9
+
+    i       = 0
+    start   = recs[i][tas_rec.timestamp]
+    end     = (start // step_us + 1) * step_us
+    ohlcv   = []
+
+    while(True):
+
+        o = None
+        h = float("-inf")
+        l = float("inf")
+        c = None
+        v = 0
+
+        while(i < len(recs) and recs[i][tas_rec.timestamp] < end):
+
+            price = recs[i][tas_rec.price]
+
+            if not o:
+
+                o = price
+
+            h =  max(h, price)
+            l =  min(l, price)
+            v += recs[i][tas_rec.qty]
+
+            i += 1
+
+        if i >= len(recs): 
+            
+            break
+
+        else:
+
+            # assumes at least two items in recs
+            # if no trades occurred between "start" and "end"
+            # the previous bars prices are carried forward
+
+            o = o if o else ohlcv[-1][1]
+            h = h if h != float("-inf") else o
+            l = l if l != float("inf")  else o
+            c = recs[i - 1][tas_rec.price]
+
+            ohlcv.append(( start, o, h, l, c, v ))
+
+            start   =  end
+            end     += step_us
+
+    if trim_empty:
+
+        ohlcv = [
+            rec 
+            for rec in ohlcv
+            if ohlcv[5] != 0
+        ]
+
+    return ohlcv
+
+        
+
     
