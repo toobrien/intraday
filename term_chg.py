@@ -85,9 +85,9 @@ if __name__ == "__main__":
                 n_months,
                 FMT,
                 start,
-                end,
-                print_recs
+                end
             )
+            
     results = []
 
     for contract_id, recs in terms.items():
