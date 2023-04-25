@@ -58,7 +58,8 @@ if __name__ == "__main__":
                     "x":            x,
                     "y":            y,
                     "text":         text,
-                    "yhoverformat": "0.2f"
+                    "yhoverformat": "0.2f",
+                    "connectgaps":  False if trim_empty else True # doesn't work, need to keep bars but set value to NaN
                 }
             )
         )

@@ -3,7 +3,7 @@ from util.parsers       import tas_rec
 from util.tas_tools     import get_terms
 from sys                import argv
 
-# example usage:
+# example usage: python term_chg.py NG 0.001 J23:12 2023-03-27T00:00:00 2023-03-28T00:00:00 0
 
 # NGJ23                         starting symbol
 # 0.001                         price multiplier
@@ -63,9 +63,6 @@ def process_records(
         print("\n")
 
     return ( contract_id, start_price, end_price, count, at_bid, at_ask )
-
-
-# example usage: python term_chg.py NG 0.001 J23:12 2023-03-27T00:00:00 2023-03-28T00:00:00 0
 
 
 if __name__ == "__main__":

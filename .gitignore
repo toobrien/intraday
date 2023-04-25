@@ -2,3 +2,5 @@
 .vscode
 __pycache__
 indexes/*
+watch_tick.sh
+watch_term.sh
