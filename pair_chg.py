@@ -1,6 +1,7 @@
 from    json                    import  loads
 from    math                    import  log
 import  plotly.graph_objects    as      go
+from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    time                    import  time
 from    typing                  import  List
@@ -12,7 +13,7 @@ FMT     = "%Y-%m-%dT%H:%M:%S.%f"
 
 
 # sample usage: python pair_chg.py 2023-04-21T00:00:00.000000 2023-04-22T00:00:00.000000 ESM23_FUT_CME:0.01 NQM23_FUT_CME:0.01 tick
-#               python pair_chg.py 2023-04-21T00:00:00.000000 2023-04-22T00:00:00.000000 ESM23_FUT_CME:0.01 NQM23_FUT_CME:0.01 ohlc-1:M
+#               python pair_chg.py 2023-04-17 2023-04-22 ESM23_FUT_CME:0.01 NQM23_FUT_CME:0.01 ohlc-1:M-10
 
 
 def tick(
@@ -53,11 +54,12 @@ def ohlc(
     recs_b: List,
     id_a:   str,
     id_b:   str,
-    res:    str
+    res:    str,
+    window: int
 ):
 
-    bars_a = get_ohlcv(recs_a, res, start, end, FMT)
-    bars_b = get_ohlcv(recs_b, res, start, end, FMT)
+    bars_a = get_ohlcv(recs_a, res, start, end, FMT, True)
+    bars_b = get_ohlcv(recs_b, res, start, end, FMT, True)
 
     a_0 = bars_a[0][ohlcv_rec.c]
     b_0 = bars_b[0][ohlcv_rec.c]
@@ -69,7 +71,7 @@ def ohlc(
     b_y = [ log(bars_b[i][ohlcv_rec.c] / b_0) * 100 for i in rng ]
     c_y = [ a_y[i] - b_y[i] for i in rng ]
 
-    fig = go.Figure()
+    fig = make_subplots(rows = 2, cols = 1)
 
     for trace in [
         (a_y, id_a),
@@ -85,8 +87,24 @@ def ohlc(
                     "name": trace[1],
                     "hovertemplate": "%{y:0.2f}"
                 }
-            )
+            ),
+            row = 1,
+            col = 1
         )
+
+    x  = [ c_y[i] - c_y[i - window] for i in range(window, len(c_y), window) ]
+    y  = x[1:]
+
+    fig.add_trace(
+        go.Scatter(
+            x           = x,
+            y           = y,
+            name        = f"period_ret_vs_next[{window}]",
+            mode        = "markers"
+        ),
+        row = 2,
+        col = 1
+    )
 
     fig.show()
 
@@ -118,8 +136,9 @@ if __name__ == "__main__":
         recs_a = get_tas(id_a, mult_a, None, start, end)
         recs_b = get_tas(id_b, mult_b, None, start, end)
 
-        res = mode.split("-")[1]
+        res     = mode.split("-")[1]
+        window  = int(mode.split("-")[2])
 
-        ohlc(recs_a, recs_b, id_a, id_b, res)
+        ohlc(recs_a, recs_b, id_a, id_b, res, window)
 
     print(f"{time() - t0:0.1f}s")
