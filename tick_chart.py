@@ -5,7 +5,7 @@ from    util.parsers            import  tas_rec
 from    util.tas_tools          import  get_tas
 
 
-FMT         = "%Y-%m-%dT%H:%M:%S.%f"
+FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 # start/end time are %Y-%m-%d
 

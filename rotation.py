@@ -1,13 +1,14 @@
-import plotly.graph_objects as go
+from    enum                    import  IntEnum
+from    json                    import  loads
+import  plotly.graph_objects    as      go
+from    util.parsers            import  tas_rec
+from    util.tas_tools          import  get_tas
+from    sys                     import  argv
+from    time                    import  time
+from    typing                  import  List
 
-from bisect         import bisect_left
-from enum           import IntEnum
-from json           import loads
-from numpy          import datetime64, timedelta64
-from util.parsers   import parse_tas, parse_tas_header, tas_rec
-from sys            import argv
-from time           import sleep, time
-from typing         import List
+
+# usage: python rotation.py ESM23_FUT_CME 8 0.25 0.01 2023-05-05T06:30:00.000000 2023-05-05T13:00:00.000000
 
 
 class r_rot(IntEnum):
@@ -33,14 +34,8 @@ UP_ROTATION_VOLUME  = 0
 DN_ROTATION_VOLUME  = 0
 
 
-def to_sc_ts(ts: str):
-
-    return ts + (datetime64("1899-12-30", unit = "us"))
-
-
 def get_rotations(
     recs:           List,
-    price_adj:      float,
     min_rotation:   int,
     tick_size:      float
 ):
@@ -59,7 +54,7 @@ def get_rotations(
 
     for rec in recs:
 
-        price = rec[tas_rec.price] * price_adj
+        price = rec[tas_rec.price]
         qty   = rec[tas_rec.qty]
         side  = rec[tas_rec.side]
 
@@ -159,42 +154,14 @@ if __name__ == "__main__":
     fn              = argv[1]
     rotation_ticks  = int(argv[2])
     tick_size       = float(argv[3])
-    price_adj       = float(argv[4])
-    start_date      = argv[5]
-    to_seek         = int(argv[6])
-    loop            = int(argv[7])
+    multiplier      = float(argv[4])
+    start           = argv[5] if len(argv) > 5 else None
+    end             = argv[6] if len(argv) > 6 else None
 
-    rotations = []
-
-    adj_date = to_sc_ts(start_date) if start_date != "-" else None
-
-    with open(f"{SC_ROOT}/Data/{fn}.scid", "rb") as fd:
-
-        parse_tas_header(fd)
-
-        while True:
-
-            res = parse_tas(fd, to_seek)
-
-            print(f"elapsed (parse): {time() - t0:0.2f}")
-
-            start = bisect_left(res, adj_date, key = lambda r: r[tas_rec.timestamp]) if start_date != "-" else 0
-
-            rotations.extend(get_rotations(res[start:], price_adj, rotation_ticks, tick_size))
-
-            print(f"elapsed (rotations): {time() - t0:0.2f}")
-
-            if loop:
-
-                sleep(SLEEP_INT)
-
-                to_seek = 0
-            
-            else:
-
-                break
+    recs        = get_tas(fn, multiplier, None, start, end)
+    rotations   = get_rotations(recs, rotation_ticks, tick_size)
     
-    # display summaries
+    # display
 
     lengths = sorted(
         [ 
@@ -203,16 +170,47 @@ if __name__ == "__main__":
         ]
     )
 
-    fig = go.Figure(
-        go.Histogram(
-            x = lengths,
-            nbinsx = int(max(lengths))# - rotation_ticks)  # 1 bin per tick
+    open    = []
+    high    = []
+    low     = []
+    close   = []
+
+    for i in range(1, len(rotations)):
+
+        rot = rotations[i]
+
+        if rot[r_rot.side] == "up":
+
+            c = rot[r_rot.start] + rot[r_rot.length] * tick_size
+            low.append(rot[r_rot.start])
+            high.append(c)
+            close.append(c)
+        
+        else:
+
+            c = rot[r_rot.start] - rot[r_rot.length] * tick_size
+            low.append(c)
+            high.append(rot[r_rot.start])
+            close.append(c)
+
+        open.append(rot[r_rot.start])
+    
+    fig = go.Figure()
+    
+    fig.update(layout_xaxis_rangeslider_visible = False)
+
+    fig.add_trace(
+        go.Ohlc(
+            {
+                "open":     open,
+                "high":     high,
+                "low":      low,
+                "close":    close
+            }
         )
     )
 
     fig.show()
-
-
 
     print("50%: ", f"{lengths[int(len(lengths) * 0.5)]}")
     print("70%: ", f"{lengths[int(len(lengths) * 0.75)]}")
@@ -220,7 +218,7 @@ if __name__ == "__main__":
 
     print("\n")
 
-    print(f"len(res): {len(res)}")
-    print(f"started from: {start}")
+    print(f"len(recs):      {len(recs)}")
+    print(f"started from:   {start}")
     print(f"len(rotations): {len(rotations)}")
-    print(f"elapsed (all): {time() - t0:0.2f}")
+    print(f"elapsed (all):  {time() - t0:0.2f}")

@@ -14,6 +14,8 @@ FMT     = "%Y-%m-%dT%H:%M:%S.%f"
 
 # sample usage: python pair_chg.py 2023-04-21T00:00:00.000000 2023-04-22T00:00:00.000000 ESM23_FUT_CME:0.01 NQM23_FUT_CME:0.01 tick
 #               python pair_chg.py 2023-04-17 2023-04-22 ESM23_FUT_CME:0.01 NQM23_FUT_CME:0.01 ohlc-1:M-10
+#
+#               ohlc-1:M-10 -> 1 minute bars, window of 10 bars for lead-lag regression
 
 
 def tick(
