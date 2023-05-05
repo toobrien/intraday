@@ -212,11 +212,9 @@ if __name__ == "__main__":
 
     fig.show()
 
-    print("50%: ", f"{lengths[int(len(lengths) * 0.5)]}")
-    print("70%: ", f"{lengths[int(len(lengths) * 0.75)]}")
-    print("95%: ", f"{lengths[int(len(lengths) * 0.95)]}")
-
-    print("\n")
+    print("50%: ", f"{int(lengths[int(len(lengths) * 0.5)])}")
+    print("70%: ", f"{int(lengths[int(len(lengths) * 0.75)])}")
+    print("95%: ", f"{int(lengths[int(len(lengths) * 0.95)])}")
 
     print(f"len(recs):      {len(recs)}")
     print(f"started from:   {start}")
