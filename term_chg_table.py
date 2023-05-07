@@ -1,6 +1,6 @@
 from json               import loads
 from util.parsers       import tas_rec
-from util.tas_tools     import get_terms
+from util.tas_tools     import get_precision, get_terms
 from sys                import argv
 
 # usage: python term_chg_table.py NGM23 0.001 2023-03-27T00:00:00 2023-03-28T00:00:00 0
@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     init_symbol             = argv[1]
     multiplier              = argv[2]
-    precision               = len(multiplier.split(".")[1]) if "." in multiplier else len(multiplier)
+    precision               = get_precision(multiplier)
     multiplier              = float(multiplier)
     n_months                = int(argv[3])
     start                   = argv[4]

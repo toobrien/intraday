@@ -266,6 +266,9 @@ def get_ohlcv(
 
     return ohlcv
 
-        
 
-    
+# for formatting printed prices
+
+def get_precision(multiplier: str):
+
+    return len(multiplier.split(".")[1]) if "." in multiplier else len(multiplier)
