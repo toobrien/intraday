@@ -212,11 +212,10 @@ if __name__ == "__main__":
 
     fig.show()
 
-    print("50%: ", f"{int(lengths[int(len(lengths) * 0.5)])}")
-    print("70%: ", f"{int(lengths[int(len(lengths) * 0.75)])}")
-    print("95%: ", f"{int(lengths[int(len(lengths) * 0.95)])}")
+    print(f"{'50%:':20}{int(lengths[int(len(lengths) * 0.5)])}")
+    print(f"{'70%:':20}{int(lengths[int(len(lengths) * 0.75)])}")
+    print(f"{'95%:':20}{int(lengths[int(len(lengths) * 0.95)])}")
 
-    print(f"len(recs):      {len(recs)}")
-    print(f"started from:   {start}")
-    print(f"len(rotations): {len(rotations)}")
-    print(f"elapsed (all):  {time() - t0:0.2f}")
+    print(f"{'recs:':20}{len(recs)}")
+    print(f"{'rotations:':20}{len(rotations)}")
+    print(f"{'elapsed:':20}{time() - t0:0.2f}")

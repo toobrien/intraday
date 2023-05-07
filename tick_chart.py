@@ -7,7 +7,6 @@ from    util.tas_tools          import  get_tas
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
-# start/end time are %Y-%m-%d
 
 if __name__ == "__main__":
 

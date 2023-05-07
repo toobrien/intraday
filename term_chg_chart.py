@@ -4,6 +4,10 @@ from    sys                     import  argv
 from    util.tas_tools          import  get_ohlcv, get_terms, ohlcv_rec
 
 
+
+# usage: python term_chg_chart.py NGM23 0.001 6 2023-03-27T00:00:00 2023-03-28T00:00:00 1:H 1
+
+
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 

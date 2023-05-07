@@ -3,7 +3,7 @@ from util.parsers       import tas_rec
 from util.tas_tools     import get_terms
 from sys                import argv
 
-# example usage: python term_chg.py NG 0.001 J23:12 2023-03-27T00:00:00 2023-03-28T00:00:00 0
+# usage: python term_chg_table.py NGM23 0.001 2023-03-27T00:00:00 2023-03-28T00:00:00 0
 
 # NGJ23                         starting symbol
 # 0.001                         price multiplier
