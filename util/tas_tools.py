@@ -191,7 +191,7 @@ def get_ohlcv(
 
     elif unit == "MS":
 
-        step_us *= 1e6
+        step_us *= 1e3
 
     elif unit == "S":
 
@@ -203,11 +203,11 @@ def get_ohlcv(
 
     elif unit == "H":
 
-        step_us *= 3.6e8
+        step_us *= 3.6e9
 
     elif unit == "D":
 
-        step_us *= 8.64e9
+        step_us *= 8.64e10
 
     step_us = int(step_us)
     i       = 0
