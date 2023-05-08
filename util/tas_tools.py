@@ -75,7 +75,7 @@ def get_tas(
 
             valid = False
 
-            print("start date not available")
+            print(f"start date not available for {contract_id}")
 
         if not ts_fmt:
 
