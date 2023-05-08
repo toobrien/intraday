@@ -57,10 +57,11 @@ def report(
     fig.update_layout( title = { "text": f"{start} - {end}" })
 
     traces = [
-        ( h, "high", "#0000FF", 1 ),
-        ( l, "low", "#FF0000", 1 ),
-        ( c, "close", "#ca2c92", 1 ),
-        ( change, "change", "#808080", 2 )
+        ( o, "open", "#ca2c92", 1, "markers" ),
+        ( h, "high", "#0000FF", 1, "markers+lines" ),
+        ( l, "low", "#FF0000", 1, "markers+lines" ),
+        ( c, "close", "#ca2c92", 1, "markers+lines" ),
+        ( change, "change", "#808080", 2, "markers+lines" )
     ]
 
     for trace in traces:
@@ -70,6 +71,7 @@ def report(
                 {
                     "x":        terms,
                     "y":        trace[0],
+                    "mode":     trace[4],
                     "marker":   { "color": trace[2] },
                     "name":     trace[1]
                 }
