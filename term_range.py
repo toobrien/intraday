@@ -36,7 +36,7 @@ def report(
 
         o.append(recs[0][tas_rec.price])
         c.append(recs[-1][tas_rec.price])
-        change.append(f"{log(c[-1] / o[-1]) * 100:0.2f}")
+        change.append(log(c[-1] / o[-1]) * 100)
 
         high    = float("-inf")
         low     = float("inf")
@@ -60,7 +60,7 @@ def report(
         ( h, "high", "#0000FF", 1 ),
         ( l, "low", "#FF0000", 1 ),
         ( c, "close", "#ca2c92", 1 ),
-        ( change, "change", "#808080", 2)
+        ( change, "change", "#808080", 2 )
     ]
 
     for trace in traces:
