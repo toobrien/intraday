@@ -87,6 +87,14 @@ if __name__ == "__main__":
         prices.add(price)
         hist_y += ([ price ] * qty)
 
+    x.append(i)
+    y.append(prev_price)
+    sizes.append(size)
+    txt.append(marker_text)
+    clr.append("#0000FF" if prev_side else "#FF0000")
+    delta.append(delta_)
+
+
     fig = make_subplots(
         rows                = 2,
         cols                = 1,
