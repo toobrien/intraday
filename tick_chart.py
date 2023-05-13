@@ -87,6 +87,8 @@ if __name__ == "__main__":
         prices.add(price)
         hist_y += ([ price ] * qty)
 
+    # add final trade
+    
     x.append(i)
     y.append(prev_price)
     sizes.append(size)

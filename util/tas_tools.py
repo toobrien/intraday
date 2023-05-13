@@ -1,3 +1,4 @@
+from datetime       import datetime, timedelta
 from json           import loads
 from util.parsers   import bulk_parse_tas, parse_tas_header, tas_rec, transform_tas
 from bisect         import bisect_left, bisect_right
@@ -25,11 +26,9 @@ def get_index(instrument_id: str, day: str = None):
 
             res = INDEXES[instrument_id][day] if day else INDEXES[instrument_id]
         
-        except Exception as e:
+        except (FileNotFoundError, KeyError) as e:
 
-            # no index or day not in index
-
-            print(e)
+            print(instrument_id, repr(e))
 
     return res
 
@@ -53,7 +52,7 @@ def get_tas(
     idx         = None
     to_seek     = None
     recs        = None
-    valid       = True
+    to_seek     = 0
 
     if start:
 
@@ -73,17 +72,21 @@ def get_tas(
 
         if not to_seek:
 
-            valid = False
+            # either:
+            #
+            #   - "start" date not indexed, or bad format
+            #   - timestamp given rather than index
+            #
+            # result:
+            #
+            #   - entire file will be loaded
+            #   - "start" will be used with slice records later
 
-            print(f"start date not available for {contract_id}")
+            to_seek = 0
 
         if not ts_fmt:
 
             start = ds_to_ts(start)
-
-    else:
-
-        to_seek = 0
 
     if end:
 
@@ -95,7 +98,7 @@ def get_tas(
 
             end = ds_to_ts(end)
 
-    if valid:
+    try:
 
         with open(f"{SC_ROOT}/Data/{contract_id}.scid", "rb") as fd:
 
@@ -116,7 +119,32 @@ def get_tas(
 
             recs = recs[i:j]
         
+    except FileNotFoundError:
+
+        pass
+        
     return recs
+
+
+def get_term_ids(init_symbol: str, n_months: int):
+
+    symbol      = init_symbol[:-3]
+    first_month = init_symbol[-3]
+    year        = int(init_symbol[-2:])
+    
+    results = []
+    
+    i = MONTHS.index(first_month)
+
+    while n_months > 0:
+
+        results.append(f"{symbol}{MONTHS[i]}{year}")
+
+        year        =  year if i != 11 else year + 1
+        i           =  (i + 1) % 12
+        n_months    -= 1
+    
+    return results
 
 
 def get_terms(
@@ -128,27 +156,18 @@ def get_terms(
     end:            str = None
 ):
 
-    symbol      = init_symbol[:-3]
-    first_month = init_symbol[-3]
-    year        = int(init_symbol[-2:])
-    
-    results = {}
-    
-    i = MONTHS.index(first_month)
+    term_ids    = get_term_ids(init_symbol, n_months)
+    results     = {}
 
-    while n_months > 0:
+    for term_id in term_ids:
 
         try:
 
-            contract_id = f"{symbol}{MONTHS[i]}{year}"
-            recs        = get_tas(f"{contract_id}_FUT_CME", multiplier, fmt, start, end)
+            recs = get_tas(f"{term_id}_FUT_CME", multiplier, fmt, start, end)
 
             if recs:
 
-                results[contract_id] = recs
-
-            year    =  year if i != 11 else year + 1
-            i       =  (i + 1) % 12
+                results[term_id] = recs
 
         except Exception as e:
 
@@ -156,8 +175,6 @@ def get_terms(
             # (for non-serial contracts)
 
             print(e)
-
-        n_months -= 1
     
     return results
 
@@ -272,3 +289,10 @@ def get_ohlcv(
 def get_precision(multiplier: str):
 
     return len(multiplier.split(".")[1]) if "." in multiplier else len(multiplier)
+
+
+# for getting date ranges
+
+def n_days_ago(n: int):
+
+    return (datetime.today() - timedelta(days = n)).strftime("%Y-%m-%d")

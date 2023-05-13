@@ -5,6 +5,9 @@ from sys            import argv
 from time           import sleep
 
 
+# usage: python read_tas.py HEK24_FUT_CME 0.001 0 0
+
+
 CONFIG      = loads(open("./config.json").read())
 SC_ROOT     = CONFIG["sc_root"]
 SLEEP_INT_S = CONFIG["sleep_int"]

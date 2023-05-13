@@ -2,10 +2,12 @@ from    math                    import  log
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.tas_tools          import  get_precision, get_terms, tas_rec
+from    util.tas_tools          import  get_precision, get_terms, n_days_ago, tas_rec
 
 
-# usage: python term_range.py HOM23 0.0001 6 2023-04-01 2023-05-01
+# usage: 
+#           python term_range.py HOM23 0.0001 6 2023-04-01 2023-05-01
+#           python term_range.py HEM23 0.001 8 30
 
 
 def report(
@@ -89,8 +91,16 @@ if __name__ == "__main__":
     multiplier  = argv[2]
     precision   = get_precision(multiplier)
     n_terms     = int(argv[3])
-    start       = argv[4]
-    end         = argv[5]
+
+    if len(argv) == 5:
+
+        start   = n_days_ago(int(argv[4]))
+        end     = n_days_ago(-1)
+    
+    else:
+
+        start       = argv[4]
+        end         = argv[5]
 
     report(
         init_symbol,
