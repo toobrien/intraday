@@ -56,7 +56,7 @@ def report(
 
     fig = make_subplots(rows = 2, cols = 1)
 
-    fig.update_layout( title = { "text": f"{init_symbol[:-2]} {start} - {end}" })
+    fig.update_layout( title = { "text": f"{init_symbol[:-3]} {start} - {end}" })
 
     traces = [
         ( o, "open", "#ca2c92", 1, "markers" ),
