@@ -148,6 +148,7 @@ if __name__ == "__main__":
                 "name": "delta",
                 "x":    x,
                 "y":    delta,
+                "text": [ f"{delta[i] / x[i] * 100:0.1f}%" for i in range(len(x)) ],
                 "line": { "color": "#0000FF" }
             }
         ),
