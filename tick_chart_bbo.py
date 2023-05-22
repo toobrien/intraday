@@ -16,11 +16,10 @@ if __name__ == "__main__":
     contract_id = argv[1]
     title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
     multiplier  = float(argv[2])
-    trim        = bool(int(argv[3]))
-    start       = argv[4] if len(argv) > 4 else None
-    end         = argv[5] if len(argv) > 5 else None
+    start       = argv[3]
+    end         = argv[4] if len(argv) > 4 else None
 
-    recs = intraday_tas_and_depth(contract_id, multiplier, FMT, start, end, trim)
+    recs = intraday_tas_and_depth(contract_id, multiplier, FMT, start, end)
 
     if not recs:
 

@@ -133,19 +133,17 @@ def get_tas(
 #   %Y-%m-%dT%H:%M:%S.%f
 #   %Y-%m-%d
 #
-# use trim = True if the selected time is less than the whole day
+#   note: ts_fmt must have "T"
 
 def intraday_tas_and_depth(
     contract_id:    str, 
     multiplier:     float,
-    ts_fmt:         str     = None,
+    ts_fmt:         str     = "%Y-%m-%dT%H:%M:%S.%f",
     start:          str     = None,
-    end:            str     = None,
-    trim:           bool    = False
+    end:            str     = None
 ):
-
-    tas_recs    = get_tas(contract_id, multiplier, ts_fmt, start, end)
-    date        = start if "T" not in start else start.split("T")[0]
+    
+    date = start if "T" not in start else start.split("T")[0]
 
     with open(f"{SC_ROOT}/Data/MarketDepthData/{contract_id}.{date}.depth", "rb") as fd:
 
@@ -153,21 +151,9 @@ def intraday_tas_and_depth(
         depth_recs  = parse_depth(fd, 0)
         depth_recs  = transform_depth(depth_recs, multiplier, ts_fmt)
 
-        if trim:
+    start_date_depth    = depth_recs[0][depth_rec.timestamp].split("T")[0]
+    tas_recs            = get_tas(contract_id, multiplier, ts_fmt, start_date_depth, end)
 
-            i = bisect_left(
-                depth_recs, 
-                tas_recs[0][tas_rec.timestamp], 
-                key = lambda r: r[depth_rec.timestamp]
-            )
-            j = bisect_left(
-                depth_recs,
-                tas_recs[-1][tas_rec.timestamp],
-                key = lambda r: r[depth_rec.timestamp]
-            )
-        
-            depth_recs = depth_recs[i:j]
-    
     tas_recs.extend(depth_recs)
 
     combined_recs = sorted(tas_recs, key = lambda r: r[tas_rec.timestamp])
