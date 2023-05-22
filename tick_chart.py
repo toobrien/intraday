@@ -134,7 +134,7 @@ if __name__ == "__main__":
             {
                 "name":     "vap",
                 "y":        hist_y,
-                "nbinsy":    len(prices),
+                "nbinsy":   len(prices),
                 "opacity":  0.3
             }
         ),
