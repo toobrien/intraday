@@ -1,7 +1,7 @@
 from    math                    import  log
 import  plotly.graph_objects    as      go
 from    sys                     import  argv
-from    util.tas_tools          import  get_ohlcv, get_precision, get_terms, ohlcv_rec
+from    util.rec_tools          import  get_ohlcv, get_precision, get_terms, ohlcv_rec
 
 
 

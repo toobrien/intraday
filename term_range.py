@@ -2,7 +2,7 @@ from    math                    import  log
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.tas_tools          import  get_precision, get_terms, n_days_ago, tas_rec
+from    util.rec_tools          import  get_precision, get_terms, n_days_ago, tas_rec
 
 
 # usage: 

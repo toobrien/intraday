@@ -236,16 +236,15 @@ def parse_depth(fd: BinaryIO, checkpoint: int) -> List:
     return depth_recs
 
 
-def transform_depth(rs: List, price_adj: float):
+def transform_depth(rs: List, price_adj: float, fmt: str = None):
 
-    # - truncate microsecond int64 to millisecond datestring (optional -- change schema to TEXT type)
+    # - replace timestamp with datestring if "fmt"
     # - adjust price using "real-time price multiplier"
     # - delete "reserved" value from record
 
     return [
         (
-            #(SC_EPOCH + timedelta64(r[depth_rec.timestamp], "us")).astype(datetime).strftime("%Y-%m-%d %H:%M:%S.%f"),
-            r[depth_rec.timestamp],
+            r[depth_rec.timestamp] if not fmt else ts_to_ds(r[depth_rec.timestamp], fmt),
             r[depth_rec.command],
             r[depth_rec.flags],
             r[depth_rec.num_orders],

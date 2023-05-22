@@ -2,7 +2,7 @@ from    enum                    import  IntEnum
 from    json                    import  loads
 import  plotly.graph_objects    as      go
 from    util.parsers            import  tas_rec
-from    util.tas_tools          import  get_tas
+from    util.rec_tools          import  get_tas
 from    sys                     import  argv
 from    time                    import  time
 from    typing                  import  List

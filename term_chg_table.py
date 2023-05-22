@@ -1,6 +1,6 @@
 from json               import loads
 from util.parsers       import tas_rec
-from util.tas_tools     import get_precision, get_terms
+from util.rec_tools     import get_precision, get_terms
 from sys                import argv
 
 # usage: python term_chg_table.py NGM23 0.001 2023-03-27T00:00:00 2023-03-28T00:00:00 0

@@ -1,5 +1,5 @@
 from json           import loads
-from util.tas_tools import get_tas, tas_rec
+from util.rec_tools import get_tas, tas_rec
 from sys            import argv
 
 

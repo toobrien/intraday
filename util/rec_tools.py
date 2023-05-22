@@ -1,10 +1,11 @@
-from datetime       import datetime, timedelta
-from json           import loads
-from util.parsers   import bulk_parse_tas, parse_tas_header, tas_rec, transform_tas
-from bisect         import bisect_left, bisect_right
-from enum           import IntEnum
-from typing         import List
-from util.sc_dt     import ds_to_ts, ts_to_ds
+from datetime       import  datetime, timedelta
+from json           import  loads
+from util.parsers   import  bulk_parse_tas, depth_rec, parse_depth, parse_depth_header, \
+                            parse_tas_header, tas_rec, transform_depth, transform_tas
+from bisect         import  bisect_left, bisect_right
+from enum           import  IntEnum
+from typing         import  List
+from util.sc_dt     import  ds_to_ts, ts_to_ds
 
 
 CONFIG      = loads(open("./config.json", "r").read())
@@ -124,6 +125,54 @@ def get_tas(
         pass
         
     return recs
+
+
+# interleaves tas and depth records for a given day
+# start/end formats must include a date:
+#
+#   %Y-%m-%dT%H:%M:%S.%f
+#   %Y-%m-%d
+#
+# use trim = True if the selected time is less than the whole day
+
+def intraday_tas_and_depth(
+    contract_id:    str, 
+    multiplier:     float,
+    ts_fmt:         str     = None,
+    start:          str     = None,
+    end:            str     = None,
+    trim:           bool    = False
+):
+
+    tas_recs    = get_tas(contract_id, multiplier, ts_fmt, start, end)
+    date        = start if "T" not in start else start.split("T")[0]
+
+    with open(f"{SC_ROOT}/Data/MarketDepthData/{contract_id}.{date}.depth", "rb") as fd:
+
+        _           = parse_depth_header(fd)
+        depth_recs  = parse_depth(fd, 0)
+        depth_recs  = transform_depth(depth_recs, multiplier, ts_fmt)
+
+        if trim:
+
+            i = bisect_left(
+                depth_recs, 
+                tas_recs[0][tas_rec.timestamp], 
+                key = lambda r: r[depth_rec.timestamp]
+            )
+            j = bisect_left(
+                depth_recs,
+                tas_recs[-1][tas_rec.timestamp],
+                key = lambda r: r[depth_rec.timestamp]
+            )
+        
+            depth_recs = depth_recs[i:j]
+    
+    tas_recs.extend(depth_recs)
+
+    combined_recs = sorted(tas_recs, key = lambda r: r[tas_rec.timestamp])
+
+    return combined_recs
 
 
 def get_term_ids(init_symbol: str, n_months: int):

@@ -2,8 +2,10 @@ import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    util.parsers            import  tas_rec
-from    util.tas_tools          import  get_tas
+from    util.rec_tools          import  get_tas
 
+
+# usage: python tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
