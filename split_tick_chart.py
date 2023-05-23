@@ -1,6 +1,7 @@
 from    polars                  import  Series
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
+from    statistics              import  mean
 from    sys                     import  argv
 from    typing                  import  List
 from    util.parsers            import  tas_rec
@@ -23,6 +24,38 @@ def get_vbp(recs: List):
         prices += ([ rec[tas_rec.price] ] * rec[tas_rec.qty])
     
     return prices
+
+
+def get_liq_by_price(
+        bid_prices: List, 
+        bid_trades: List, 
+        ask_prices: List, 
+        ask_trades: List
+    ):
+
+    prices  = set(bid_prices + ask_prices)
+    liq     = { price: [] for price in prices }
+
+    for pair in [ 
+        ( bid_prices, bid_trades ),
+        ( ask_prices, ask_trades )
+    ]:
+        
+        prices = pair[0]
+        trades = pair[1]
+
+        for i in range(len(prices)):
+
+            price   = prices[i]
+            qty     = trades[i]
+
+            liq[price].append(qty)
+        
+    for price, qtys in liq.items():
+
+        liq[price] = mean(qtys)
+
+    return liq
 
 
 def get_series(recs: List):
@@ -87,6 +120,7 @@ if __name__ == "__main__":
     ask_x, ask_y, ask_z, ask_ewma = get_series(ask_trades)
 
     vbp = get_vbp(recs)
+    lbp = get_liq_by_price(bid_y, bid_z, ask_y, ask_z)
 
     fig = make_subplots(
         rows                = 2,
