@@ -20,7 +20,7 @@ def get_vbp(recs: List):
 
     for rec in recs:
 
-        prices += [ rec[tas_rec.price] ] * rec[tas_rec.qty]
+        prices += ([ rec[tas_rec.price] ] * rec[tas_rec.qty])
     
     return prices
 
@@ -90,10 +90,13 @@ if __name__ == "__main__":
 
     fig = make_subplots(
         rows                = 2,
-        cols                = 1,
+        cols                = 2,
         row_heights         = [ 0.8, 0.2 ],
+        column_widths       = [ 0.1, 0.9 ],
         shared_xaxes        = True,
+        shared_yaxes        = True,
         vertical_spacing    = 0.0225,
+        horizontal_spacing  = 0.0225,
         subplot_titles      = ( title, "" )
     )
 
@@ -120,7 +123,7 @@ if __name__ == "__main__":
                 }
             ),
             row = 1,
-            col = 1
+            col = 2
         )
 
         fig.add_trace(
@@ -133,23 +136,21 @@ if __name__ == "__main__":
                 }
             ),
             row = 2,
-            col = 1
+            col = 2
         )
 
-    '''
     fig.add_trace(
         go.Histogram(
             {
                 "name":     "vbp",
                 "y":        vbp,
-                "nbinsy":   len(vbp),
-                "opacity":  0.3
+                "nbinsy":   len(set(vbp)),
+                "opacity":  0.5
             }
         ),
         row = 1,
         col = 1
     )
-    '''
 
     fig.show()
 
