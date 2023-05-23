@@ -55,7 +55,10 @@ def get_liq_by_price(
 
         liq[price] = mean(qtys)
 
-    return liq
+    liq_x = sorted(list(liq.keys()))
+    liq_y = [ liq[price] for price in liq_x ]
+
+    return liq_x, liq_y
 
 
 def get_series(recs: List):
@@ -120,13 +123,14 @@ if __name__ == "__main__":
     ask_x, ask_y, ask_z, ask_ewma = get_series(ask_trades)
 
     vbp = get_vbp(recs)
-    lbp = get_liq_by_price(bid_y, bid_z, ask_y, ask_z)
+
+    liq_x, liq_y = get_liq_by_price(bid_y, bid_z, ask_y, ask_z)
 
     fig = make_subplots(
         rows                = 2,
-        cols                = 2,
+        cols                = 3,
         row_heights         = [ 0.8, 0.2 ],
-        column_widths       = [ 0.1, 0.9 ],
+        column_widths       = [ 0.1, 0.8, 0.1 ],
         shared_xaxes        = True,
         shared_yaxes        = True,
         vertical_spacing    = 0.0225,
@@ -184,6 +188,19 @@ if __name__ == "__main__":
         ),
         row = 1,
         col = 1
+    )
+
+    fig.add_trace(
+        go.Bar(
+            x               = liq_y,
+            y               = liq_x,
+            text            = [ f"{val:0.1f}" for val in liq_y ] ,
+            marker_color    = "#cccccc",
+            name            = "combined liq",
+            orientation     = "h"
+        ),
+        row = 1,
+        col = 3
     )
 
     fig.show()
