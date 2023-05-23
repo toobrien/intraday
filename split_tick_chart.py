@@ -14,6 +14,17 @@ EWMA_LEN    = 50
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 
 
+def get_vbp(recs: List):
+
+    prices = []
+
+    for rec in recs:
+
+        prices += [ rec[tas_rec.price] ] * rec[tas_rec.qty]
+    
+    return prices
+
+
 def get_series(recs: List):
 
     x           = []
@@ -40,6 +51,12 @@ def get_series(recs: List):
 
             prev_price  = price
             cum_qty     = qty
+        
+    # add final trade
+
+    x.append(ts)
+    y.append(price)
+    z.append(cum_qty)
 
     ewma = Series(z).ewm_mean(span = EWMA_LEN)
 
@@ -68,6 +85,8 @@ if __name__ == "__main__":
 
     bid_x, bid_y, bid_z, bid_ewma = get_series(bid_trades)
     ask_x, ask_y, ask_z, ask_ewma = get_series(ask_trades)
+
+    vbp = get_vbp(recs)
 
     fig = make_subplots(
         rows                = 2,
@@ -116,6 +135,21 @@ if __name__ == "__main__":
             row = 2,
             col = 1
         )
+
+    '''
+    fig.add_trace(
+        go.Histogram(
+            {
+                "name":     "vbp",
+                "y":        vbp,
+                "nbinsy":   len(vbp),
+                "opacity":  0.3
+            }
+        ),
+        row = 1,
+        col = 1
+    )
+    '''
 
     fig.show()
 
