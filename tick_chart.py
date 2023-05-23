@@ -27,8 +27,6 @@ if __name__ == "__main__":
 
         exit()
 
-    fig = go.Figure()
-
     x               = []
     y               = []
     sizes           = []
@@ -106,7 +104,7 @@ if __name__ == "__main__":
         row_heights         = [ 0.8, 0.2 ],
         shared_xaxes        = True,
         vertical_spacing    = 0.025,
-        subplot_titles = (title, "")
+        subplot_titles      = ( title, "" )
     )
 
     fig.add_trace(
@@ -118,12 +116,12 @@ if __name__ == "__main__":
                 "text":         txt,
                 "mode":         "markers",
                 "marker_size":  sizes,
-                "marker": {
-                    "color":    clr,
-                    "sizemode": "area",
-                    "sizeref":  2. * max(sizes) / (40.**2),
-                    "sizemin":  4
-                }
+                "marker":       {
+                                    "color":    clr,
+                                    "sizemode": "area",
+                                    "sizeref":  2. * max(sizes) / (40.**2),
+                                    "sizemin":  4
+                                }
             }
         ),
         row = 1,

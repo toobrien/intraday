@@ -25,7 +25,7 @@ def get_liq(recs: List):
 
         if price not in liq:
 
-            liq[price] = [ 0 ]
+            liq[price] = []
 
         if price == prev_price:
 
