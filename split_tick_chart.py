@@ -6,6 +6,7 @@ from    sys                     import  argv
 from    typing                  import  List
 from    util.parsers            import  tas_rec
 from    util.rec_tools          import  get_tas
+from    util.sc_dt              import ts_to_ds
 
 
 # usage: python split_tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
@@ -61,6 +62,39 @@ def get_liq_by_price(
     return liq_x, liq_y
 
 
+def get_twap(recs: List):
+
+    x           = []
+    y           = []
+    prev_price  = recs[0][tas_rec.price]
+    prev_ts     = recs[0][tas_rec.timestamp]
+    dur         = 0
+    cum_dur     = 0
+    twap        = 0
+
+    for rec in recs[1:]:
+
+        ts      = rec[tas_rec.timestamp]
+        price   = rec[tas_rec.price]
+        dur     = ts - prev_ts
+
+        if cum_dur:
+
+            twap *= cum_dur / (cum_dur + dur)
+        
+        cum_dur = cum_dur + dur
+
+        twap += (dur * prev_price) / cum_dur
+
+        x.append(ts)
+        y.append(twap)
+
+        prev_ts     = ts
+        prev_price  = price
+
+    return x, y
+
+
 def get_series(recs: List):
 
     x           = []
@@ -99,7 +133,6 @@ def get_series(recs: List):
     return ( x, y, z, ewma )
 
 
-
 if __name__ == "__main__":
 
     contract_id = argv[1]
@@ -108,7 +141,7 @@ if __name__ == "__main__":
     start       = argv[3] if len(argv) > 3 else None
     end         = argv[4] if len(argv) > 4 else None
 
-    recs = get_tas(contract_id, multiplier, FMT, start, end)
+    recs = get_tas(contract_id, multiplier, None, start, end)
 
     if not recs:
 
@@ -123,6 +156,12 @@ if __name__ == "__main__":
     ask_x, ask_y, ask_z, ask_ewma = get_series(ask_trades)
 
     vbp = get_vbp(recs)
+    
+    twap_x, twap_y = get_twap(recs)
+
+    bid_x   = [ ts_to_ds(val, FMT) for val in bid_x ]
+    ask_x   = [ ts_to_ds(val, FMT) for val in ask_x ]
+    twap_x  = [ ts_to_ds(val, FMT) for val in twap_x ]
 
     liq_x, liq_y = get_liq_by_price(bid_y, bid_z, ask_y, ask_z)
 
@@ -167,7 +206,7 @@ if __name__ == "__main__":
         fig.add_trace(
             go.Scattergl(
                 {
-                    "name": f"{trace[4]} liq",
+                    "name": f"{trace[4]} liq[{EWMA_LEN}]",
                     "x":    trace[0],
                     "y":    trace[3],
                     "line": { "color": trace[5] }
@@ -191,6 +230,17 @@ if __name__ == "__main__":
     )
 
     fig.add_trace(
+        go.Scattergl(
+            x               = twap_x,
+            y               = twap_y,
+            marker_color    = "#CCCCCC",
+            name            = "twap"
+        ),
+        row = 1,
+        col = 2
+    )
+
+    fig.add_trace(
         go.Bar(
             x               = liq_y,
             y               = liq_x,
@@ -204,5 +254,3 @@ if __name__ == "__main__":
     )
 
     fig.show()
-
-    pass
