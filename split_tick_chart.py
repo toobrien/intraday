@@ -74,9 +74,15 @@ def get_twap(recs: List):
 
     for rec in recs[1:]:
 
-        ts      = rec[tas_rec.timestamp]
-        price   = rec[tas_rec.price]
-        dur     = ts - prev_ts
+        ts      =   rec[tas_rec.timestamp]
+        price   =   rec[tas_rec.price]
+        dur     +=  ts - prev_ts
+
+        if price == prev_price:
+
+            prev_ts = ts
+
+            continue
 
         if cum_dur:
 
@@ -89,6 +95,7 @@ def get_twap(recs: List):
         x.append(ts)
         y.append(twap)
 
+        dur         = 0
         prev_ts     = ts
         prev_price  = price
 
@@ -178,8 +185,8 @@ if __name__ == "__main__":
     )
 
     for trace in [
-        ( bid_x, bid_y, bid_z, bid_ewma, "bid", "#FF0000" ),
-        ( ask_x, ask_y, ask_z, ask_ewma, "ask", "#0000FF" )
+        ( bid_x, bid_y, bid_z, bid_ewma, "bid", "#FF0000", "#0000FF" ),
+        ( ask_x, ask_y, ask_z, ask_ewma, "ask", "#0000FF", "#FF0000" )
     ]:
         
         fig.add_trace(
@@ -209,7 +216,7 @@ if __name__ == "__main__":
                     "name": f"{trace[4]} liq[{EWMA_LEN}]",
                     "x":    trace[0],
                     "y":    trace[3],
-                    "line": { "color": trace[5] }
+                    "line": { "color": trace[6] }
                 }
             ),
             row = 2,
