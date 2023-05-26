@@ -114,25 +114,31 @@ def get_tick_time(recs: List):
 
     for rec in recs:
 
-        ts      = rec[tas_rec.timestamp]
-        price   = rec[tas_rec.price]
-        chg     = price - prev_price
+        ts          = rec[tas_rec.timestamp]
+        price       = rec[tas_rec.price]
+        p_chg       = price - prev_price
+        t_chg       = (ts - prev_chg_ts) / 1e6
+        prev_price  = price
 
-        if chg < 0:
+        if (t_chg > 3600):
+
+            # skip session/daily breaks and extremely long trades
+
+            prev_chg_ts = ts
+
+        elif p_chg < 0:
 
             dn_x.append(ts)
-            dn_y.append((ts - prev_chg_ts) / 1e6)
+            dn_y.append(t_chg)
 
             prev_chg_ts = ts
 
-        elif chg > 0:
+        elif p_chg > 0:
 
             up_x.append(ts)
-            up_y.append((ts - prev_chg_ts) / 1e6)
+            up_y.append((t_chg))
 
             prev_chg_ts = ts
-
-        prev_price = price
 
     up_y = Series(up_y).ewm_mean(span = EWMA_LEN)
     dn_y = Series(dn_y).ewm_mean(span = EWMA_LEN)
