@@ -6,7 +6,7 @@ from    sys                     import  argv
 from    typing                  import  List
 from    util.parsers            import  tas_rec
 from    util.rec_tools          import  get_tas
-from    util.sc_dt              import ts_to_ds
+from    util.sc_dt              import  ts_to_ds
 
 
 # usage: python split_tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
@@ -102,6 +102,44 @@ def get_twap(recs: List):
     return x, y
 
 
+def get_tick_time(recs: List):
+
+    up_x = []
+    up_y = []
+    dn_x = []
+    dn_y = []
+
+    prev_chg_ts = recs[0][tas_rec.timestamp]
+    prev_price  = recs[0][tas_rec.price]
+
+    for rec in recs:
+
+        ts      = rec[tas_rec.timestamp]
+        price   = rec[tas_rec.price]
+        chg     = price - prev_price
+
+        if chg < 0:
+
+            dn_x.append(ts)
+            dn_y.append((ts - prev_chg_ts) / 1e6)
+
+            prev_chg_ts = ts
+
+        elif chg > 0:
+
+            up_x.append(ts)
+            up_y.append((ts - prev_chg_ts) / 1e6)
+
+            prev_chg_ts = ts
+
+        prev_price = price
+
+    up_y = Series(up_y).ewm_mean(span = EWMA_LEN)
+    dn_y = Series(dn_y).ewm_mean(span = EWMA_LEN)
+
+    return dn_x, dn_y, up_x, up_y
+
+
 def get_series(recs: List):
 
     x           = []
@@ -159,8 +197,8 @@ if __name__ == "__main__":
     bid_trades  = [ rec for rec in recs if not rec[tas_rec.side] ]
     ask_trades  = [ rec for rec in recs if rec[tas_rec.side] ]
 
-    bid_x, bid_y, bid_z, bid_ewma = get_series(bid_trades)
-    ask_x, ask_y, ask_z, ask_ewma = get_series(ask_trades)
+    bid_x, bid_y, bid_z, bid_liq_ewma = get_series(bid_trades)
+    ask_x, ask_y, ask_z, ask_liq_ewma = get_series(ask_trades)
 
     vbp = get_vbp(recs)
     
@@ -172,10 +210,15 @@ if __name__ == "__main__":
 
     liq_x, liq_y = get_liq_by_price(bid_y, bid_z, ask_y, ask_z)
 
+    dn_tick_time_x, dn_tick_time_y, up_tick_time_x, up_tick_time_y = get_tick_time(recs)
+
+    dn_tick_time_x = [ ts_to_ds(ts, FMT) for ts in dn_tick_time_x ]
+    up_tick_time_x = [ ts_to_ds(ts, FMT) for ts in up_tick_time_x ]
+
     fig = make_subplots(
-        rows                = 2,
+        rows                = 3,
         cols                = 3,
-        row_heights         = [ 0.8, 0.2 ],
+        row_heights         = [ 0.7, 0.15, 0.15 ],
         column_widths       = [ 0.1, 0.8, 0.1 ],
         shared_xaxes        = True,
         shared_yaxes        = True,
@@ -185,20 +228,20 @@ if __name__ == "__main__":
     )
 
     for trace in [
-        ( bid_x, bid_y, bid_z, bid_ewma, "bid", "#FF0000", "#0000FF" ),
-        ( ask_x, ask_y, ask_z, ask_ewma, "ask", "#0000FF", "#FF0000" )
+        ( bid_x, bid_y, bid_z, bid_liq_ewma, up_tick_time_x, up_tick_time_y, "bid", "#FF0000", "#0000FF" ),
+        ( ask_x, ask_y, ask_z, ask_liq_ewma, dn_tick_time_x, dn_tick_time_y, "ask", "#0000FF", "#FF0000" )
     ]:
         
         fig.add_trace(
             go.Scattergl(
                 {
-                    "name":         trace[4],
+                    "name":         trace[6],
                     "x":            trace[0],
                     "y":            trace[1],
                     "mode":         "markers",
                     "marker_size":  trace[2],
                     "marker":       {
-                                        "color":    trace[5],
+                                        "color":    trace[7],
                                         "sizemode": "area",
                                         "sizeref":  2. * max(trace[2]) / (40.**2),
                                         "sizemin":  4
@@ -210,16 +253,33 @@ if __name__ == "__main__":
             col = 2
         )
 
+        # liq
+
         fig.add_trace(
             go.Scattergl(
                 {
-                    "name": f"{trace[4]} liq[{EWMA_LEN}]",
+                    "name": f"{trace[6]} liq[{EWMA_LEN}]",
                     "x":    trace[0],
                     "y":    trace[3],
-                    "line": { "color": trace[6] }
+                    "line": { "color": trace[8] }
                 }
             ),
             row = 2,
+            col = 2
+        )
+
+        # tick time
+
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "name": "up_tick_time" if trace[6] == "bid" else "dn_tick_time",
+                    "x":    trace[4],
+                    "y":    trace[5],
+                    "line": { "color": trace[8] }
+                }
+            ),
+            row = 3,
             col = 2
         )
 
