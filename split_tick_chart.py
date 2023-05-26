@@ -279,7 +279,7 @@ if __name__ == "__main__":
         fig.add_trace(
             go.Scattergl(
                 {
-                    "name": "up_tick_time" if trace[6] == "bid" else "dn_tick_time",
+                    "name": f"up_tick_time[{EWMA_LEN}]" if trace[6] == "bid" else f"dn_tick_time[{EWMA_LEN}]",
                     "x":    trace[4],
                     "y":    trace[5],
                     "line": { "color": trace[8] }
