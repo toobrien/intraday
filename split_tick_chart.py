@@ -4,6 +4,7 @@ from    plotly.subplots         import  make_subplots
 from    statistics              import  mean
 from    sys                     import  argv
 from    typing                  import  List
+from    util.features           import  ewma, liq_by_price, split_tick_series, tick_time, twap, vbp
 from    util.parsers            import  tas_rec
 from    util.rec_tools          import  get_tas
 from    util.sc_dt              import  ts_to_ds
@@ -14,175 +15,6 @@ from    util.sc_dt              import  ts_to_ds
 
 EWMA_LEN    = 50
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
-
-
-def get_vbp(recs: List):
-
-    prices = []
-
-    for rec in recs:
-
-        prices += ([ rec[tas_rec.price] ] * rec[tas_rec.qty])
-    
-    return prices
-
-
-def get_liq_by_price(
-        bid_prices: List, 
-        bid_trades: List, 
-        ask_prices: List, 
-        ask_trades: List
-    ):
-
-    prices  = set(bid_prices + ask_prices)
-    liq     = { price: [] for price in prices }
-
-    for pair in [ 
-        ( bid_prices, bid_trades ),
-        ( ask_prices, ask_trades )
-    ]:
-        
-        prices = pair[0]
-        trades = pair[1]
-
-        for i in range(len(prices)):
-
-            price   = prices[i]
-            qty     = trades[i]
-
-            liq[price].append(qty)
-        
-    for price, qtys in liq.items():
-
-        liq[price] = mean(qtys)
-
-    liq_x = sorted(list(liq.keys()))
-    liq_y = [ liq[price] for price in liq_x ]
-
-    return liq_x, liq_y
-
-
-def get_twap(recs: List):
-
-    x           = []
-    y           = []
-    prev_price  = recs[0][tas_rec.price]
-    prev_ts     = recs[0][tas_rec.timestamp]
-    dur         = 0
-    cum_dur     = 0
-    twap        = 0
-
-    for rec in recs[1:]:
-
-        ts      =   rec[tas_rec.timestamp]
-        price   =   rec[tas_rec.price]
-        dur     +=  ts - prev_ts
-
-        if price == prev_price:
-
-            prev_ts = ts
-
-            continue
-
-        if cum_dur:
-
-            twap *= cum_dur / (cum_dur + dur)
-        
-        cum_dur = cum_dur + dur
-
-        twap += (dur * prev_price) / cum_dur
-
-        x.append(ts)
-        y.append(twap)
-
-        dur         = 0
-        prev_ts     = ts
-        prev_price  = price
-
-    return x, y
-
-
-def get_tick_time(recs: List):
-
-    up_x = []
-    up_y = []
-    dn_x = []
-    dn_y = []
-
-    prev_chg_ts = recs[0][tas_rec.timestamp]
-    prev_price  = recs[0][tas_rec.price]
-
-    for rec in recs:
-
-        ts          = rec[tas_rec.timestamp]
-        price       = rec[tas_rec.price]
-        p_chg       = price - prev_price
-        t_chg       = (ts - prev_chg_ts) / 1e6
-        prev_price  = price
-
-        if (t_chg > 3600):
-
-            # skip session/daily breaks and extremely long trades
-
-            prev_chg_ts = ts
-
-        elif p_chg < 0:
-
-            dn_x.append(ts)
-            dn_y.append(t_chg)
-
-            prev_chg_ts = ts
-
-        elif p_chg > 0:
-
-            up_x.append(ts)
-            up_y.append((t_chg))
-
-            prev_chg_ts = ts
-
-    up_y = Series(up_y).ewm_mean(span = EWMA_LEN)
-    dn_y = Series(dn_y).ewm_mean(span = EWMA_LEN)
-
-    return dn_x, dn_y, up_x, up_y
-
-
-def get_series(recs: List):
-
-    x           = []
-    y           = []
-    z           = []
-    prev_price  = recs[0][tas_rec.price]
-    cum_qty     = recs[0][tas_rec.qty]
-
-    for rec in recs:
-
-        ts      = rec[tas_rec.timestamp]
-        price   = rec[tas_rec.price]
-        qty     = rec[tas_rec.qty]
-
-        if price == prev_price:
-
-            cum_qty += qty
-        
-        else:
-
-            x.append(ts)
-            y.append(price)
-            z.append(cum_qty)
-
-            prev_price  = price
-            cum_qty     = qty
-        
-    # add final trade
-
-    x.append(ts)
-    y.append(price)
-    z.append(cum_qty)
-
-    ewma = Series(z).ewm_mean(span = EWMA_LEN)
-
-    return ( x, y, z, ewma )
-
 
 if __name__ == "__main__":
 
@@ -203,20 +35,22 @@ if __name__ == "__main__":
     bid_trades  = [ rec for rec in recs if not rec[tas_rec.side] ]
     ask_trades  = [ rec for rec in recs if rec[tas_rec.side] ]
 
-    bid_x, bid_y, bid_z, bid_liq_ewma = get_series(bid_trades)
-    ask_x, ask_y, ask_z, ask_liq_ewma = get_series(ask_trades)
+    bid_x, bid_y, bid_z = split_tick_series(bid_trades)
+    ask_x, ask_y, ask_z = split_tick_series(ask_trades)
 
-    vbp = get_vbp(recs)
-    
-    twap_x, twap_y = get_twap(recs)
+    bid_liq_ewma = ewma(bid_z, EWMA_LEN)
+    ask_liq_ewma = ewma(ask_z, EWMA_LEN)
+
+    vbp_x           = vbp(recs)
+    twap_x, twap_y  = twap(recs)
 
     bid_x   = [ ts_to_ds(val, FMT) for val in bid_x ]
     ask_x   = [ ts_to_ds(val, FMT) for val in ask_x ]
     twap_x  = [ ts_to_ds(val, FMT) for val in twap_x ]
 
-    liq_x, liq_y = get_liq_by_price(bid_y, bid_z, ask_y, ask_z)
+    liq_x, liq_y = liq_by_price(bid_y, bid_z, ask_y, ask_z)
 
-    dn_tick_time_x, dn_tick_time_y, up_tick_time_x, up_tick_time_y = get_tick_time(recs)
+    dn_tick_time_x, dn_tick_time_y, up_tick_time_x, up_tick_time_y = tick_time(recs, EWMA_LEN)
 
     dn_tick_time_x = [ ts_to_ds(ts, FMT) for ts in dn_tick_time_x ]
     up_tick_time_x = [ ts_to_ds(ts, FMT) for ts in up_tick_time_x ]
@@ -293,8 +127,8 @@ if __name__ == "__main__":
         go.Histogram(
             {
                 "name":     "vbp",
-                "y":        vbp,
-                "nbinsy":   len(set(vbp)),
+                "y":        vbp_x,
+                "nbinsy":   len(set(vbp_x)),
                 "opacity":  0.5
             }
         ),
