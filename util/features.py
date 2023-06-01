@@ -61,7 +61,7 @@ def liq_by_price(
 
 # for combined bids/asks:
 #
-#   x: tick count
+#   x: tick count (trade #)
 #   y: price
 #   z: qty
 #   t: timestamp (start, end)
