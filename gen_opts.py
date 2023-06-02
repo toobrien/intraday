@@ -1,7 +1,8 @@
 from sys import argv
 
 
-# usage: python gen_opt_list.py LON23 NYMEX 5000 10000 50
+# usage: python gen_opts.py LON23 NYMEX 6000 8000 50
+
 
 if __name__ == "__main__":
 
