@@ -1,8 +1,6 @@
-from    polars                  import  Series
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    typing                  import  List
 from    util.features           import  ewma, liq_by_price, split_tick_series, tick_time, twap, vbp
 from    util.parsers            import  tas_rec
 from    util.rec_tools          import  get_tas
