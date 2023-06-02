@@ -52,6 +52,7 @@ if __name__ == "__main__":
         row_heights         = [ 0.8, 0.2 ],
         shared_yaxes        = True,
         shared_xaxes        = True,
+        horizontal_spacing  = 0.025,
         vertical_spacing    = 0.025,
         subplot_titles      = ( title, "" )
     )

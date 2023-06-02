@@ -2,7 +2,6 @@ from polars         import Series
 from statistics     import mean
 from typing         import List
 from util.rec_tools import tas_rec
-from util.sc_dt     import ts_to_ds
 
 
 def delta(recs: List):
@@ -93,7 +92,8 @@ def tick_series(recs: List):
     end         = start
     prev_price  = recs[0][tas_rec.price]
     prev_side   = recs[0][tas_rec.side]
-    cum_qty     = recs[0][tas_rec.qty]
+    trade_qty   = recs[0][tas_rec.qty]
+    cum_qty     = trade_qty
 
     for i in range(1, len(recs)):
 
@@ -105,22 +105,34 @@ def tick_series(recs: List):
 
         if price != prev_price or side != prev_side:
 
-            x.append(i)
+            x.append(cum_qty)
             y.append(prev_price)
-            z.append(cum_qty)
-            t.append((start, end))
+            z.append(trade_qty)
+            t.append(( start, end ))
             c.append("#0000FF" if prev_side else "#FF0000")
 
             start       = ts
             end         = ts
             prev_price  = price
             prev_side   = side
-            cum_qty     = qty
+            trade_qty   = qty
         
         else:
 
-            end     =  ts
-            cum_qty += qty
+            end         =  ts
+            trade_qty   += qty
+        
+        cum_qty += qty
+
+        # add final trade
+
+        '''
+        x.append(cum_qty)
+        y.append(prev_price)
+        z.append(trade_qty)
+        t.append(( start, end ))
+        c.append("#0000FF" if prev_side else "#FF0000")
+        '''
 
     return ( x, y, z, t, c )
 
