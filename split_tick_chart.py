@@ -52,6 +52,8 @@ if __name__ == "__main__":
     dn_tick_time_x = [ ts_to_ds(ts, FMT) for ts in dn_tick_time_x ]
     up_tick_time_x = [ ts_to_ds(ts, FMT) for ts in up_tick_time_x ]
 
+    max_trade = max(max(bid_z), max(ask_z))
+
     fig = make_subplots(
         rows                = 3,
         cols                = 3,
@@ -80,7 +82,7 @@ if __name__ == "__main__":
                     "marker":       {
                                         "color":    trace[7],
                                         "sizemode": "area",
-                                        "sizeref":  2. * max(trace[2]) / (40.**2),
+                                        "sizeref":  2. * max_trade / (40.**2),
                                         "sizemin":  4
                                     },
                     "text":         trace[2]

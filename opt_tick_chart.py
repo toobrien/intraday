@@ -48,6 +48,8 @@ def add_chart(
         ( ask_x, ask_y, ask_z, ask_liq_ewma, "ask", "#0000FF", "#FF0000" )
     ]:
         
+        max_trade = max(max(bid_z), max(ask_z))
+
         fig.add_trace(
             go.Scattergl(
                 {
@@ -59,7 +61,7 @@ def add_chart(
                     "marker":       {
                                         "color":    trace[5],
                                         "sizemode": "area",
-                                        "sizeref":  2. * max(trace[2]) / (40.**2),
+                                        "sizeref":  2. * max_trade / (40.**2),
                                         "sizemin":  4
                                     },
                     "text":         trace[2]
