@@ -48,7 +48,7 @@ if __name__ == "__main__":
     fig = make_subplots(
         rows                = 2,
         cols                = 2,
-        column_widths       = [ 0.2, 0.8 ],
+        column_widths       = [ 0.1, 0.9 ],
         row_heights         = [ 0.8, 0.2 ],
         shared_yaxes        = True,
         shared_xaxes        = True,
