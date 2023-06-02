@@ -7,16 +7,31 @@ from util.sc_dt     import ts_to_ds
 
 def delta(recs: List):
 
-    delta = 0
+    delta       = 0
+    prev_price  = recs[0][tas_rec.price]
+    prev_side   = recs[0][tas_rec.side]
+    deltas      = []
 
     for rec in recs:
 
+        price   = rec[tas_rec.price]
         qty     = rec[tas_rec.qty]
         side    = rec[tas_rec.side]
 
-        delta += qty if side else -qty 
+        delta += qty if side else -qty
 
-    return delta
+        if price != prev_price or side != prev_side:
+
+            deltas.append(delta)
+
+        prev_price  = price
+        prev_side   = side
+
+    # last trade
+
+    deltas.append(delta)
+
+    return deltas
 
 
 def ewma(recs: List, window: int):
@@ -235,10 +250,10 @@ def twap(recs: List):
 
 def vbp(recs: List):
 
-    prices = []
+    hist = []
 
     for rec in recs:
 
-        prices += ([ rec[tas_rec.price] ] * rec[tas_rec.qty])
+        hist += ([ rec[tas_rec.price] ] * rec[tas_rec.qty])
     
-    return prices
+    return hist

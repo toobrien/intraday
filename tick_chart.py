@@ -1,8 +1,9 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.parsers            import  tas_rec
+from    util.features           import  delta, tick_series, vbp
 from    util.rec_tools          import  get_tas
+from    util.sc_dt              import  ts_to_ds
 
 
 # usage: python tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
@@ -19,7 +20,7 @@ if __name__ == "__main__":
     start       = argv[3] if len(argv) > 3 else None
     end         = argv[4] if len(argv) > 4 else None
 
-    recs = get_tas(contract_id, multiplier, FMT, start, end)
+    recs = get_tas(contract_id, multiplier, None, start, end)
 
     if not recs:
 
@@ -27,81 +28,29 @@ if __name__ == "__main__":
 
         exit()
 
-    x               = []
-    y               = []
-    sizes           = []
-    hist_y          = []
-    txt             = []
-    clr             = []
-    delta           = []
-    delta_          = 0
-    i               = 0
-    marker_i        = 0
-    prev_price      = recs[0][tas_rec.price]
-    prev_side       = recs[0][tas_rec.side]
-    marker_start    = recs[0][tas_rec.timestamp]
-    prev_ts         = recs[0][tas_rec.timestamp]
-    size            = 0
-    prices          = set()
+    x, y, z, t, c   = tick_series(recs)
+    vbp_hist        = vbp(recs)
+    deltas          = delta(recs)
+    text            = []
 
-    for rec in recs:
+    for i in range(len(z)):
 
-        parts   = rec[tas_rec.timestamp].split("T")
-        date    = parts[0]
-        time    = parts[1]
-        price   = rec[tas_rec.price]
-        qty     = rec[tas_rec.qty]
-        side    = rec[tas_rec.side]
-
-        if price != prev_price or side != prev_side:
-
-            # ticks
-
-            marker_text = f"{date}<br>{time}<br>{size}" if i - 1 == marker_i else f"{date}<br>{marker_start}<br>{prev_ts}<br>{size}"
-
-            x.append(i)
-            y.append(prev_price)
-            sizes.append(size)
-            txt.append(marker_text)
-            clr.append("#0000FF" if prev_side else "#FF0000")
-
-            # delta
-
-            delta_ += size if prev_side else -size
-            delta.append(delta_)
-
-            prev_side       = side
-            prev_price      = price
-            size            = qty
-            marker_i        = i
-            marker_start    = time
-
-        else:
-
-            prev_ts =  time
-            size    += qty
-
-        i += 1
-
-        # profile
-
-        prices.add(price)
-        hist_y += ([ price ] * qty)
-
-    # add final trade
-    
-    x.append(i)
-    y.append(prev_price)
-    sizes.append(size)
-    txt.append(marker_text)
-    clr.append("#0000FF" if prev_side else "#FF0000")
-    delta.append(delta_)
-
+        size        = z[i]
+        start, end  = t[i]
+        start_parts = ts_to_ds(start, FMT).split("T")
+        end_parts   = ts_to_ds(end, FMT).split("T")
+        date        = start_parts[0]
+        
+        text.append(
+            f"{start_parts[0]} {start_parts[1]}<br>{end_parts[0]} {end_parts[1]}<br>{size}"
+        )
 
     fig = make_subplots(
         rows                = 2,
-        cols                = 1,
+        cols                = 2,
+        column_widths       = [ 0.2, 0.8 ],
         row_heights         = [ 0.8, 0.2 ],
+        shared_yaxes        = True,
         shared_xaxes        = True,
         vertical_spacing    = 0.025,
         subplot_titles      = ( title, "" )
@@ -113,27 +62,27 @@ if __name__ == "__main__":
                 "name":         title,
                 "x":            x,
                 "y":            y,
-                "text":         txt,
+                "text":         text,
                 "mode":         "markers",
-                "marker_size":  sizes,
+                "marker_size":  z,
                 "marker":       {
-                                    "color":    clr,
+                                    "color":    c,
                                     "sizemode": "area",
-                                    "sizeref":  2. * max(sizes) / (40.**2),
+                                    "sizeref":  2. * max(z) / (40.**2),
                                     "sizemin":  4
                                 }
             }
         ),
         row = 1,
-        col = 1
+        col = 2
     )
 
     fig.add_trace(
         go.Histogram(
             {
-                "name":     "vap",
-                "y":        hist_y,
-                "nbinsy":   len(prices),
+                "name":     "vbp",
+                "y":        vbp_hist,
+                "nbinsy":   len(vbp_hist),
                 "opacity":  0.3
             }
         ),
@@ -146,13 +95,13 @@ if __name__ == "__main__":
             {
                 "name": "delta",
                 "x":    x,
-                "y":    delta,
-                "text": [ f"{delta[i] / x[i] * 100:0.1f}%" for i in range(len(x)) ],
+                "y":    deltas,
+                "text": [ f"{deltas[i] / x[i] * 100:0.1f}%" for i in range(len(x)) ],
                 "line": { "color": "#0000FF" }
             }
         ),
         row = 2,
-        col = 1
+        col = 2
     )
 
     fig.show()
