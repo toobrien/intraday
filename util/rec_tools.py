@@ -29,7 +29,9 @@ def get_index(instrument_id: str, day: str = None):
         
         except (FileNotFoundError, KeyError) as e:
 
-            print(instrument_id, repr(e))
+            # print(instrument_id, repr(e))
+
+            pass
 
     return res
 

@@ -14,7 +14,7 @@ def get_opts(
     
     opts = []
 
-    for type in ["P", "C"]:
+    for type in [ "P", "C" ]:
 
         for i in range(lo_strike, hi_strike + increment, increment):
 
