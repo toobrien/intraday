@@ -111,13 +111,13 @@ def print_opt_trades(
 
     # normalize price outputs
 
-    max_len = mode([ len(str(trade[2]).split(".")[1]) for trade in all_trades ])
+    mode_len = mode([ len(str(trade[2]).split(".")[1]) for trade in all_trades ])
 
     for trade in all_trades:
 
         opt_id  = trade[0]
         ts      = trade[1]
-        price   = f"{trade[2]:0.1{max_len}f}"
+        price   = f"{trade[2]:0.{mode_len}f}"
         side    = trade[3]
         qty     = str(trade[4])
 
