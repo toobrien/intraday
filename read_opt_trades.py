@@ -1,7 +1,9 @@
 from gen_opts       import get_opts
 from json           import loads
 from os             import listdir
+from statistics     import mode
 from sys            import argv
+from time           import time
 from typing         import List
 from util.parsers   import tas_rec
 from util.rec_tools import get_tas
@@ -66,7 +68,7 @@ def filter_trades(recs: List, opt_id: str, min_qty: int):
                 trade_qty
             )
         )
-    
+
     return filtered
 
 
@@ -101,15 +103,25 @@ def print_opt_trades(
 
             if filtered:
 
-                all_trades.append(filtered)
+                all_trades.extend(filtered)
 
     # sort by timestamp
 
     all_trades = sorted(all_trades, key = lambda r: r[1])
 
+    # normalize price outputs
+
+    max_len = mode([ len(str(trade[2]).split(".")[1]) for trade in all_trades ])
+
     for trade in all_trades:
 
-        print("\t".join([ str(val) for val in trade ]))
+        opt_id  = trade[0]
+        ts      = trade[1]
+        price   = f"{trade[2]:0.1{max_len}f}"
+        side    = trade[3]
+        qty     = str(trade[4])
+
+        print(f"{opt_id:20}{ts:30}{price:10}{side:10}{qty:10}")
 
 
 if __name__ == "__main__":
@@ -120,4 +132,8 @@ if __name__ == "__main__":
     start       = argv[4] if len(argv) > 4 else None
     end         = argv[5] if len(argv) > 5 else None
 
+    t0 = time()
+
     print_opt_trades(opt_class, multiplier, min_qty, start, end)
+
+    print(f"{time() - t0:0.1f}s elapsed")
