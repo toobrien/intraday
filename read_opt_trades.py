@@ -15,7 +15,7 @@ from util.rec_tools import get_tas
 
 
 SC_ROOT = loads(open("./config.json", "r").read())["sc_root"]
-FMT     = "%Y-%m-%dT%H:%M:%S.%f"
+FMT     = "%Y-%m-%dT%H:%M:%S"
 
 
 def filter_trades(recs: List, opt_id: str, min_qty: int):
@@ -121,7 +121,7 @@ def print_opt_trades(
         side    = trade[3]
         qty     = str(trade[4])
 
-        print(f"{opt_id:20}{ts:30}{price:10}{side:10}{qty:10}")
+        print(f"{ts:30}{opt_id:20}{price:10}{side:10}{qty:10}")
 
 
 if __name__ == "__main__":
