@@ -34,40 +34,6 @@ def get_index(instrument_id: str, day: str = None):
             pass
 
     return res
-
-
-# returns a dict of dates to slice indices (for trades that occurred that day)
-#
-# - use after calling get_tas to get "recs", this function 
-#   will map each day to the index of its first record
-# - rec timestamps should be "YYYY-MM-DDTHH:MM:SS..."
-# - must run update_indexes.py before using
-
-def date_index(instrument_id: str, recs: List) -> dict:
-
-    start   = recs[0][tas_rec.timestamp].split("T")[0]
-    end     = recs[-1][tas_rec.timestamp].split("T")[0]
-
-    # instrument should be in INDEXES since you already called get_recs
-
-    indexes     = []
-    idx         = INDEXES[instrument_id]
-    keys        = list(idx.keys())
-    keys        = keys[keys.index(start) : keys.index(end) + 1]
-    start_i     = idx[start]
-    res         = {}
-
-    for key in keys:
-
-        indexes.append(idx[key] - start_i)
-
-    for i in range(len(keys) - 1):
-
-        res[keys[i]] = ( indexes[i], indexes[i + 1] )
-    
-    res[keys[-1]] = ( indexes[-1], len(recs) )
- 
-    return res
     
 
 # valid formats for "start" date:
@@ -161,6 +127,40 @@ def get_tas(
         pass
         
     return recs
+
+
+# returns a dict of dates to slice indices (for trades or quotes that occurred that day)
+#
+# - use after calling get_tas to get "recs", this function 
+#   will map each day to the index of its first record
+# - rec timestamps should be "YYYY-MM-DDTHH:MM:SS..."
+# - must run update_indexes.py before using
+
+def date_index(instrument_id: str, recs: List) -> dict:
+
+    start   = recs[0][tas_rec.timestamp].split("T")[0]
+    end     = recs[-1][tas_rec.timestamp].split("T")[0]
+
+    # instrument should be in INDEXES since you already called get_recs
+
+    indexes     = []
+    idx         = INDEXES[instrument_id]
+    keys        = list(idx.keys())
+    keys        = keys[keys.index(start) : keys.index(end) + 1]
+    start_i     = idx[start]
+    res         = {}
+
+    for key in keys:
+
+        indexes.append(idx[key] - start_i)
+
+    for i in range(len(keys) - 1):
+
+        res[keys[i]] = ( indexes[i], indexes[i + 1] )
+    
+    res[keys[-1]] = ( indexes[-1], len(recs) )
+ 
+    return res
 
 
 # interleaves tas and depth records for a given day
