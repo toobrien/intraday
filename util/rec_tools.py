@@ -36,7 +36,7 @@ def get_index(instrument_id: str, day: str = None):
     return res
 
 
-# returns a list of dates and corresponding list of indexes for the first record of the day
+# returns a dict of dates to slice indices (for trades that occurred that day)
 #
 # - use after calling get_tas to get "recs", this function 
 #   will map each day to the index of its first record
@@ -50,19 +50,24 @@ def date_index(instrument_id: str, recs: List) -> dict:
 
     # instrument should be in INDEXES since you already called get_recs
 
-    dates       = []
     indexes     = []
     idx         = INDEXES[instrument_id]
     keys        = list(idx.keys())
     keys        = keys[keys.index(start) : keys.index(end) + 1]
     start_i     = idx[start]
+    res         = {}
 
     for key in keys:
 
-        dates.append(key)
         indexes.append(idx[key] - start_i)
+
+    for i in range(len(keys) - 1):
+
+        res[keys[i]] = ( indexes[i], indexes[i + 1] )
     
-    return dates, indexes
+    res[keys[-1]] = ( indexes[-1], len(recs) )
+ 
+    return res
     
 
 # valid formats for "start" date:
