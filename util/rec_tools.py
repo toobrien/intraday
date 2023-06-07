@@ -36,6 +36,35 @@ def get_index(instrument_id: str, day: str = None):
     return res
 
 
+# returns a list of dates and corresponding list of indexes for the first record of the day
+#
+# - use after calling get_tas to get "recs", this function 
+#   will map each day to the index of its first record
+# - rec timestamps should be "YYYY-MM-DDTHH:MM:SS..."
+# - must run update_indexes.py before using
+
+def date_index(instrument_id: str, recs: List) -> dict:
+
+    start   = recs[0][tas_rec.timestamp].split("T")[0]
+    end     = recs[-1][tas_rec.timestamp].split("T")[0]
+
+    # instrument should be in INDEXES since you already called get_recs
+
+    dates       = []
+    indexes     = []
+    idx         = INDEXES[instrument_id]
+    keys        = list(idx.keys())
+    keys        = keys[keys.index(start) : keys.index(end) + 1]
+    start_i     = idx[start]
+
+    for key in keys:
+
+        dates.append(key)
+        indexes.append(idx[key] - start_i)
+    
+    return dates, indexes
+    
+
 # valid formats for "start" date:
 # 
 # %Y-%m-%d %H:%M:%S.%f
