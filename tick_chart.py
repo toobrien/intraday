@@ -83,7 +83,7 @@ if __name__ == "__main__":
             {
                 "name":     "vbp",
                 "y":        vbp_hist,
-                "nbinsy":   len(vbp_hist),
+                "nbinsy":   len(set(vbp_hist)),
                 "opacity":  0.3
             }
         ),
