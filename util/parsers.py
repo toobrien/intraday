@@ -71,6 +71,12 @@ def parse_tas(fd: BinaryIO, checkpoint: int) -> List:
 
         ir = INTRADAY_REC_UNPACK(intraday_rec_bytes)
 
+        if ir[intraday_rec.total_vol] == 0:
+
+            # for some reason many options records have 0 trades...
+            
+            continue
+
         tas_rec = (
             ir[intraday_rec.timestamp],
             ir[intraday_rec.close],
@@ -95,6 +101,12 @@ def bulk_parse_tas(fd: BinaryIO, checkpoint: int) -> List:
         ir = struct.unpack_from(buf, ptr)
 
         ptr += INTRADAY_REC_LEN
+
+        if ir[intraday_rec.total_vol] == 0:
+
+            # for some reason many options records have 0 trades...
+
+            continue
 
         tas_recs.append(
             (
