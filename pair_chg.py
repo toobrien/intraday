@@ -5,7 +5,7 @@ from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    time                    import  time
 from    typing                  import  List
-from    util.rec_tools          import  get_ohlcv, get_tas, ohlcv_rec, tas_rec
+from    util.rec_tools          import  ohlcv, get_tas, ohlcv_rec, tas_rec
 
 
 SC_ROOT = loads(open("./config.json").read())["sc_root"]
@@ -60,8 +60,8 @@ def ohlc(
     window: int
 ):
 
-    bars_a = get_ohlcv(recs_a, res, start, end, FMT, True)
-    bars_b = get_ohlcv(recs_b, res, start, end, FMT, True)
+    bars_a = ohlcv(recs_a, res, start, end, FMT, True)
+    bars_b = ohlcv(recs_b, res, start, end, FMT, True)
 
     a_0 = bars_a[0][ohlcv_rec.c]
     b_0 = bars_b[0][ohlcv_rec.c]

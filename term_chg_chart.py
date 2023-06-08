@@ -1,7 +1,7 @@
 from    math                    import  log
 import  plotly.graph_objects    as      go
 from    sys                     import  argv
-from    util.rec_tools          import  get_ohlcv, get_precision, get_terms, ohlcv_rec
+from    util.rec_tools          import  ohlcv, get_precision, get_terms, ohlcv_rec
 
 
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     for contract_id, recs in terms.items():
 
-        bars = get_ohlcv(
+        bars = ohlcv(
                 recs, 
                 resolution,
                 start,

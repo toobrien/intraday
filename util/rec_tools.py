@@ -163,6 +163,36 @@ def date_index(instrument_id: str, recs: List) -> dict:
     return res
 
 
+# groups trade records into ranges delimited by "start" and "end" timestamps,
+# timestamps are %H:%M:%S.%f
+# (minutes, seconds, microseconds optional)
+
+def intraday_ranges(
+        instrument_id:  str,
+        recs:           List,
+        start:          str, 
+        end:            str
+    ) -> dict:
+
+    idx         = date_index(instrument_id, recs)
+    res         = {}
+
+    for date, rng in idx.items():
+
+        start_ds    = f"{date}T{start}"
+        end_ds      = f"{date}T{end}"
+        selected    = recs[rng[0] : rng[1]]
+
+        intraday_range_start    = rng[0] + bisect_left(selected, start_ds, key = lambda r: r[tas_rec.timestamp])
+        intraday_range_end      = rng[0] + bisect_left(selected, end_ds, key = lambda r: r[tas_rec.timestamp])
+
+        res[date] = ( intraday_range_start, intraday_range_end )
+
+    return res
+
+
+
+
 # interleaves tas and depth records for a given day
 # start/end formats must include a date:
 #
