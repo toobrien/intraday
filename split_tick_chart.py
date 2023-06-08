@@ -1,9 +1,9 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  ewma, liq_by_price, split_tick_series, tick_time, twap, vbp
+from    util.features           import  ewma, liq_by_price, tick_time, twap, vbp
 from    util.parsers            import  tas_rec
-from    util.rec_tools          import  get_tas
+from    util.rec_tools          import  get_tas, split_tick_series
 from    util.sc_dt              import  ts_to_ds
 
 

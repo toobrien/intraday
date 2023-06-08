@@ -227,7 +227,7 @@ def intraday_tas_and_depth(
     return combined_recs
 
 
-# TICKS
+# *** TICKS ***
 
 # for combined bids/asks:
 #
@@ -330,7 +330,7 @@ def split_tick_series(recs: List):
 
     return ( x, y, z )
 
-# TERMS
+# *** TERMS ***
 
 def get_term_ids(init_symbol: str, n_months: int):
 
@@ -383,6 +383,9 @@ def get_terms(
             print(e)
     
     return results
+
+
+# *** OHLCV ***
 
 
 class ohlcv_rec(IntEnum):
