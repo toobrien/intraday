@@ -288,6 +288,8 @@ class ohlcv_rec(IntEnum):
     l  = 3
     c  = 4
     v  = 5
+    i  = 6
+    j  = 7
 
 
 def get_ohlcv(
@@ -369,7 +371,18 @@ def get_ohlcv(
                 c   = recs[i - 1][tas_rec.price]
                 ts  = start if not out_fmt else ts_to_ds(start, out_fmt)
 
-                ohlcv.append(( ts, o, h, l, c, v ))
+                ohlcv.append(
+                    ( 
+                        ts,
+                        o,
+                        h,
+                        l,
+                        c,
+                        v,
+                        ohlcv[-1][ohlcv_rec.j] if len(ohlcv) > 0 else 0,
+                        i 
+                    )
+                )
 
             start   =  end
             end     += step_us
