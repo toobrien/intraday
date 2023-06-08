@@ -227,6 +227,111 @@ def intraday_tas_and_depth(
     return combined_recs
 
 
+# TICKS
+
+# for combined bids/asks:
+#
+#   x: tick count (trade #)
+#   y: price
+#   z: qty
+#   t: timestamp (start, end)
+#   c: color
+
+def tick_series(recs: List):
+
+    x           = []
+    y           = []
+    z           = []
+    t           = []
+    c           = []
+    start       = recs[0][tas_rec.timestamp]
+    end         = start
+    prev_price  = recs[0][tas_rec.price]
+    prev_side   = recs[0][tas_rec.side]
+    trade_qty   = recs[0][tas_rec.qty]
+    cum_qty     = trade_qty
+
+    for i in range(1, len(recs)):
+
+        rec     = recs[i]
+        ts      = rec[tas_rec.timestamp]
+        price   = rec[tas_rec.price]
+        qty     = rec[tas_rec.qty]
+        side    = rec[tas_rec.side]
+
+        if price != prev_price or side != prev_side:
+
+            x.append(cum_qty)
+            y.append(prev_price)
+            z.append(trade_qty)
+            t.append(( start, end ))
+            c.append("#0000FF" if prev_side else "#FF0000")
+
+            start       = ts
+            end         = ts
+            prev_price  = price
+            prev_side   = side
+            trade_qty   = qty
+        
+        else:
+
+            end         =  ts
+            trade_qty   += qty
+        
+        cum_qty += qty
+
+        # add final trade
+
+        '''
+        x.append(cum_qty)
+        y.append(prev_price)
+        z.append(trade_qty)
+        t.append(( start, end ))
+        c.append("#0000FF" if prev_side else "#FF0000")
+        '''
+
+    return ( x, y, z, t, c )
+
+
+# for bids/asks separately: x = timestamp, y = price, z = qty
+
+def split_tick_series(recs: List):
+
+    x           = []
+    y           = []
+    z           = []
+    prev_price  = recs[0][tas_rec.price]
+    cum_qty     = recs[0][tas_rec.qty]
+
+    for rec in recs:
+
+        ts      = rec[tas_rec.timestamp]
+        price   = rec[tas_rec.price]
+        qty     = rec[tas_rec.qty]
+
+        if price == prev_price:
+
+            cum_qty += qty
+        
+        else:
+
+            x.append(ts)
+            y.append(price)
+            z.append(cum_qty)
+
+            prev_price  = price
+            cum_qty     = qty
+        
+    # add final trade
+
+    x.append(ts)
+    y.append(price)
+    z.append(cum_qty)
+
+    return ( x, y, z )
+
+# TERMS
+
 def get_term_ids(init_symbol: str, n_months: int):
 
     symbol      = init_symbol[:-3]
@@ -292,7 +397,7 @@ class ohlcv_rec(IntEnum):
     j  = 7
 
 
-def get_ohlcv(
+def ohlcv(
     recs: List, 
     resolution: str,
     start:      str,

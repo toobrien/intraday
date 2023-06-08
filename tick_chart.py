@@ -1,8 +1,8 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  delta, tick_series, vbp
-from    util.rec_tools          import  get_tas
+from    util.features           import  delta, vbp
+from    util.rec_tools          import  get_tas, tick_series
 from    util.sc_dt              import  ts_to_ds
 
 
