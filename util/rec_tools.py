@@ -403,8 +403,6 @@ class ohlcv_rec(IntEnum):
 def ohlcv(
     recs: List, 
     resolution: str,
-    start:      str,
-    end:        str,
     out_fmt:    str     = None, # None  = use microsecond timestamp
     trim_empty: bool    = False # False = carry forward close for bars with no trades, True = delete bars with no trades
 ):
@@ -439,7 +437,7 @@ def ohlcv(
 
     step_us = int(step_us)
     i       = 0
-    start   = ds_to_ts(start)
+    start   = recs[0][tas_rec.timestamp]
     end     = start + step_us
     ohlcv   = []
 
