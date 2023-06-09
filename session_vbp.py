@@ -2,12 +2,11 @@ from    bisect                  import  bisect_left
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  delta, vbp
+from    util.features           import  vbp
 from    util.rec_tools          import  get_tas, date_index, tas_rec
-from    util.sc_dt              import  ts_to_ds
 
 
-# usage: python session_vbp.py CLN23_FUT_CME 0.01 2023-06-08 2023-06-09 00.03 03.06 06.11:30 11:30.15 15.23:59:59
+# usage: python session_vbp.py CLN23_FUT_CME 0.01 2023-06-08 2023-06-09 00.03 03.06 06.11:20 11:20.11:30 11:30.15 15.23:59:59
 
 
 FMT = "%Y-%m-%dT%H:%M:%S"
@@ -58,8 +57,8 @@ if __name__ == "__main__":
                             {
                                 "y":        vbp_y,
                                 "nbinsy":   len(set(vbp_y)),
-                                "name":     f"{session_start} - {session_end}",
-                                "opacity":  0.3
+                                "name":     f"{date:15}{session_rng[0]:15}{session_rng[1]:15}",
+                                "opacity":  0.5
                             },
                         ),
                         col
@@ -73,7 +72,6 @@ if __name__ == "__main__":
         cols                = col - 1,
         shared_yaxes        = True,
         horizontal_spacing  = 0.0,
-        vertical_spacing    = 0.025,
         subplot_titles      = ( title, "" )
     )
 
