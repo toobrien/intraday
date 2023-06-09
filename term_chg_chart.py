@@ -39,8 +39,6 @@ if __name__ == "__main__":
         bars = ohlcv(
                 recs, 
                 resolution,
-                start,
-                end,
                 FMT, 
                 trim_empty
             )

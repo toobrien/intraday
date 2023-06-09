@@ -60,8 +60,8 @@ def ohlc(
     window: int
 ):
 
-    bars_a = ohlcv(recs_a, res, start, end, FMT, True)
-    bars_b = ohlcv(recs_b, res, start, end, FMT, True)
+    bars_a = ohlcv(recs_a, res, FMT, True)
+    bars_b = ohlcv(recs_b, res, FMT, True)
 
     a_0 = bars_a[0][ohlcv_rec.c]
     b_0 = bars_b[0][ohlcv_rec.c]
