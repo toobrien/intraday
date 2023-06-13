@@ -13,7 +13,6 @@ from    util.rec_tools          import  get_precision, get_terms, n_days_ago, ta
 def report(
     init_symbol:    str,
     multiplier:     float,
-    precision:      int,
     n_terms:        int,
     start:          str = None,
     end:            str = None
@@ -89,7 +88,6 @@ if __name__ == "__main__":
 
     init_symbol = argv[1]
     multiplier  = argv[2]
-    precision   = get_precision(multiplier)
     n_terms     = int(argv[3])
 
     if len(argv) == 5:
@@ -105,7 +103,6 @@ if __name__ == "__main__":
     report(
         init_symbol,
         float(multiplier),
-        precision,
         n_terms,
         start,
         end
