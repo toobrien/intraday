@@ -1,5 +1,6 @@
 from    collections             import  Counter
 import  plotly.graph_objects    as      go
+from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    typing                  import  List
 from    util.features           import  vbp
@@ -62,9 +63,14 @@ if __name__ == "__main__":
     val_hi      = []
     val_lo      = []
     end         = []
-    fig         = go.Figure()
-
-    fig.update_layout( title = { "text": f"{title} {interval}:{lookback}" })
+    fig         = make_subplots(
+        rows                = 1,
+        cols                = 2,
+        column_widths       = [ 0.1, 0.9 ],
+        shared_yaxes        = True,
+        horizontal_spacing  = 0.0,
+        subplot_titles      = ( "", f"{title} {interval}:{lookback}" ) 
+    )
 
     if not recs:
 
@@ -99,6 +105,21 @@ if __name__ == "__main__":
     val_hi.append(res["val_hi"])
     val_lo.append(res["val_lo"])
     end.append(res["end"])
+
+    vbp_y = vbp(recs)
+
+    fig.add_trace(
+        go.Histogram(
+            {
+                "name":     "vbp",
+                "y":        vbp_y,
+                "nbinsy":   len(set(vbp_y)),
+                "opacity":  0.3
+            }
+        ),
+        row = 1,
+        col = 1
+    ) 
 
     for trace in [
         { 
@@ -141,7 +162,9 @@ if __name__ == "__main__":
     ]:
         
         fig.add_trace(
-            go.Scatter(trace)
+            go.Scatter(trace),
+            row = 1,
+            col = 2
         )
 
     fig.show()
