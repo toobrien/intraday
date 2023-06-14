@@ -7,7 +7,10 @@ from    util.features           import  vbp
 from    util.rec_tools          import  get_tas, tas_rec
 
 
-# usage: python trailing_vbp.py CLQ23_FUT_CME 0.01 1000 5000 2023-06-13 
+# usage:
+#
+#   - python trailing_vbp.py CLQ23_FUT_CME 0.01 1000 5000 2023-06-13 
+#   - python trailing_vbp.py ZRN23_FUT_CME 0.01 25 -
 
 
 COLOR   = "#CCCCCC"
@@ -51,11 +54,11 @@ if __name__ == "__main__":
     title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
     multiplier  = float(argv[2])
     interval    = int(argv[3])
-    lookback    = int(argv[4])
     start       = argv[5] if len(argv) > 5 else None
     end         = argv[6] if len(argv) > 6 else None
     recs        = get_tas(contract_id, multiplier, FMT, start, end)
-    i           = lookback
+    lookback    = int(argv[4]) if argv[4].isdigit() else len(recs)
+    i           = lookback if lookback < len(recs) else interval
     high        = []
     low         = []
     lvn         = []
@@ -80,7 +83,7 @@ if __name__ == "__main__":
 
     while(i < len(recs)):
 
-        selected = recs[i - lookback : i]
+        selected = recs[max(i - lookback, 0) : i]
     
         res = calc_value(selected)
 
@@ -96,7 +99,7 @@ if __name__ == "__main__":
 
     # add final value
 
-    res = calc_value(recs[i - lookback : i])
+    res = calc_value(recs[max(i - lookback, 0) : i])
 
     high.append(res["high"])
     low.append(res["low"])
