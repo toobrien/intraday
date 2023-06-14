@@ -17,7 +17,7 @@ def calc_value(recs: List):
 
     if len(recs) > 1:
 
-        y       = vbp(recs)
+        y       = sorted(vbp(recs))
         end     = recs[-1][tas_rec.timestamp]
         counts  = Counter(y)
         prices  = list(counts.keys())
@@ -88,22 +88,31 @@ if __name__ == "__main__":
     end.append(res["end"])
 
     for trace in [
-        ( high, "#0000FF", "high" ),
-        ( low, "#FF0000", "low" ),
-        #( lvn, "#CCCCCC", "lvn" ),
-        ( poc, "#FF00FF", "poc" ),
+        { 
+            "x":        end,
+            "y":        high,
+            "line":     { "shape": "hv" }, 
+            "marker":   { "color": "#CCCCCC" }, 
+            #"mode":     "none" 
+        },
+        {
+            "x":        end,
+            "y":        low,
+            "fill":     "tonexty",
+            "line":     { "shape": "hv" },
+            "marker":   { "color": "#CCCCCC" },
+            #"mode":     "none"
+        },
+        {
+            "x":        end,
+            "y":        poc,
+            "line":     { "shape": "hv" },
+            "marker":   { "color": "#FF00FF" }
+        }
     ]:
         
         fig.add_trace(
-            go.Scatter(
-                {
-                    "x":        end,
-                    "y":        trace[0],
-                    "line":     { "shape": "hv" },
-                    "marker":   { "color": trace[1] },
-                    "name":     trace[2]
-                }
-            )
+            go.Scatter(trace)
         )
 
     fig.show()
