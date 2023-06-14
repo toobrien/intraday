@@ -64,6 +64,7 @@ if __name__ == "__main__":
     end         = []
     fig         = go.Figure()
 
+    fig.update_layout( title = { "text": f"{title} {interval}:{lookback}" })
 
     if not recs:
 
