@@ -11,6 +11,8 @@ from    util.rec_tools          import  get_tas, tas_rec
 
 COLOR   = "#CCCCCC"
 FMT     = "%Y-%m-%dT%H:%M:%S"
+VAL_HI  = 0.85
+VAL_LO  = 0.15
 
 
 def calc_value(recs: List):
@@ -28,13 +30,17 @@ def calc_value(recs: List):
         lvn     = prices[vals.index(lvn_qty)]
         high    = max(prices)
         low     = min(prices)
+        val_hi  = y[int(len(y) * VAL_HI)]
+        val_lo  = y[int(len(y) * VAL_LO)]
 
         return {
-            "high": high,
-            "low":  low,
-            "lvn":  lvn,
-            "poc":  poc,
-            "end":  end
+            "high":     high,
+            "low":      low,
+            "lvn":      lvn,
+            "poc":      poc,
+            "end":      end,
+            "val_hi":   val_hi,
+            "val_lo":   val_lo
         }
 
 
@@ -53,6 +59,8 @@ if __name__ == "__main__":
     low         = []
     lvn         = []
     poc         = []
+    val_hi      = []
+    val_lo      = []
     end         = []
     fig         = go.Figure()
 
@@ -74,6 +82,8 @@ if __name__ == "__main__":
         lvn.append(res["lvn"])
         poc.append(res["poc"])
         end.append(res["end"])
+        val_hi.append(res["val_hi"])
+        val_lo.append(res["val_lo"])
         
         i = min(i + interval, len(recs))
 
@@ -85,6 +95,8 @@ if __name__ == "__main__":
     low.append(res["low"])
     lvn.append(res["lvn"])
     poc.append(res["poc"])
+    val_hi.append(res["val_hi"])
+    val_lo.append(res["val_lo"])
     end.append(res["end"])
 
     for trace in [
@@ -92,8 +104,8 @@ if __name__ == "__main__":
             "x":        end,
             "y":        high,
             "line":     { "shape": "hv" }, 
-            "marker":   { "color": "#CCCCCC" }, 
-            #"mode":     "none" 
+            "marker":   { "color": "#CCCCCC" },
+            "name":     "high"
         },
         {
             "x":        end,
@@ -101,13 +113,29 @@ if __name__ == "__main__":
             "fill":     "tonexty",
             "line":     { "shape": "hv" },
             "marker":   { "color": "#CCCCCC" },
-            #"mode":     "none"
+            "name":     "low"
+        },
+        { 
+            "x":        end,
+            "y":        val_hi,
+            "line":     { "shape": "hv" }, 
+            "marker":   { "color": "#5A5A5A" },
+            "name":     "val_hi"
+        },
+        {
+            "x":        end,
+            "y":        val_lo,
+            "fill":     "tonexty",
+            "line":     { "shape": "hv" },
+            "marker":   { "color": "#5A5A5A" },
+            "name":     "val_lo"
         },
         {
             "x":        end,
             "y":        poc,
             "line":     { "shape": "hv" },
-            "marker":   { "color": "#FF00FF" }
+            "marker":   { "color": "#FF00FF" },
+            "name":     "poc"
         }
     ]:
         
