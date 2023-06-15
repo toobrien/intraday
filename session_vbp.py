@@ -1,6 +1,5 @@
 from    bisect                  import  bisect_left
 import  plotly.graph_objects    as      go
-from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    util.features           import  vbp
 from    util.rec_tools          import  get_tas, date_index, tas_rec
@@ -52,36 +51,25 @@ if __name__ == "__main__":
                 vbp_y = vbp(session_recs)
 
                 traces.append(
-                    (
-                        go.Histogram(
-                            {
-                                "y":        vbp_y,
-                                "nbinsy":   len(set(vbp_y)),
-                                "name":     f"{date:15}{session_rng[0]:15}{session_rng[1]:15}",
-                                "opacity":  0.5
-                            },
-                        ),
-                        col
+                    go.Violin(
+                        {
+                            "y":            vbp_y,
+                            "name":         f"{date:15}{session_rng[0]:15}{session_rng[1]:15}",
+                            "opacity":      0.5,
+                            "orientation":  "v",
+                            "side":         "positive",
+                            "points":       False
+                        }
                     )
                 )
 
-                col += 1
-
-    fig = make_subplots(
-        rows                = 1,
-        cols                = col - 1,
-        shared_yaxes        = True,
-        horizontal_spacing  = 0.0,
-        subplot_titles      = ( title, "" )
-    )
+    fig = go.Figure()
 
     for trace in traces:
 
-        fig.add_trace(
-            trace[0],
-            row = 1,
-            col = trace[1]
-        )
+        fig.add_trace(trace)
+
+    fig.update_traces(width = 3)
 
     fig.show()
 
