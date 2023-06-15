@@ -146,6 +146,8 @@ def date_index(instrument_id: str, recs: List) -> dict:
     indexes     = []
     idx         = INDEXES[instrument_id]
     keys        = list(idx.keys())
+    start       = max(start, keys[0])
+    end         = min(end, keys[-1])
     keys        = keys[keys.index(start) : keys.index(end) + 1]
     start_i     = idx[start]
     res         = {}
