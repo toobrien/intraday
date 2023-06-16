@@ -9,8 +9,8 @@ from    util.rec_tools          import  get_tas, tas_rec
 
 # usage:
 #
-#   - python trailing_vbp.py CLQ23_FUT_CME 0.01 1000 5000 2023-06-13 
-#   - python trailing_vbp.py ZRN23_FUT_CME 0.01 25 -
+#   - python value.py CLQ23_FUT_CME 0.01 1000 5000 2023-06-13 
+#   - python value.py ZRN23_FUT_CME 0.01 25 -
 
 
 COLOR   = "#CCCCCC"

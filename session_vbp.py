@@ -69,7 +69,8 @@ if __name__ == "__main__":
 
         fig.add_trace(trace)
 
-    fig.update_traces(width = 3)
+    fig.update_layout(title = title)
+    fig.update_traces(width = 5)
 
     fig.show()
 
