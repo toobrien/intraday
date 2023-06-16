@@ -6,7 +6,7 @@ from    util.rec_tools          import  get_tas, ohlcv, ohlcv_rec, tas_rec
 from    util.sc_dt              import  ts_to_ds
 
 
-# usage: python period_vbp.py CLN23_FUT_CME 0.01 1:H 2023-06-08
+# usage: python period_vbp.py CLN23_FUT_CME 0.01 1:H 2023-06-16
 
 
 MIN = 10 # sometimes a few trades print during a break... ignore these
@@ -23,15 +23,13 @@ if __name__ == "__main__":
     end         = argv[5] if len(argv) > 5 else None
     recs        = get_tas(contract_id, multiplier, None, start, end)
     bars        = ohlcv(recs, resolution)
+    fig         = go.Figure()
 
     if not recs:
 
         print("no records matched")
 
         exit()
-
-    traces  = []
-    col     = 1
 
     for bar in bars:
 
@@ -43,37 +41,18 @@ if __name__ == "__main__":
             name        = f"{start_ds}"
             vbp_y       = vbp(selected)
 
-            traces.append(
-                (
-                    go.Histogram(
-                        {
-                            "y":            vbp_y,
-                            "nbinsy":       len(set(vbp_y)),
-                            "name":         name,
-                            "marker_color": "#FF00FF",
-                            "opacity":      0.5
-                        },
-                    ),
-                    col
+            fig.add_trace(
+                go.Violin(
+                    {
+                        "y":                vbp_y,
+                        "opacity":          0.5,
+                        "orientation":      "v",
+                        "side":             "positive",
+                        "points":           False,
+                        "marker":           { "color": "#FF00FF" },
+                        "name":             name
+                    }
                 )
             )
-
-            col += 1
-
-    fig = make_subplots(
-        rows                = 1,
-        cols                = col - 1,
-        shared_yaxes        = True,
-        horizontal_spacing  = 0.0,
-        subplot_titles      = ( title, )
-    )
-
-    for trace in traces:
-
-        fig.add_trace(
-            trace[0],
-            row = 1,
-            col = trace[1]
-        )
 
     fig.show()

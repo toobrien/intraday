@@ -436,6 +436,10 @@ def ohlcv(
     elif unit == "D":
 
         step_us *= 8.64e10
+    
+    elif unit == "W":
+
+        step_us *=  6.048e11
 
     step_us = int(step_us)
     i       = 0
