@@ -7,8 +7,22 @@ from    util.rec_tools          import  get_tas, date_index, tas_rec
 
 # usage: python session_vbp.py CLN23_FUT_CME 0.01 2023-06-08 2023-06-09 00.03 03.06 06.11:20 11:20.11:30 11:30.15 15.23:59:59
 
+# (maximum 10 sessions)
+
 
 FMT = "%Y-%m-%dT%H:%M:%S"
+SESSION_COLORS = [
+    "#3b719f",
+    "#4f7fa9", 
+    "#628db2", 
+    "#769cbc",
+    "#89aac5",
+    "#9db8cf",
+    "#b1c6d9",
+    "#c4d4e2",
+    "#d8e3ec",
+    "#ebf1f5",
+]
 
 
 if __name__ == "__main__":
@@ -29,7 +43,7 @@ if __name__ == "__main__":
 
     comp    = lambda r: r[tas_rec.timestamp]
     traces  = []
-    col     = 1
+    clr_i   = 0
     idx     = date_index(contract_id, recs)
 
     for date, day_rng in idx.items():
@@ -55,13 +69,16 @@ if __name__ == "__main__":
                         {
                             "y":            vbp_y,
                             "name":         f"{date:15}{session_rng[0]:15}{session_rng[1]:15}",
-                            "opacity":      0.5,
                             "orientation":  "v",
                             "side":         "positive",
+                            "scalemode":    "count",
+                            "marker":       { "color": SESSION_COLORS[clr_i % len(sessions)] },
                             "points":       False
                         }
                     )
                 )
+            
+            clr_i += 1
 
     fig = go.Figure()
 
