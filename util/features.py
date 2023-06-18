@@ -171,11 +171,16 @@ def vbp(recs: List):
     return hist
 
 
-def vbp_kde(vbp: List):
+def vbp_kde(vbp: List, bandwidth = None):
 
     prices          = sorted(list(set(vbp)))
     max_volume      = vbp.count(mode(vbp))
     kernel          = gaussian_kde(vbp)
+
+    if bandwidth:
+    
+        kernel.set_bandwidth(bw_method = bandwidth)
+
     estimate        = kernel.evaluate(prices)
 
     return prices, estimate, max_volume
