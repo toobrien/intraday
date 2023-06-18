@@ -9,7 +9,7 @@ from    util.sc_dt              import  ts_to_ds
 
 # usage: python split_tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
 
-
+BANDWIDTH   = None
 EWMA_LEN    = 50
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     vbp_hist                = vbp(recs)
     twap_x, twap_y          = twap(recs)
-    vbp_y, vbp_x, max_vol   = vbp_kde(vbp_hist)
+    vbp_y, vbp_x, max_vol   = vbp_kde(vbp_hist, BANDWIDTH)
 
     bid_x   = [ ts_to_ds(val, FMT) for val in bid_x ]
     ask_x   = [ ts_to_ds(val, FMT) for val in ask_x ]

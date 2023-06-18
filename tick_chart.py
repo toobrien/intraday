@@ -9,7 +9,8 @@ from    util.sc_dt              import  ts_to_ds
 # usage: python tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
 
 
-FMT = "%Y-%m-%dT%H:%M:%S.%f"
+BANDWIDTH   = None
+FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 
 
 if __name__ == "__main__":
@@ -30,7 +31,7 @@ if __name__ == "__main__":
 
     x, y, z, t, c           = tick_series(recs)
     vbp_hist                = vbp(recs)
-    vbp_y, vbp_x, max_vol   = vbp_kde(vbp_hist)
+    vbp_y, vbp_x, max_vol   = vbp_kde(vbp_hist, BANDWIDTH)
     deltas                  = delta(recs)
     text                    = []
 
