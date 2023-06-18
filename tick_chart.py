@@ -82,10 +82,11 @@ if __name__ == "__main__":
     fig.add_trace(
         go.Histogram(
             {
-                "name":     "vbp",
-                "y":        vbp_hist,
-                "nbinsy":   len(set(vbp_hist)),
-                "opacity":  0.3
+                "name":         "vbp",
+                "y":            vbp_hist,
+                "nbinsy":       len(set(vbp_hist)),
+                "opacity":      0.5,
+                "marker_color": "#0000FF"
             }
         ),
         row = 1,
@@ -95,15 +96,15 @@ if __name__ == "__main__":
     fig.add_trace(
         go.Scatter(
             {
-                "x": [ val * max_vol for val in vbp_x ],
-                "y": vbp_y,
-                "name": "vbp_kde"
+                "x":        [ val * max_vol for val in vbp_x ],
+                "y":        vbp_y,
+                "name":     "vbp_kde",
+                "marker":   { "color": "#FF0000" }
             }
         ),
         row = 1,
         col = 1
     )
-
 
     fig.add_trace(
         go.Scatter(
