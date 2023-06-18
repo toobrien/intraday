@@ -20,11 +20,61 @@ if __name__ == "__main__":
     end         = argv[6] if len(argv) > 6 else None
     recs        = get_tas(contract_id, multiplier, FMT, start, end)
     fig         = go.Figure()
+    prev_poc    = None
     i           = 0
     j           = interval
+    values      = []
 
     if not recs:
 
         print("no records matched")
 
         exit()
+
+    while j < len(recs):
+
+        hist    = vbp(recs[i:j])
+        poc     = mode(hist)
+
+        if not prev_poc:
+
+            prev_poc = poc
+        
+        elif abs(poc - prev_poc) > max_std:
+
+            # new value, record old
+
+            values.append((i, j))
+
+            i = j
+        
+        # else: continue adding records to current value
+
+        j += interval
+    
+    # add most recent
+
+    values.append((i, len(recs)))
+
+    for value in values:
+
+        i, j    = value
+        hist    = vbp(recs[i:j])
+        start   = recs[i][tas_rec.timestamp]
+        end     = recs[j - 1][tas_rec.timestamp]
+
+        fig.add_trace(
+            go.Violin(
+                {
+                    "y":            hist,
+                    "opacity":      0.5,
+                    "orientation":  "v",
+                    "side":         "positive",
+                    "points":       False,
+                    "marker":       { "color": "#0000FF" },
+                    "name":         f"{start} - {end}"
+                }
+            )
+        )
+    
+    fig.show()
