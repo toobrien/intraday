@@ -5,7 +5,7 @@ from    util.features           import  vbp
 from    util.rec_tools          import  get_tas, tas_rec
 
 
-# usage: python auto_vbp.py CLQ23_FUT_CME 0.01 0.10 1000 2023-06-16
+# usage: python auto_vbp.py CLQ23_FUT_CME 0.01 0.20 1000 2023-06-16
 
 FMT     = "%Y-%m-%dT%H:%M:%S"
 
