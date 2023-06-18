@@ -176,11 +176,27 @@ def vbp_kde(vbp: List, bandwidth = None):
     prices          = sorted(list(set(vbp)))
     max_volume      = vbp.count(mode(vbp))
     kernel          = gaussian_kde(vbp)
+    minima          = []
+    maxima          = []
 
     if bandwidth:
     
         kernel.set_bandwidth(bw_method = bandwidth)
 
-    estimate        = kernel.evaluate(prices)
+    estimate = kernel.evaluate(prices)
 
-    return prices, estimate, max_volume
+    for i in range(1, len(estimate) - 1):
+
+        prev = estimate[i - 1]
+        cur  = estimate[i]
+        next = estimate[i + 1]
+
+        if prev < cur and next < cur:
+
+            maxima.append(prices[i])
+        
+        elif cur < prev and cur < next:
+
+            minima.append(prices[i])
+
+    return prices, estimate, max_volume, maxima, minima

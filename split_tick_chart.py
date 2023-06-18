@@ -9,7 +9,7 @@ from    util.sc_dt              import  ts_to_ds
 
 # usage: python split_tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
 
-BANDWIDTH   = None
+BANDWIDTH   = 0.15
 EWMA_LEN    = 50
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 
@@ -38,9 +38,9 @@ if __name__ == "__main__":
     bid_liq_ewma = ewma(bid_z, EWMA_LEN)
     ask_liq_ewma = ewma(ask_z, EWMA_LEN)
 
-    vbp_hist                = vbp(recs)
-    twap_x, twap_y          = twap(recs)
-    vbp_y, vbp_x, max_vol   = vbp_kde(vbp_hist, BANDWIDTH)
+    vbp_hist                                = vbp(recs)
+    twap_x, twap_y                          = twap(recs)
+    vbp_y, vbp_x, max_vol, maxima, minima   = vbp_kde(vbp_hist, BANDWIDTH)
 
     bid_x   = [ ts_to_ds(val, FMT) for val in bid_x ]
     ask_x   = [ ts_to_ds(val, FMT) for val in ask_x ]
@@ -66,6 +66,8 @@ if __name__ == "__main__":
         horizontal_spacing  = 0.0225,
         subplot_titles      = ( title, "" )
     )
+
+    fig.update_yaxes(showgrid = False)
 
     for trace in [
         ( bid_x, bid_y, bid_z, bid_liq_ewma, up_tick_time_x, up_tick_time_y, "bid", "#FF0000", "#0000FF" ),
@@ -150,6 +152,13 @@ if __name__ == "__main__":
         col = 1
     )
 
+    for m in maxima:
+
+        fig.add_hline(y = m, line_dash = "dash", line_color = "#0000FF", opacity = 0.5)
+
+    for m in minima:
+
+        fig.add_hline(y = m, line_dash = "dash", line_color = "#FF0000", opacity = 0.5)
 
     fig.add_trace(
         go.Scattergl(

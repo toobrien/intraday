@@ -9,7 +9,7 @@ from    util.sc_dt              import  ts_to_ds
 # usage: python tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
 
 
-BANDWIDTH   = None
+BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 
 
@@ -29,11 +29,11 @@ if __name__ == "__main__":
 
         exit()
 
-    x, y, z, t, c           = tick_series(recs)
-    vbp_hist                = vbp(recs)
-    vbp_y, vbp_x, max_vol   = vbp_kde(vbp_hist, BANDWIDTH)
-    deltas                  = delta(recs)
-    text                    = []
+    x, y, z, t, c                           = tick_series(recs)
+    vbp_hist                                = vbp(recs)
+    vbp_y, vbp_x, max_vol, maxima, minima   = vbp_kde(vbp_hist, BANDWIDTH)
+    deltas                                  = delta(recs)
+    text                                    = []
 
     for i in range(len(z)):
 
@@ -58,6 +58,8 @@ if __name__ == "__main__":
         vertical_spacing    = 0.025,
         subplot_titles      = ( title, "" )
     )
+
+    fig.update_yaxes(showgrid = False)
 
     fig.add_trace(
         go.Scattergl(
@@ -106,6 +108,14 @@ if __name__ == "__main__":
         row = 1,
         col = 1
     )
+
+    for m in maxima:
+
+        fig.add_hline(y = m, line_dash = "dash", line_color = "#0000FF", opacity = 0.5)
+
+    for m in minima:
+
+        fig.add_hline(y = m, line_dash = "dash", line_color = "#FF0000", opacity = 0.5)
 
     fig.add_trace(
         go.Scatter(
