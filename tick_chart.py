@@ -1,7 +1,7 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  delta, vbp
+from    util.features           import  delta, vbp, vbp_kde
 from    util.rec_tools          import  get_tas, tick_series
 from    util.sc_dt              import  ts_to_ds
 
@@ -28,10 +28,11 @@ if __name__ == "__main__":
 
         exit()
 
-    x, y, z, t, c   = tick_series(recs)
-    vbp_hist        = vbp(recs)
-    deltas          = delta(recs)
-    text            = []
+    x, y, z, t, c           = tick_series(recs)
+    vbp_hist                = vbp(recs)
+    vbp_y, vbp_x, max_vol   = vbp_kde(vbp_hist)
+    deltas                  = delta(recs)
+    text                    = []
 
     for i in range(len(z)):
 
@@ -85,6 +86,18 @@ if __name__ == "__main__":
                 "y":        vbp_hist,
                 "nbinsy":   len(set(vbp_hist)),
                 "opacity":  0.3
+            }
+        ),
+        row = 1,
+        col = 1
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            {
+                "x": [ val * max_vol for val in vbp_x ],
+                "y": vbp_y,
+                "name": "vbp_kde"
             }
         ),
         row = 1,

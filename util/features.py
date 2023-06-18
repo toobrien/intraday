@@ -1,5 +1,7 @@
+from collections    import Counter
 from polars         import Series
-from statistics     import mean
+from scipy.stats    import gaussian_kde
+from statistics     import mean, mode
 from typing         import List
 from util.rec_tools import tas_rec
 
@@ -167,3 +169,13 @@ def vbp(recs: List):
         hist += ([ rec[tas_rec.price] ] * rec[tas_rec.qty])
     
     return hist
+
+
+def vbp_kde(vbp: List):
+
+    prices          = sorted(list(set(vbp)))
+    max_volume      = vbp.count(mode(vbp))
+    kernel          = gaussian_kde(vbp)
+    estimate        = kernel.evaluate(prices)
+
+    return prices, estimate, max_volume

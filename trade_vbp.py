@@ -7,7 +7,7 @@ from    util.rec_tools          import  get_tas, tas_rec
 
 # usage:
 #
-#   - python value_hist.py CLQ23_FUT_CME 0.01 1000 2023-06-15
+#   - python trade_vbp.py CLQ23_FUT_CME 0.01 1000 2023-06-15
 
 
 FMT     = "%Y-%m-%dT%H:%M:%S"

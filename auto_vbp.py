@@ -1,0 +1,30 @@
+import  plotly.graph_objects    as      go
+from    statistics              import  mode
+from    sys                     import  argv
+from    util.features           import  vbp
+from    util.rec_tools          import  get_tas, tas_rec
+
+
+# usage: python auto_vbp.py CLQ23_FUT_CME 0.01 0.10 1000 2023-06-16
+
+FMT     = "%Y-%m-%dT%H:%M:%S"
+
+if __name__ == "__main__":
+
+    contract_id = argv[1]
+    title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
+    multiplier  = float(argv[2])
+    max_std     = float(argv[3])
+    interval    = int(argv[4])
+    start       = argv[5] if len(argv) > 5 else None
+    end         = argv[6] if len(argv) > 6 else None
+    recs        = get_tas(contract_id, multiplier, FMT, start, end)
+    fig         = go.Figure()
+    i           = 0
+    j           = interval
+
+    if not recs:
+
+        print("no records matched")
+
+        exit()

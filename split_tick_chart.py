@@ -1,7 +1,7 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  ewma, liq_by_price, tick_time, twap, vbp
+from    util.features           import  ewma, liq_by_price, tick_time, twap, vbp, vbp_kde
 from    util.parsers            import  tas_rec
 from    util.rec_tools          import  get_tas, split_tick_series
 from    util.sc_dt              import  ts_to_ds
@@ -38,8 +38,9 @@ if __name__ == "__main__":
     bid_liq_ewma = ewma(bid_z, EWMA_LEN)
     ask_liq_ewma = ewma(ask_z, EWMA_LEN)
 
-    vbp_x           = vbp(recs)
-    twap_x, twap_y  = twap(recs)
+    vbp_hist                = vbp(recs)
+    twap_x, twap_y          = twap(recs)
+    vbp_y, vbp_x, max_vol   = vbp_kde(vbp_hist)
 
     bid_x   = [ ts_to_ds(val, FMT) for val in bid_x ]
     ask_x   = [ ts_to_ds(val, FMT) for val in ask_x ]
@@ -126,14 +127,27 @@ if __name__ == "__main__":
         go.Histogram(
             {
                 "name":     "vbp",
-                "y":        vbp_x,
-                "nbinsy":   len(set(vbp_x)),
+                "y":        vbp_hist,
+                "nbinsy":   len(set(vbp_hist)),
                 "opacity":  0.5
             }
         ),
         row = 1,
         col = 1
     )
+
+    fig.add_trace(
+        go.Scatter(
+            {
+                "x": [ val * max_vol for val in vbp_x ],
+                "y": vbp_y,
+                "name": "vbp_kde"
+            }
+        ),
+        row = 1,
+        col = 1
+    )
+
 
     fig.add_trace(
         go.Scattergl(
