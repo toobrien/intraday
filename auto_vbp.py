@@ -20,7 +20,8 @@ if __name__ == "__main__":
     end         = argv[6] if len(argv) > 6 else None
     recs        = get_tas(contract_id, multiplier, FMT, start, end)
     fig         = go.Figure()
-    prev_poc    = None
+    long_poc    = None
+    short_poc   = None
     i           = 0
     j           = interval
     values      = []
@@ -33,20 +34,19 @@ if __name__ == "__main__":
 
     while j < len(recs):
 
-        hist    = vbp(recs[i:j])
-        poc     = mode(hist)
+        long_hist   = vbp(recs[i:j])
+        short_hist  = vbp(recs[j - interval: j])
+        long_poc    = mode(long_hist)
+        short_poc   = mode(short_hist)
 
-        if not prev_poc:
 
-            prev_poc = poc
-        
-        elif abs(poc - prev_poc) > max_std:
+        if abs(short_poc - long_poc) > max_std:
 
             # new value, record old
 
-            values.append((i, j))
+            values.append((i, j - interval))
 
-            i = j
+            i = j - interval
         
         # else: continue adding records to current value
 
