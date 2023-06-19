@@ -154,11 +154,23 @@ if __name__ == "__main__":
 
     for m in maxima:
 
-        fig.add_hline(y = m, line_dash = "dash", line_color = "#0000FF", opacity = 0.5)
+        fig.add_hline(
+            y               = m,
+            line_dash       = "dash", 
+            line_color      = "#0000FF", 
+            opacity         = 0.3,
+            annotation_text = str(m)
+        )
 
     for m in minima:
 
-        fig.add_hline(y = m, line_dash = "dash", line_color = "#FF0000", opacity = 0.5)
+        fig.add_hline(
+            y               = m,
+            line_dash       = "dash",
+            line_color      = "#FF0000",
+            opacity         = 0.5,
+            annotation_text = str(m)
+        )
 
     fig.add_trace(
         go.Scattergl(
