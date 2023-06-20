@@ -1,7 +1,8 @@
-from collections    import Counter
+from bisect         import bisect_left, bisect_right
+from numpy          import arange
 from polars         import Series
-from scipy.stats    import gaussian_kde
-from statistics     import mean, mode
+from scipy.stats    import gaussian_kde, norm
+from statistics     import mean, mode, stdev
 from typing         import List
 from util.rec_tools import tas_rec
 
@@ -171,11 +172,11 @@ def vbp(recs: List):
     return hist
 
 
-def vbp_kde(vbp: List, bandwidth = None):
+def vbp_kde(hist: List, bandwidth = None):
 
-    prices          = sorted(list(set(vbp)))
-    max_volume      = vbp.count(mode(vbp))
-    kernel          = gaussian_kde(vbp)
+    prices          = sorted(list(set(hist)))
+    max_volume      = hist.count(mode(hist))
+    kernel          = gaussian_kde(hist)
     minima          = []
     maxima          = []
 
@@ -200,3 +201,62 @@ def vbp_kde(vbp: List, bandwidth = None):
             minima.append(prices[i])
 
     return prices, estimate, max_volume, maxima, minima
+
+
+def gaussian_estimates(
+    maxima: List,
+    minima: List,
+    hist:   List,
+    stdevs: int = 3
+):
+
+    maxima  = list(reversed(maxima))
+    minima  = list(reversed(minima))
+    hist    = sorted(hist)
+    pairs   = []
+    res     = {}
+
+    # maxima and minima come from vbp_kde: len(maxima) == len(minima) + 1
+    # they are paired sequentially--first hvn with first lvn, or lowest price in hist
+
+    for i in range(len(maxima)):
+
+        pairs.append(( maxima[i], minima[i] if i < len(minima) else hist[0] ))
+    
+    for pair in pairs:
+
+        hi          = pair[0] # hvn
+        lo          = pair[1] # lvn or lowest price in hist
+
+        # mirror histogram
+
+        selected    = hist[bisect_left(hist, lo) : bisect_right(hist, hi)]
+        j           = bisect_left(selected, hi)
+        tick_size   = selected[j] - selected[j - 1] # assumes continuous trading one tick from poc!
+        left        = selected[0:j]
+        hvn_count   = selected.count(mode(selected))
+        right       = [ 0 ] * len(left)
+
+        for i in range(len(left)):
+
+            right[i] = hi + (hi - left[i])
+
+        # sample pdf
+
+        x       = selected + right
+        mu      = mean(x)
+        sigma   = stdev(x)
+        y       = arange(mu - stdevs * sigma, mu + stdevs * sigma, tick_size)
+        x       = norm.pdf(y, loc = mu, scale = sigma)
+
+        res[f"{mu:0.2f} hvn"] = {
+            "y": y,
+            "x": x,
+            "mu": mu,
+            "sigma": sigma,
+            "scale_factor": hvn_count / norm.pdf(mu, mu, sigma)
+        }
+
+    return res
+
+

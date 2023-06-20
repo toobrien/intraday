@@ -1,7 +1,7 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  delta, vbp, vbp_kde
+from    util.features           import  delta, gaussian_estimates, vbp, vbp_kde
 from    util.rec_tools          import  get_tas, tick_series
 from    util.sc_dt              import  ts_to_ds
 
@@ -11,6 +11,11 @@ from    util.sc_dt              import  ts_to_ds
 
 BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
+STDEVS      = 4
+KDE         = True
+GAUSSIAN    = False
+HVN         = False
+LVN         = True
 
 
 if __name__ == "__main__":
@@ -20,6 +25,7 @@ if __name__ == "__main__":
     multiplier  = float(argv[2])
     start       = argv[3] if len(argv) > 3 else None
     end         = argv[4] if len(argv) > 4 else None
+    title       = f"{title} {start} - {end}"
 
     recs = get_tas(contract_id, multiplier, None, start, end)
 
@@ -32,6 +38,7 @@ if __name__ == "__main__":
     x, y, z, t, c                           = tick_series(recs)
     vbp_hist                                = vbp(recs)
     vbp_y, vbp_x, max_vol, maxima, minima   = vbp_kde(vbp_hist, BANDWIDTH)
+    gaussians                               = gaussian_estimates(maxima, minima, vbp_hist, STDEVS)
     deltas                                  = delta(recs)
     text                                    = []
 
@@ -99,39 +106,6 @@ if __name__ == "__main__":
     fig.add_trace(
         go.Scatter(
             {
-                "x":        [ val * max_vol for val in vbp_x ],
-                "y":        vbp_y,
-                "name":     "vbp_kde",
-                "marker":   { "color": "#FF0000" }
-            }
-        ),
-        row = 1,
-        col = 1
-    )
-
-    for m in maxima:
-
-        fig.add_hline(
-            y               = m,
-            line_dash       = "dash", 
-            line_color      = "#0000FF", 
-            opacity         = 0.3,
-            annotation_text = str(m)
-        )
-
-    for m in minima:
-
-        fig.add_hline(
-            y               = m,
-            line_dash       = "dash",
-            line_color      = "#FF0000",
-            opacity         = 0.5,
-            annotation_text = str(m)
-        )
-
-    fig.add_trace(
-        go.Scatter(
-            {
                 "name": "delta",
                 "x":    x,
                 "y":    deltas,
@@ -142,5 +116,72 @@ if __name__ == "__main__":
         row = 2,
         col = 2
     )
+
+    if KDE:
+
+        fig.add_trace(
+            go.Scatter(
+                {
+                    "x":        [ val * max_vol for val in vbp_x ],
+                    "y":        vbp_y,
+                    "name":     "vbp_kde",
+                    "marker":   { "color": "#FF0000" }
+                }
+            ),
+            row = 1,
+            col = 1
+        )
+
+        if HVN:
+
+            for hvn in maxima:
+
+                fig.add_hline(
+                    y               = hvn,
+                    line_dash       = "dash", 
+                    line_color      = "#0000FF", 
+                    opacity         = 0.3,
+                    annotation_text = str(hvn)
+                )
+
+        if LVN:
+
+            for lvn in minima:
+
+                fig.add_hline(
+                    y               = lvn,
+                    line_dash       = "dash",
+                    line_color      = "#FF0000",
+                    opacity         = 0.5,
+                    annotation_text = str(lvn)
+                )
+
+    if GAUSSIAN:
+
+        for title, data in gaussians.items():
+
+            scale_factor    = data["scale_factor"]
+            mu              = data["mu"]
+
+            fig.add_trace(
+                go.Scatter(
+                    {
+                        "x": [ x * scale_factor for x in data["x"] ],
+                        "y": data["y"],
+                        "marker": { "color": "#ff66ff" },
+                        "name": title
+                    }
+                ),
+                row = 1,
+                col = 1
+            )
+
+            fig.add_hline(
+                y                   = mu,
+                line_dash           = "dash",
+                line_color          = "#ff66ff",
+                opacity             = 0.5,
+                annotation_text     = f"{mu:0.2f}"
+            )
 
     fig.show()
