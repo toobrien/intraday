@@ -175,7 +175,8 @@ def vbp(recs: List):
 def vbp_kde(hist: List, bandwidth = None):
 
     prices          = sorted(list(set(hist)))
-    max_volume      = hist.count(mode(hist))
+    hvn             = mode(hist)       
+    max_volume      = hist.count(hvn)
     kernel          = gaussian_kde(hist)
     minima          = []
     maxima          = []
@@ -184,7 +185,8 @@ def vbp_kde(hist: List, bandwidth = None):
     
         kernel.set_bandwidth(bw_method = bandwidth)
 
-    estimate = kernel.evaluate(prices)
+    estimate        = kernel.evaluate(prices)
+    scale_factor    = max_volume / kernel.evaluate(hvn)[0]
 
     for i in range(1, len(estimate) - 1):
 
@@ -200,7 +202,7 @@ def vbp_kde(hist: List, bandwidth = None):
 
             minima.append(prices[i])
 
-    return prices, estimate, max_volume, maxima, minima
+    return prices, estimate, scale_factor, maxima, minima
 
 
 def gaussian_estimates(

@@ -12,8 +12,8 @@ from    util.sc_dt              import  ts_to_ds
 BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 STDEVS      = 4
-KDE         = False
-GAUSSIAN    = True
+KDE         = True
+GAUSSIAN    = False
 HVN         = True
 LVN         = True
 
@@ -35,12 +35,12 @@ if __name__ == "__main__":
 
         exit()
 
-    x, y, z, t, c                           = tick_series(recs)
-    vbp_hist                                = vbp(recs)
-    vbp_y, vbp_x, max_vol, maxima, minima   = vbp_kde(vbp_hist, BANDWIDTH)
-    gaussians                               = gaussian_estimates(maxima, minima, vbp_hist, STDEVS)
-    deltas                                  = delta(recs)
-    text                                    = []
+    x, y, z, t, c                               = tick_series(recs)
+    vbp_hist                                    = vbp(recs)
+    vbp_y, vbp_x, scale_factor, maxima, minima  = vbp_kde(vbp_hist, BANDWIDTH)
+    gaussians                                   = gaussian_estimates(maxima, minima, vbp_hist, STDEVS)
+    deltas                                      = delta(recs)
+    text                                        = []
 
     for i in range(len(z)):
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         fig.add_trace(
             go.Scatter(
                 {
-                    "x":        [ val * max_vol for val in vbp_x ],
+                    "x":        [ val * scale_factor for val in vbp_x ],
                     "y":        vbp_y,
                     "name":     "vbp_kde",
                     "marker":   { "color": "#FF0000" }
