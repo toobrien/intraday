@@ -12,9 +12,9 @@ from    util.sc_dt              import  ts_to_ds
 BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 STDEVS      = 4
-KDE         = True
-GAUSSIAN    = False
-HVN         = False
+KDE         = False
+GAUSSIAN    = True
+HVN         = True
 LVN         = True
 
 
@@ -141,7 +141,8 @@ if __name__ == "__main__":
                     line_dash       = "dash", 
                     line_color      = "#0000FF", 
                     opacity         = 0.3,
-                    annotation_text = str(hvn)
+                    annotation_text = str(hvn),
+                    row             = 1
                 )
 
         if LVN:
@@ -153,7 +154,8 @@ if __name__ == "__main__":
                     line_dash       = "dash",
                     line_color      = "#FF0000",
                     opacity         = 0.5,
-                    annotation_text = str(lvn)
+                    annotation_text = str(lvn),
+                    row             = 1
                 )
 
     if GAUSSIAN:
@@ -162,6 +164,7 @@ if __name__ == "__main__":
 
             scale_factor    = data["scale_factor"]
             mu              = data["mu"]
+            sigma           = data["sigma"]
 
             fig.add_trace(
                 go.Scatter(
@@ -169,7 +172,7 @@ if __name__ == "__main__":
                         "x": [ x * scale_factor for x in data["x"] ],
                         "y": data["y"],
                         "marker": { "color": "#ff66ff" },
-                        "name": title
+                        "name": f"{title} [{sigma:0.2f}]"
                     }
                 ),
                 row = 1,
@@ -181,7 +184,8 @@ if __name__ == "__main__":
                 line_dash           = "dash",
                 line_color          = "#ff66ff",
                 opacity             = 0.5,
-                annotation_text     = f"{mu:0.2f}"
+                annotation_text     = f"{mu:0.2f}",
+                row                 = 1
             )
 
     fig.show()

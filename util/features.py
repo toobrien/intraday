@@ -250,10 +250,10 @@ def gaussian_estimates(
         x       = norm.pdf(y, loc = mu, scale = sigma)
 
         res[f"{mu:0.2f} hvn"] = {
-            "y": y,
-            "x": x,
-            "mu": mu,
-            "sigma": sigma,
+            "y":            y,
+            "x":            x,
+            "mu":           mu,
+            "sigma":        sigma,
             "scale_factor": hvn_count / norm.pdf(mu, mu, sigma)
         }
 
