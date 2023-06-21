@@ -1,10 +1,12 @@
-from bisect         import bisect_left, bisect_right
-from numpy          import arange
-from polars         import Series
-from scipy.stats    import gaussian_kde, norm
-from statistics     import mean, mode, stdev
-from typing         import List
-from util.rec_tools import tas_rec
+from bisect             import bisect_left, bisect_right
+from math               import log
+from numpy              import arange, array
+from polars             import Series
+from scipy.stats        import gaussian_kde, norm
+from sklearn.cluster    import KMeans 
+from statistics         import mean, mode, stdev
+from typing             import List
+from util.rec_tools     import tas_rec
 
 
 def delta(recs: List):
@@ -172,6 +174,8 @@ def vbp(recs: List):
     return hist
 
 
+# hist: features.vbp
+
 def vbp_kde(hist: List, bandwidth = None):
 
     prices          = sorted(list(set(hist)))
@@ -204,6 +208,9 @@ def vbp_kde(hist: List, bandwidth = None):
 
     return prices, estimate, scale_factor, maxima, minima
 
+
+# maxima, minima:   features.vbp_kde
+# hist:             features.vbp
 
 def gaussian_estimates(
     maxima: List,
@@ -268,3 +275,39 @@ def gaussian_estimates(
     return res
 
 
+# x (tick / contract #):    rec_tools.tick_series
+# y (price):                rec_tools.tick_series
+
+def kmeans(
+    x:              List, 
+    y:              List, 
+    thresh:         float   = 0.10, 
+    max_clusters:   int     = 10
+):
+
+    km              = None
+    prev_inertia    = None
+    arr             = array([ [ x[i], y[i] ] for i in range(len(x)) ])
+    i               = 2
+
+    while i < max_clusters + 1:
+
+        km = KMeans(
+            n_clusters  = i,
+            n_init      = "auto"
+        ).fit(arr)
+        
+        if prev_inertia:
+
+            if log(prev_inertia / km.inertia_) < thresh:
+
+                # improvement below threshold, finished
+
+                break
+
+        prev_inertia    =  km.inertia_
+        i               += 1
+
+    print(f"features.kmeans: clustering finished with {max(i, max_clusters)} clusters")
+
+    return km.cluster_centers_, km.labels_
