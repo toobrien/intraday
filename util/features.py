@@ -227,37 +227,43 @@ def gaussian_estimates(
     
     for pair in pairs:
 
-        hi          = pair[0] # hvn
-        lo          = pair[1] # lvn or lowest price in hist
+        try:
 
-        # mirror histogram
+            hi          = pair[0] # hvn
+            lo          = pair[1] # lvn or lowest price in hist
 
-        selected    = hist[bisect_left(hist, lo) : bisect_right(hist, hi)]
-        j           = bisect_left(selected, hi)
-        tick_size   = selected[j] - selected[j - 1] # assumes continuous trading one tick from poc!
-        left        = selected[0:j]
-        hvn_count   = selected.count(mode(selected))
-        right       = [ 0 ] * len(left)
+            # mirror histogram
 
-        for i in range(len(left)):
+            selected    = hist[bisect_left(hist, lo) : bisect_right(hist, hi)]
+            j           = bisect_left(selected, hi)
+            tick_size   = selected[j] - selected[j - 1] # assumes continuous trading one tick from poc!
+            left        = selected[0:j]
+            hvn_count   = selected.count(mode(selected))
+            right       = [ 0 ] * len(left)
 
-            right[i] = hi + (hi - left[i])
+            for i in range(len(left)):
 
-        # sample pdf
+                right[i] = hi + (hi - left[i])
 
-        x       = selected + right
-        mu      = mean(x)
-        sigma   = stdev(x)
-        y       = arange(mu - stdevs * sigma, mu + stdevs * sigma, tick_size)
-        x       = norm.pdf(y, loc = mu, scale = sigma)
+            # sample pdf
 
-        res[f"{mu:0.2f} hvn"] = {
-            "y":            y,
-            "x":            x,
-            "mu":           mu,
-            "sigma":        sigma,
-            "scale_factor": hvn_count / norm.pdf(mu, mu, sigma)
-        }
+            x       = selected + right
+            mu      = mean(x)
+            sigma   = stdev(x)
+            y       = arange(mu - stdevs * sigma, mu + stdevs * sigma, tick_size)
+            x       = norm.pdf(y, loc = mu, scale = sigma)
+
+            res[f"{mu:0.2f} hvn"] = {
+                "y":            y,
+                "x":            x,
+                "mu":           mu,
+                "sigma":        sigma,
+                "scale_factor": hvn_count / norm.pdf(mu, mu, sigma)
+            }
+    
+        except:
+
+            pass
 
     return res
 

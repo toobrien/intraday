@@ -12,8 +12,8 @@ from    util.sc_dt              import  ts_to_ds
 BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 STDEVS      = 4
-KDE         = False
-GAUSSIAN    = True
+KDE         = True
+GAUSSIAN    = False
 HVN         = True
 LVN         = True
 
