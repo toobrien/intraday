@@ -5,4 +5,3 @@ indexes/*
 watch_tick.sh
 watch_term.sh
 watch_range.sh
-test.py

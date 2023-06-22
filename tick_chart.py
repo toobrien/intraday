@@ -1,3 +1,4 @@
+from    bisect                  import  bisect_left
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
@@ -5,7 +6,7 @@ from    util.features           import  delta
 from    util.plotting           import  gaussian_vscatter
 from    util.aggregations       import  tick_series, vbp
 from    util.modelling          import  gaussian_estimates, vbp_kde
-from    util.rec_tools          import  get_tas
+from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
 
@@ -31,6 +32,7 @@ if __name__ == "__main__":
     title       = f"{title} {start} - {end}"
     recs        = get_tas(contract_id, multiplier, None, start, end)
     tick_size   = multiplier # hack
+    precision   = get_precision(multiplier)
 
     if not recs:
 
@@ -168,13 +170,14 @@ if __name__ == "__main__":
             scale_factor    = data["scale_factor"]
             mu              = data["mu"]
             sigma           = data["sigma"]
+            mu_count        = vbp_hist.count(round(mu, precision)) # assumes rounded mu will be in hist
 
             fig.add_trace(
                 gaussian_vscatter(
                     mu,
                     sigma,
                     tick_size, 
-                    vbp_hist.count(mu),
+                    mu_count,
                     f"{title} [{sigma:0.2f}]"
                 ),
                 row = 1,

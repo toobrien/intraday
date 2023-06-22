@@ -50,8 +50,7 @@ def vbp_kde(hist: List, bandwidth = None):
 def gaussian_estimates(
     maxima: List,
     minima: List,
-    hist:   List,
-    stdevs: int = 3
+    hist:   List
 ):
 
     maxima  = list(reversed(maxima))
@@ -69,43 +68,27 @@ def gaussian_estimates(
     
     for pair in pairs:
 
-        try:
+        hi          = pair[0] # hvn
+        lo          = pair[1] # lvn or lowest price in hist
 
-            hi          = pair[0] # hvn
-            lo          = pair[1] # lvn or lowest price in hist
+        # mirror histogram
 
-            # mirror histogram
+        selected    = hist[bisect_left(hist, lo) : bisect_right(hist, hi)]
+        j           = bisect_left(selected, hi)
+        left        = selected[0:j]
+        right       = [ 0 ] * len(left)
 
-            selected    = hist[bisect_left(hist, lo) : bisect_right(hist, hi)]
-            j           = bisect_left(selected, hi)
-            tick_size   = selected[j] - selected[j - 1] # assumes continuous trading one tick from poc!
-            left        = selected[0:j]
-            hvn_count   = selected.count(mode(selected))
-            right       = [ 0 ] * len(left)
+        for i in range(len(left)):
 
-            for i in range(len(left)):
+            right[i] = hi + (hi - left[i])
 
-                right[i] = hi + (hi - left[i])
+        # sample pdf
 
-            # sample pdf
-
-            x       = selected + right
-            mu      = mean(x)
-            sigma   = stdev(x)
-            y       = arange(mu - stdevs * sigma, mu + stdevs * sigma, tick_size)
-            x       = norm.pdf(y, loc = mu, scale = sigma)
-
-            res[f"{mu:0.2f} hvn"] = {
-                "y":            y,
-                "x":            x,
-                "mu":           mu,
-                "sigma":        sigma,
-                "scale_factor": hvn_count / norm.pdf(mu, mu, sigma)
-            }
-    
-        except:
-
-            pass
+        x       = selected + right
+        mu      = mean(x)
+        sigma   = stdev(x)
+        
+        res[f"{mu:0.2f} hvn"] = { "mu": mu, "sigma": sigma }
 
     return res
 

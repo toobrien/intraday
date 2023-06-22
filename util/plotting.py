@@ -7,14 +7,15 @@ def gaussian_vscatter(
     mu:         float,
     sigma:      float,
     tick_size:  float,
-    scale:      int,
+    mu_count:   int,
     name:       str,
     color:      str = "#ff66ff",
-    stdevs:     float = 3
+    stdevs:     float = 4
 ):
 
-    y = arange(mu - stdevs * sigma, mu + stdevs * sigma, tick_size)
-    x = norm.pdf(y, loc = mu, scale = sigma)
+    y       = arange(mu - stdevs * sigma, mu + stdevs * sigma, tick_size)
+    x       = norm.pdf(y, loc = mu, scale = sigma)
+    scale   = mu_count / norm.pdf(mu)
 
     trace = go.Scatter(
         {
