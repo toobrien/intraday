@@ -143,11 +143,11 @@ def vbp_gmm_test():
     precision       = get_precision(str(multiplier))
     recs            = get_tas(sym, multiplier, None, date)
     hist            = vbp(recs)
-    sorted_hist     = sorted(vbp)
+    sorted_hist     = sorted(hist)
     x, y, z, _, _   = tick_series(recs)
     fig             = make_subplots(rows = 1, cols = 2, shared_yaxes = True)
 
-    means, covariances, labels = vbp_gmm(x, hist, 0.5)
+    means, covariances, labels = vbp_gmm(x, hist)
 
     for label, count in dict(Counter(labels)).items():
 

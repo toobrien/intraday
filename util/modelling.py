@@ -137,7 +137,6 @@ def kmeans(
 def vbp_gmm(
     x:              List,
     vbp_hist:       List,
-    thresh:         float   = 0.10,
     max_components: int     = 25
 ):
 
@@ -145,31 +144,31 @@ def vbp_gmm(
 
         vbp_hist = vbp(x)
     
-    gmm         = None
-    prev_aic    = None
-    x_arr       = array(x).reshape(-1, 1)
-    vbp_arr     = array(vbp_hist).reshape(-1, 1)
-    i           = 2
+    cur     = None
+    prev    = None
+    x_arr   = array(x).reshape(-1, 1)
+    vbp_arr = array(vbp_hist).reshape(-1, 1)
+    i       = 2
 
     while i < max_components:
 
-        gmm = GaussianMixture(n_components = i).fit(vbp_arr)
+        cur = GaussianMixture(n_components = i).fit(vbp_arr)
 
-        if prev_aic:
+        if prev:
 
-            if log(prev_aic / gmm.aic(vbp_arr)) < thresh:
+            if prev.aic(x_arr) < cur.aic(x_arr):
 
-                # improvement below threshold, finished
+                # finished
 
                 break
 
-        prev_aic    =  gmm.aic(vbp_arr)
-        i           += 1
+        prev    =  cur
+        i       += 1
 
-    means       = [ mu[0] for mu in gmm.means_ ]
-    covariances = [ cov[0] for cov in gmm.covariances_ ]
-    labels      = gmm.predict(x_arr)
+    means       = [ mu[0] for mu in prev.means_ ]
+    covariances = [ cov[0] for cov in prev.covariances_ ]
+    labels      = prev.predict(x_arr)
 
-    print(f"features.gaussian_mixture: fitting finished with {min(i, max_components)} components")
+    print(f"features.gaussian_mixture: fitting finished with {i - 1} components")
 
     return means, covariances, labels
