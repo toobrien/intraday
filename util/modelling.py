@@ -134,7 +134,7 @@ def kmeans(
 # x:        rec_tools.tick_series
 # vbp_hist: features.vbp
 
-def gaussian_mixture(
+def vbp_gmm(
     x:              List,
     vbp_hist:       List,
     thresh:         float   = 0.10,
@@ -146,32 +146,28 @@ def gaussian_mixture(
         vbp_hist = vbp(x)
     
     gmm         = None
-    prev_score  = None
-    x_arr       = array(x)
-    vbp_arr     = array(vbp_hist)
-
+    prev_aic    = None
+    x_arr       = array(x).reshape(-1, 1)
+    vbp_arr     = array(vbp_hist).reshape(-1, 1)
     i           = 2
 
     while i < max_components:
 
-        gmm = GaussianMixture(
-            n_components    = i,
-            n_init          = "auto"
-        ).fit(vbp_arr)
+        gmm = GaussianMixture(n_components = i).fit(vbp_arr)
 
-        if prev_score:
+        if prev_aic:
 
-            if log(prev_score / gmm.score) < thresh:
+            if log(prev_aic / gmm.aic(vbp_arr)) < thresh:
 
                 # improvement below threshold, finished
 
                 break
 
-        prev_score  =  gmm.score
+        prev_aic    =  gmm.aic(vbp_arr)
         i           += 1
 
-    means       = gmm.means_ 
-    covariances = gmm.covariances_ 
+    means       = [ mu[0] for mu in gmm.means_ ]
+    covariances = [ cov[0] for cov in gmm.covariances_ ]
     labels      = gmm.predict(x_arr)
 
     print(f"features.gaussian_mixture: fitting finished with {min(i, max_components)} components")

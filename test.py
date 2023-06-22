@@ -1,9 +1,11 @@
+from    bisect                  import  bisect_left
+from    collections             import  Counter
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    time                    import  time
 from    util.aggregations       import  ohlcv, ohlcv_rec, tick_series, vbp, intraday_ranges
-from    util.modelling          import  gaussian_estimates, gaussian_mixture, kmeans, vbp_kde
+from    util.modelling          import  gaussian_estimates, vbp_gmm, kmeans, vbp_kde
 from    util.plotting           import  gaussian_vscatter
 from    util.rec_tools          import  date_index, get_precision, get_tas, tas_rec
 from    util.sc_dt              import  ts_to_ds
@@ -132,19 +134,24 @@ def kmeans_test():
     fig.show()
 
 
-def gaussian_mixture_test():
+def vbp_gmm_test():
 
     sym             = "CLQ23_FUT_CME"
     multiplier      = 0.01
     date            = "2023-06-22"
     tick_size       = multiplier
-    precision       = get_precision(multiplier)
+    precision       = get_precision(str(multiplier))
     recs            = get_tas(sym, multiplier, None, date)
     hist            = vbp(recs)
+    sorted_hist     = sorted(vbp)
     x, y, z, _, _   = tick_series(recs)
     fig             = make_subplots(rows = 1, cols = 2, shared_yaxes = True)
 
-    means, covariances, labels = gaussian_mixture(x, hist, 0.5)
+    means, covariances, labels = vbp_gmm(x, hist, 0.5)
+
+    for label, count in dict(Counter(labels)).items():
+
+        print(label, count)
 
     fig.add_trace(
         go.Scatter(
@@ -181,9 +188,9 @@ def gaussian_mixture_test():
 
     for i in range(len(means)):
 
-        mu          = means[i]
-        sigma       = covariances[i][0]
-        mu_count    = hist.count(round(mu, precision))
+        mu          = round(float(means[i]), precision)
+        sigma       = round(float(covariances[i]), precision)
+        mu_count    = hist.count(sorted_hist[bisect_left(sorted_hist, mu)])
 
         fig.add_trace(
             gaussian_vscatter(
@@ -208,7 +215,7 @@ TESTS = {
     3: vbp_kde_test,
     4: gaussian_estimates_test,
     5: kmeans_test,
-    6: gaussian_mixture_test
+    6: vbp_gmm_test
 }
 
 

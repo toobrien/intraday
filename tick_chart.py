@@ -32,7 +32,7 @@ if __name__ == "__main__":
     title       = f"{title} {start} - {end}"
     recs        = get_tas(contract_id, multiplier, None, start, end)
     tick_size   = multiplier # hack
-    precision   = get_precision(multiplier)
+    precision   = get_precision(argv[2])
 
     if not recs:
 
@@ -42,8 +42,9 @@ if __name__ == "__main__":
 
     x, y, z, t, c                               = tick_series(recs)
     vbp_hist                                    = vbp(recs)
+    vbp_sorted                                  = sorted(vbp_hist)
     vbp_y, vbp_x, scale_factor, maxima, minima  = vbp_kde(vbp_hist, BANDWIDTH)
-    gaussians                                   = gaussian_estimates(maxima, minima, vbp_hist, STDEVS)
+    gaussians                                   = gaussian_estimates(maxima, minima, vbp_hist)
     deltas                                      = delta(recs)
     text                                        = []
 
@@ -167,10 +168,11 @@ if __name__ == "__main__":
 
         for title, data in gaussians.items():
 
-            scale_factor    = data["scale_factor"]
             mu              = data["mu"]
             sigma           = data["sigma"]
-            mu_count        = vbp_hist.count(round(mu, precision)) # assumes rounded mu will be in hist
+            mu_tick         = round(mu, precision)
+            mu_nearest      = vbp_sorted[bisect_left(vbp_sorted, mu_tick)]
+            mu_count        = vbp_hist.count(mu_nearest)
 
             fig.add_trace(
                 gaussian_vscatter(

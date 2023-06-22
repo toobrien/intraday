@@ -9,13 +9,14 @@ def gaussian_vscatter(
     tick_size:  float,
     mu_count:   int,
     name:       str,
-    color:      str = "#ff66ff",
-    stdevs:     float = 4
+    color:      str     = "#ff66ff",
+    stdevs:     float   = 4
 ):
 
     y       = arange(mu - stdevs * sigma, mu + stdevs * sigma, tick_size)
     x       = norm.pdf(y, loc = mu, scale = sigma)
-    scale   = mu_count / norm.pdf(mu)
+    p_mu    = norm.pdf(mu, loc = mu, scale = sigma)
+    scale   = mu_count / p_mu
 
     trace = go.Scatter(
         {
