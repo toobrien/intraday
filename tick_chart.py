@@ -1,8 +1,11 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  delta, gaussian_estimates, vbp, vbp_kde
-from    util.rec_tools          import  get_tas, tick_series
+from    util.features           import  delta
+from    util.plotting           import  gaussian_vscatter
+from    util.aggregations       import  tick_series, vbp
+from    util.modelling          import  gaussian_estimates, vbp_kde
+from    util.rec_tools          import  get_tas
 from    util.sc_dt              import  ts_to_ds
 
 
@@ -12,8 +15,8 @@ from    util.sc_dt              import  ts_to_ds
 BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 STDEVS      = 4
-KDE         = True
-GAUSSIAN    = False
+KDE         = False
+GAUSSIAN    = True
 HVN         = True
 LVN         = True
 
@@ -26,8 +29,8 @@ if __name__ == "__main__":
     start       = argv[3] if len(argv) > 3 else None
     end         = argv[4] if len(argv) > 4 else None
     title       = f"{title} {start} - {end}"
-
-    recs = get_tas(contract_id, multiplier, None, start, end)
+    recs        = get_tas(contract_id, multiplier, None, start, end)
+    tick_size   = multiplier # hack
 
     if not recs:
 
@@ -167,13 +170,12 @@ if __name__ == "__main__":
             sigma           = data["sigma"]
 
             fig.add_trace(
-                go.Scatter(
-                    {
-                        "x": [ x * scale_factor for x in data["x"] ],
-                        "y": data["y"],
-                        "marker": { "color": "#ff66ff" },
-                        "name": f"{title} [{sigma:0.2f}]"
-                    }
+                gaussian_vscatter(
+                    mu,
+                    sigma,
+                    tick_size, 
+                    vbp_hist.count(mu),
+                    f"{title} [{sigma:0.2f}]"
                 ),
                 row = 1,
                 col = 1

@@ -1,7 +1,8 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  delta, split_tick_series, vbp
+from    util.aggregations       import split_tick_series, vbp
+from    util.features           import  delta
 from    util.rec_tools          import  get_tas
 from    util.sc_dt              import  ts_to_ds
 

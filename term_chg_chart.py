@@ -1,8 +1,9 @@
 from    math                    import  log
 import  plotly.graph_objects    as      go
 from    sys                     import  argv
-from    util.rec_tools          import  ohlcv, get_precision, get_terms, ohlcv_rec
-
+from    util.aggregations       import  ohlcv, ohlcv_rec
+from    util.rec_tools          import  get_precision
+from    util.term_structure     import  get_terms
 
 
 # usage: python term_chg_chart.py NGM23 0.001 6 2023-03-27T00:00:00 2023-03-28T00:00:00 1:H 1

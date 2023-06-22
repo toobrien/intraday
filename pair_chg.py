@@ -5,7 +5,8 @@ from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    time                    import  time
 from    typing                  import  List
-from    util.rec_tools          import  ohlcv, get_tas, ohlcv_rec, tas_rec
+from    util.aggregations       import  ohlcv, ohlcv_rec
+from    util.rec_tools          import  ohlcv, get_tas, tas_rec
 
 
 SC_ROOT = loads(open("./config.json").read())["sc_root"]

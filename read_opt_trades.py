@@ -1,4 +1,3 @@
-from gen_opts       import get_opts
 from json           import loads
 from os             import listdir
 from statistics     import mode

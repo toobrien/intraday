@@ -1,7 +1,7 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.features           import  vbp
+from    util.aggregations       import  vbp
 from    util.rec_tools          import  get_tas, tas_rec
 
 
