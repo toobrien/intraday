@@ -1,3 +1,4 @@
+from math               import log
 from numpy              import arange, array
 from bisect             import bisect_left, bisect_right
 from scipy.stats        import gaussian_kde, norm
