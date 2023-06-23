@@ -155,7 +155,7 @@ def vbp_gmm(
         models.append(m)
         aics.append(m.aic(X))
 
-    chgs    = [ log(aics[i] / aics[i - 1]) for i in range(1, len(aics)) ]
+    chgs    = [ log(aics[i] / aics[i - 1]) for i in range(1, len(aics)) ] # not finished
     i       = aics.index(min(aics))
     m       = models[i]
 

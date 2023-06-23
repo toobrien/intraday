@@ -3,10 +3,8 @@ from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    time                    import  time
 from    util.aggregations       import  ohlcv, ohlcv_rec, tick_series, vbp, intraday_ranges
-from    util.contract_settings  import  get_settings
-from    util.modelling          import  gaussian_estimates, vbp_gmm, kmeans, vbp_kde
-from    util.plotting           import  gaussian_vscatter
-from    util.rec_tools          import  date_index, get_precision, get_tas, tas_rec
+from    util.modelling          import  gaussian_estimates, kmeans, vbp_kde
+from    util.rec_tools          import  date_index, get_tas, tas_rec
 from    util.sc_dt              import  ts_to_ds
 
 
@@ -133,81 +131,13 @@ def kmeans_test():
     fig.show()
 
 
-def vbp_gmm_test():
-
-    contract_id             = "CLQ23_FUT_CME"
-    multiplier, tick_size   = get_settings(contract_id)
-    date                    = "2023-06-22"
-    precision               = get_precision(str(multiplier))
-    recs                    = get_tas(contract_id, multiplier, None, date)
-    hist                    = vbp(recs)
-    x, y, _, _, _           = tick_series(recs)
-    fig                     = make_subplots(
-        rows                = 1, 
-        cols                = 2, 
-        shared_yaxes        = True,
-        horizontal_spacing  = 0.025,
-    )
-
-    means, sigmas, labels = vbp_gmm(y, hist, max_components = 5)
-
-    fig.add_trace(
-        go.Scatter(
-            {
-                "x":        x,
-                "y":        y,
-                "mode":     "markers",
-                "marker":   { "color": labels },
-                "name":     contract_id
-            }
-        ),
-        row = 1,
-        col = 2
-    )
-
-    fig.add_trace(
-        go.Histogram(
-            {
-                "y":            hist,
-                "nbinsy":       len(set(hist)),
-                "opacity":      0.5,
-                "marker_color": "#0000FF",
-                "name":         "vbp"
-            }
-        ),
-        row = 1,
-        col = 1
-    )
-
-    for i in range(len(means)):
-
-        mu      = round(float(means[i]), precision)
-        sigma   = round(float(sigmas[i]), precision)
-
-        fig.add_trace(
-            gaussian_vscatter(
-                mu,
-                sigma,
-                hist,
-                tick_size,
-                f"c-{i} [{mu:0.2f}, {sigma:0.2f}]"
-            ),
-            row = 1,
-            col = 1
-        )
-        
-
-    fig.show()
-
-
 TESTS = {
     0: test_date_index,
     1: test_intraday_ranges,
     2: ohlcv_test,
     3: vbp_kde_test,
     4: gaussian_estimates_test,
-    5: kmeans_test,
-    6: vbp_gmm_test
+    5: kmeans_test
 }
 
 
@@ -218,4 +148,3 @@ if __name__ == "__main__":
     TESTS[int(argv[1])]()
 
     print(f"{time() - t0:0.1f}s elapsed")
-
