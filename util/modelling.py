@@ -137,9 +137,9 @@ def kmeans(
 def vbp_gmm(
     y:              List,
     hist:           List,
-    thresh:         0.015,
-    min_components: int = 1,
-    max_components: int = 10
+    thresh:         float   = 0.015,
+    min_components: int     = 1,
+    max_components: int     = 10
 ):
     
     Y       = array(y).reshape(-1, 1)
@@ -155,10 +155,9 @@ def vbp_gmm(
         models.append(m)
         aics.append(m.aic(X))
 
-    chgs = [ log(aics[i] / aics[i - 1]) for i in range(1, len(aics)) ]
-
-    i   = aics.index(min(aics))
-    m   = models[i]
+    chgs    = [ log(aics[i] / aics[i - 1]) for i in range(1, len(aics)) ]
+    i       = aics.index(min(aics))
+    m       = models[i]
 
     means   = [ mu[0] for mu in m.means_ ]
     sigmas  = [ sqrt(cov[0]) for cov in m.covariances_ ]
