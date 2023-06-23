@@ -156,13 +156,7 @@ def vbp_gmm_test():
             {
                 "x":        x,
                 "y":        y,
-                "mode":     "markers",
-                "marker":   {
-                    "color": labels,
-                    "sizemode": "area",
-                    "sizeref":  2. * max(z) / (40.**2),
-                    "sizemin":  4
-                },
+                "marker":   { "color": labels },
                 "name": contract_id
             }
         ),
