@@ -40,7 +40,7 @@ if __name__ == "__main__":
         exit()
 
     x, y, z, t, c                               = tick_series(recs)
-    vbp_hist                                    = vbp(recs)
+    vbp_hist                                    = vbp(recs, precision)
     vbp_y, vbp_x, scale_factor, maxima, minima  = vbp_kde(vbp_hist, BANDWIDTH)
     gaussians                                   = gaussian_estimates(maxima, minima, vbp_hist)
     deltas                                      = delta(recs)

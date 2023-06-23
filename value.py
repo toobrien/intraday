@@ -4,7 +4,6 @@ from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    typing                  import  List
 from    util.aggregations       import  vbp
-from    util.contract_settings  import  get_settings
 from    util.plotting           import  get_title
 from    util.rec_tools          import  get_tas, tas_rec
 
@@ -54,21 +53,21 @@ if __name__ == "__main__":
 
     contract_id     = argv[1]
     title           = get_title(contract_id)
-    multiplier, _   = get_settings(contract_id)
-    interval        = int(argv[2])
-    start           = argv[4] if len(argv) > 4 else None
-    end             = argv[5] if len(argv) > 5 else None
+    multiplier, _   = float(argv[2])
+    interval        = int(argv[3])
+    start           = argv[5] if len(argv) > 5 else None
+    end             = argv[6] if len(argv) > 6 else None
     recs            = get_tas(contract_id, multiplier, FMT, start, end)
-    lookback        = int(argv[3]) if argv[3].isdigit() else len(recs)
+    lookback        = int(argv[4]) if argv[4].isdigit() else len(recs)
     i               = lookback if lookback < len(recs) else interval
-    high        = []
-    low         = []
-    lvn         = []
-    poc         = []
-    val_hi      = []
-    val_lo      = []
-    end         = []
-    fig         = make_subplots(
+    high            = []
+    low             = []
+    lvn             = []
+    poc             = []
+    val_hi          = []
+    val_lo          = []
+    end             = []
+    fig             = make_subplots(
         rows                = 1,
         cols                = 2,
         column_widths       = [ 0.1, 0.9 ],

@@ -9,10 +9,7 @@ from    util.plotting           import  gaussian_vscatter, get_title
 from    util.rec_tools          import  get_precision, get_tas
 
 
-# python gmm_chart.py CLQ23_FUT_CME 2023-06-22
-
-
-MAX_COMPONENTS = 10
+# python gmm_chart.py CLQ23_FUT_CME 10 2023-06-22
 
 
 if __name__ == "__main__":
@@ -20,11 +17,12 @@ if __name__ == "__main__":
     contract_id             = argv[1]
     title                   = get_title(contract_id)
     multiplier, tick_size   = get_settings(contract_id)
-    start                   = argv[2] if len(argv) > 2 else None
-    end                     = argv[3] if len(argv) > 3 else None
+    max_components          = int(argv[2])
+    start                   = argv[3] if len(argv) > 3 else None
+    end                     = argv[4] if len(argv) > 4 else None
     precision               = get_precision(str(multiplier))
     recs                    = get_tas(contract_id, multiplier, None, start, end)
-    hist                    = vbp(recs)
+    hist                    = vbp(recs, precision)
     x, y, _, _, _           = tick_series(recs)
     fig                     = make_subplots(
         rows                = 1, 
@@ -35,7 +33,7 @@ if __name__ == "__main__":
         subplot_titles      = [ "", f"{title} [ {start} - {end} ]" ]
     )
 
-    means, sigmas, labels = vbp_gmm(y, hist, max_components = MAX_COMPONENTS)
+    means, sigmas, labels = vbp_gmm(y, hist, max_components = max_components)
 
     fig.add_trace(
         go.Scatter(

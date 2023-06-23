@@ -144,13 +144,17 @@ def intraday_ranges(
     return res
 
 
-def vbp(recs: List):
+def vbp(recs: List, precision: float = None):
 
     hist = []
 
     for rec in recs:
 
         hist += ([ rec[tas_rec.price] ] * rec[tas_rec.qty])
+
+    if precision:
+
+        hist = [ round(val, precision) for val in hist ]
     
     return sorted(hist)
 
