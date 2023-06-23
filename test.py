@@ -195,8 +195,7 @@ def vbp_gmm_test():
                 sigma,
                 hist,
                 tick_size,
-                f"c-{i} [{mu:0.2f}, {sigma:0.2f}]",
-                stdevs = 3
+                f"c-{i} [{mu:0.2f}, {sigma:0.2f}]"
             ),
             row = 1,
             col = 1

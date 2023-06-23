@@ -1,12 +1,11 @@
 from math               import log, sqrt
 from numpy              import array
 from bisect             import bisect_left, bisect_right
-from scipy.stats        import gaussian_kde, norm
+from scipy.stats        import gaussian_kde
 from sklearn.cluster    import KMeans
 from sklearn.mixture    import GaussianMixture
 from statistics         import mean, mode, stdev
 from typing             import List
-from util.aggregations  import vbp
 
 
 # hist: aggregations.vbp

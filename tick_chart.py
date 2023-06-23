@@ -175,7 +175,7 @@ if __name__ == "__main__":
                     sigma,
                     vbp_hist,
                     tick_size,
-                    f"{title} [{sigma:0.2f}]"
+                    f"hvn [{mu:0.2f}, {sigma:0.2f}]"
                 ),
                 row = 1,
                 col = 1

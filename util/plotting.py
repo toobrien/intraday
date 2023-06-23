@@ -19,7 +19,7 @@ def gaussian_vscatter(
     tick_size:  float,
     name:       str,
     color:      str     = "#ff66ff",
-    stdevs:     float   = 4
+    stdevs:     float   = 3
 ):
     
     mu_count    = hist.count(hist[bisect_left(hist, mu)])
