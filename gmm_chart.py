@@ -53,7 +53,7 @@ if __name__ == "__main__":
         go.Histogram(
             {
                 "y":            hist,
-                "nbinsy":       len(set(hist)),
+                "nbinsy":       int((max(hist) - min(hist)) / tick_size) + 1,
                 "opacity":      0.5,
                 "marker_color": "#0000FF",
                 "name":         "vbp"

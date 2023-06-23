@@ -98,7 +98,7 @@ if __name__ == "__main__":
             {
                 "name":         "vbp",
                 "y":            vbp_hist,
-                "nbinsy":       len(set(vbp_hist)),
+                "nbinsy":       int((max(vbp_hist) - min(vbp_hist)) / tick_size) + 1, 
                 "opacity":      0.5,
                 "marker_color": "#0000FF"
             }

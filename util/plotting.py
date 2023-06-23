@@ -1,4 +1,5 @@
 from    bisect                  import  bisect_left
+from    collections             import  Counter
 import  plotly.graph_objects    as      go
 from    numpy                   import  arange
 from    scipy.stats             import  norm
@@ -21,7 +22,7 @@ def gaussian_vscatter(
     color:      str     = "#ff66ff",
     stdevs:     float   = 3
 ):
-    
+
     mu_count    = hist.count(hist[bisect_left(hist, mu)])
     y           = arange(mu - stdevs * sigma, mu + stdevs * sigma, tick_size)
     x           = norm.pdf(y, loc = mu, scale = sigma)
