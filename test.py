@@ -141,7 +141,7 @@ def vbp_gmm_test():
     precision               = get_precision(str(multiplier))
     recs                    = get_tas(contract_id, multiplier, None, date)
     hist                    = vbp(recs)
-    x, y, z, _, _           = tick_series(recs)
+    x, y, _, _, _           = tick_series(recs)
     fig                     = make_subplots(
         rows                = 1, 
         cols                = 2, 
@@ -149,15 +149,16 @@ def vbp_gmm_test():
         horizontal_spacing  = 0.025,
     )
 
-    means, covariances, labels = vbp_gmm(y, hist)
+    means, covariances, labels = vbp_gmm(y, hist, max_components = 5)
 
     fig.add_trace(
         go.Scatter(
             {
                 "x":        x,
                 "y":        y,
+                "mode":     "markers",
                 "marker":   { "color": labels },
-                "name": contract_id
+                "name":     contract_id
             }
         ),
         row = 1,

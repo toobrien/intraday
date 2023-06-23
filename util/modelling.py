@@ -138,34 +138,31 @@ def vbp_gmm(
     y:              List,
     hist:           List,
     min_components: int = 1,
-    max_components: int = 25
+    max_components: int = 10
 ):
     
-    cur     = None
-    prev    = None
     Y       = array(y).reshape(-1, 1)
     X       = array(hist).reshape(-1, 1)
     i       = min_components
+    models  = []
+    aics    = []
 
-    while i < max_components:
+    for i in range(min_components, max_components + 1):
 
-        cur = GaussianMixture(n_components = i).fit(X)
+        m = GaussianMixture(n_components = i).fit(X)
+        
+        models.append(m)
+        aics.append(m.aic(X))
 
-        if prev:
+    chgs = [ log(aics[i] / aics[i - 1]) for i in range(1, len(aics)) ]
 
-            if prev.aic(X) < cur.aic(X):
+    i   = aics.index(min(aics))
+    m   = models[i]
 
-                # finished
+    means       = [ mu[0] for mu in m.means_ ]
+    covariances = [ sqrt(cov[0]) for cov in m.covariances_ ]
+    labels      = m.predict(Y)
 
-                break
-
-        prev    =  cur
-        i       += 1
-
-    means       = [ mu[0] for mu in prev.means_ ]
-    covariances = [ sqrt(cov[0]) for cov in prev.covariances_ ]
-    labels      = prev.predict(Y)
-
-    print(f"features.gaussian_mixture: fitting finished with {i - 1} components")
+    print(f"features.gaussian_mixture: fitting finished; found {min_components + i} components")
 
     return means, covariances, labels
