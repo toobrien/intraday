@@ -2,11 +2,13 @@ import  plotly.graph_objects    as      go
 from    statistics              import  mean
 from    sys                     import  argv
 from    typing                  import  List
+from    util.contract_settings  import  get_settings
 from    util.parsers            import  tas_rec
+from    util.plotting           import  get_title
 from    util.rec_tools          import  get_tas
 
 
-# usage: python liquidity_chart.py CLN23_FUT_CME 0.01 2023-05-22
+# usage: python liquidity_chart.py CLN23_FUT_CME 2023-05-22
 
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
@@ -49,11 +51,11 @@ def add_traces(fig: go.Figure, row = None, col = None):
 
 if __name__ == "__main__":
 
-    contract_id = argv[1]
-    fig_title   = argv[1].split(".") if "." in argv[1] else argv[1].split("_")[0]
-    multiplier  = float(argv[2])
-    start       = argv[3] if len(argv) > 3 else None
-    end         = argv[4] if len(argv) > 4 else None
+    contract_id     = argv[1]
+    fig_title       = get_title(contract_id)
+    multiplier, _   = get_settings(contract_id)
+    start           = argv[3] if len(argv) > 3 else None
+    end             = argv[4] if len(argv) > 4 else None
 
     recs = get_tas(contract_id, multiplier, FMT, start, end)
 

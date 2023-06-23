@@ -1,10 +1,10 @@
-from    bisect                  import  bisect_left
 from    collections             import  Counter
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    time                    import  time
 from    util.aggregations       import  ohlcv, ohlcv_rec, tick_series, vbp, intraday_ranges
+from    util.contract_settings  import  get_settings
 from    util.modelling          import  gaussian_estimates, vbp_gmm, kmeans, vbp_kde
 from    util.plotting           import  gaussian_vscatter
 from    util.rec_tools          import  date_index, get_precision, get_tas, tas_rec
@@ -136,16 +136,14 @@ def kmeans_test():
 
 def vbp_gmm_test():
 
-    sym             = "CLQ23_FUT_CME"
-    multiplier      = 0.01
-    date            = "2023-06-22"
-    tick_size       = multiplier
-    precision       = get_precision(str(multiplier))
-    recs            = get_tas(sym, multiplier, None, date)
-    hist            = vbp(recs)
-    sorted_hist     = sorted(hist)
-    x, y, z, _, _   = tick_series(recs)
-    fig             = make_subplots(rows = 1, cols = 2, shared_yaxes = True)
+    contract_id             = "CLQ23_FUT_CME"
+    multiplier, tick_size   = get_settings(contract_id)
+    date                    = "2023-06-22"
+    precision               = get_precision(str(multiplier))
+    recs                    = get_tas(contract_id, multiplier, None, date)
+    hist                    = vbp(recs)
+    x, y, z, _, _           = tick_series(recs)
+    fig                     = make_subplots(rows = 1, cols = 2, shared_yaxes = True)
 
     means, covariances, labels = vbp_gmm(x, hist)
 
@@ -165,7 +163,7 @@ def vbp_gmm_test():
                     "sizeref":  2. * max(z) / (40.**2),
                     "sizemin":  4
                 },
-                "name": sym
+                "name": contract_id
             }
         ),
         row = 1,
@@ -188,16 +186,15 @@ def vbp_gmm_test():
 
     for i in range(len(means)):
 
-        mu          = round(float(means[i]), precision)
-        sigma       = round(float(covariances[i]), precision)
-        mu_count    = hist.count(sorted_hist[bisect_left(sorted_hist, mu)])
+        mu      = round(float(means[i]), precision)
+        sigma   = round(float(covariances[i]), precision)
 
         fig.add_trace(
             gaussian_vscatter(
                 mu,
                 sigma,
+                hist,
                 tick_size,
-                mu_count,
                 f"component {i}"
             ),
             row = 1,

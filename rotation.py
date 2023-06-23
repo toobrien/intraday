@@ -1,6 +1,8 @@
 from    enum                    import  IntEnum
 from    json                    import  loads
 import  plotly.graph_objects    as      go
+from    util.contract_settings  import  get_settings
+from    util.plotting           import  get_title
 from    util.parsers            import  tas_rec
 from    util.rec_tools          import  get_tas
 from    sys                     import  argv
@@ -8,7 +10,7 @@ from    time                    import  time
 from    typing                  import  List
 
 
-# usage: python rotation.py ESM23_FUT_CME 8 0.25 0.01 2023-05-05T06:30:00.000000 2023-05-05T13:00:00.000000
+# usage: python rotation.py ESM23_FUT_CME 8 2023-05-05T06:30:00.000000 2023-05-05T13:00:00.000000
 
 
 class r_rot(IntEnum):
@@ -151,15 +153,13 @@ if __name__ == "__main__":
 
     t0 = time()
 
-    fn              = argv[1]
-    rotation_ticks  = int(argv[2])
-    tick_size       = float(argv[3])
-    multiplier      = float(argv[4])
-    start           = argv[5] if len(argv) > 5 else None
-    end             = argv[6] if len(argv) > 6 else None
-
-    recs        = get_tas(fn, multiplier, None, start, end)
-    rotations   = get_rotations(recs, rotation_ticks, tick_size)
+    fn                      = argv[1]
+    rotation_ticks          = int(argv[2])
+    multiplier, tick_size   = get_settings(fn)
+    start                   = argv[3] if len(argv) > 3 else None
+    end                     = argv[4] if len(argv) > 4 else None
+    recs                    = get_tas(fn, multiplier, None, start, end)
+    rotations               = get_rotations(recs, rotation_ticks, tick_size)
     
     # display
 

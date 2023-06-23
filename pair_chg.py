@@ -5,6 +5,7 @@ from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    time                    import  time
 from    typing                  import  List
+from    util.contract_settings  import  get_settings
 from    util.aggregations       import  ohlcv, ohlcv_rec
 from    util.rec_tools          import  ohlcv, get_tas, tas_rec
 
@@ -13,8 +14,8 @@ SC_ROOT = loads(open("./config.json").read())["sc_root"]
 FMT     = "%Y-%m-%dT%H:%M:%S.%f"
 
 
-# sample usage: python pair_chg.py 2023-04-21T00:00:00.000000 2023-04-22T00:00:00.000000 ESM23_FUT_CME:0.01 NQM23_FUT_CME:0.01 tick
-#               python pair_chg.py 2023-04-17 2023-04-22 ESM23_FUT_CME:0.01 NQM23_FUT_CME:0.01 ohlc-1:M-10
+# sample usage: python pair_chg.py 2023-04-21T00:00:00.000000 2023-04-22T00:00:00.000000 ESM23_FUT_CME NQM23_FUT_CME tick
+#               python pair_chg.py 2023-04-17 2023-04-22 ESM23_FUT_CME NQM23_FUT_CME ohlc-1:M-10
 #
 #               ohlc-1:M-10 -> 1 minute bars, window of 10 bars for lead-lag regression
 
@@ -117,15 +118,13 @@ if __name__ == "__main__":
 
     t0 = time()
 
-    start           = argv[1]
-    end             = argv[2]
-    id_a, mult_a    = argv[3].split(":")
-    id_b, mult_b    = argv[4].split(":")
-    mode            = argv[5]
-
-    mult_a = float(mult_a)
-    mult_b = float(mult_b)
-
+    start       = argv[1]
+    end         = argv[2]
+    id_a        = argv[3]
+    mult_a, _   = get_settings(id_a)
+    id_b        = argv[4]
+    mult_b, _   = get_settings(id_b)
+    mode        = argv[5]
 
     if mode == "tick":
 

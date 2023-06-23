@@ -1,13 +1,15 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.aggregations       import split_tick_series, vbp
+from    util.aggregations       import  split_tick_series, vbp
+from    util.contract_settings  import  get_settings
+from    util.plotting           import  get_title
 from    util.features           import  delta
 from    util.rec_tools          import  get_tas
 from    util.sc_dt              import  ts_to_ds
 
 
-# usage: python tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
+# usage: python tick_chart.py CLN23_FUT_CME 2023-05-21 2023-05-22
 
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
@@ -15,13 +17,12 @@ FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 if __name__ == "__main__":
 
-    contract_id = argv[1]
-    title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
-    multiplier  = float(argv[2])
-    start       = argv[3] if len(argv) > 3 else None
-    end         = argv[4] if len(argv) > 4 else None
-
-    recs = get_tas(contract_id, multiplier, None, start, end)
+    contract_id     = argv[1]
+    title           = get_title(contract_id)
+    multiplier, _   = get_settings(contract_id)
+    start           = argv[2] if len(argv) > 2 else None
+    end             = argv[3] if len(argv) > 3 else None
+    recs            = get_tas(contract_id, multiplier, None, start, end)
 
     if not recs:
 

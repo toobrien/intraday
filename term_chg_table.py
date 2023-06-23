@@ -1,13 +1,13 @@
 from json                   import loads
+from util.contract_settings import  get_settings
 from util.parsers           import tas_rec
 from util.rec_tools         import get_precision
 from util.term_structure    import get_terms
 from sys                    import argv
 
-# usage: python term_chg_table.py NGM23 0.001 2023-03-27T00:00:00 2023-03-28T00:00:00 0
+# usage: python term_chg_table.py NGM23 2023-03-27T00:00:00 2023-03-28T00:00:00 0
 
 # NGJ23                         starting symbol
-# 0.001                         price multiplier
 # 12                            12 consecutive terms, starting at J23
 # "2023-03-22T06:00:00.000000"  start ts
 # "2023-03-22T07:00:00.000000"  end ts
@@ -68,14 +68,14 @@ def process_records(
 
 if __name__ == "__main__":
 
-    init_symbol             = argv[1]
-    multiplier              = argv[2]
-    precision               = get_precision(multiplier)
-    multiplier              = float(multiplier)
-    n_months                = int(argv[3])
-    start                   = argv[4]
-    end                     = argv[5]
-    print_recs              = int(argv[6])
+    init_symbol     = argv[1]
+    multiplier, _   = get_settings(init_symbol)
+    precision       = get_precision(float(multiplier))
+    multiplier      = float(multiplier)
+    n_months        = int(argv[2])
+    start           = argv[3]
+    end             = argv[4]
+    print_recs      = int(argv[5])
     
     terms   = get_terms(
                 init_symbol,

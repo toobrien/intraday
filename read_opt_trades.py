@@ -1,14 +1,15 @@
-from json           import loads
-from os             import listdir
-from statistics     import mode
-from sys            import argv
-from time           import time
-from typing         import List
-from util.parsers   import tas_rec
-from util.rec_tools import get_tas
+from json                   import loads
+from os                     import listdir
+from statistics             import mode
+from sys                    import argv
+from time                   import time
+from typing                 import List
+from util.contract_settings import  get_settings
+from util.parsers           import tas_rec
+from util.rec_tools         import get_tas
 
 
-# usage: python read_opt_trades.py LON23 0.01 50 2023-06-02T11:00:00
+# usage: python read_opt_trades.py LON23 50 2023-06-02T11:00:00
 #
 # use gen_opts.py to build a list of option symbols for the intraday file update list
 

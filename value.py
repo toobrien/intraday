@@ -4,13 +4,15 @@ from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    typing                  import  List
 from    util.aggregations       import  vbp
+from    util.contract_settings  import  get_settings
+from    util.plotting           import  get_title
 from    util.rec_tools          import  get_tas, tas_rec
 
 
 # usage:
 #
-#   - python value.py CLQ23_FUT_CME 0.01 1000 5000 2023-06-13 
-#   - python value.py ZRN23_FUT_CME 0.01 25 -
+#   - python value.py CLQ23_FUT_CME 1000 5000 2023-06-13 
+#   - python value.py ZRN23_FUT_CME 25 -
 
 
 COLOR   = "#CCCCCC"
@@ -50,15 +52,15 @@ def calc_value(recs: List):
 
 if __name__ == "__main__":
 
-    contract_id = argv[1]
-    title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
-    multiplier  = float(argv[2])
-    interval    = int(argv[3])
-    start       = argv[5] if len(argv) > 5 else None
-    end         = argv[6] if len(argv) > 6 else None
-    recs        = get_tas(contract_id, multiplier, FMT, start, end)
-    lookback    = int(argv[4]) if argv[4].isdigit() else len(recs)
-    i           = lookback if lookback < len(recs) else interval
+    contract_id     = argv[1]
+    title           = get_title(contract_id)
+    multiplier, _   = get_settings(contract_id)
+    interval        = int(argv[2])
+    start           = argv[4] if len(argv) > 4 else None
+    end             = argv[5] if len(argv) > 5 else None
+    recs            = get_tas(contract_id, multiplier, FMT, start, end)
+    lookback        = int(argv[3]) if argv[3].isdigit() else len(recs)
+    i               = lookback if lookback < len(recs) else interval
     high        = []
     low         = []
     lvn         = []

@@ -1,6 +1,8 @@
 import  plotly.graph_objects    as      go
 from    sys                     import  argv
 from    util.aggregations       import  ohlcv, ohlcv_rec, vbp
+from    util.contract_settings  import  get_settings
+from    util.plotting           import  get_title
 from    util.rec_tools          import  get_tas, tas_rec
 from    util.sc_dt              import  ts_to_ds
 
@@ -14,15 +16,15 @@ FMT = "%Y-%m-%d %H:%M:%S"
 
 if __name__ == "__main__":
 
-    contract_id = argv[1]
-    title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
-    multiplier  = float(argv[2])
-    resolution  = argv[3]
-    start       = argv[4] if len(argv) > 4 else None
-    end         = argv[5] if len(argv) > 5 else None
-    recs        = get_tas(contract_id, multiplier, None, start, end)
-    bars        = ohlcv(recs, resolution)
-    fig         = go.Figure()
+    contract_id     = argv[1]
+    title           = get_title(contract_id)
+    multiplier, _   = get_settings(contract_id)
+    resolution      = argv[3]
+    start           = argv[4] if len(argv) > 4 else None
+    end             = argv[5] if len(argv) > 5 else None
+    recs            = get_tas(contract_id, multiplier, None, start, end)
+    bars            = ohlcv(recs, resolution)
+    fig             = go.Figure()
 
     if not recs:
 

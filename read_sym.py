@@ -1,5 +1,4 @@
-from sys        import path
-
+from sys                import path
 from json               import loads
 from util.parsers       import depth_rec, tas_rec
 from util.sym_it        import SymIt

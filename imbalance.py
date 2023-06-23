@@ -1,10 +1,11 @@
-import plotly.graph_objects as go
-
-from json           import loads
-from util.parsers   import parse_tas, parse_tas_header, tas_rec
-from util.sc_dt     import ts_to_ds
-from sys            import argv
-from typing         import List
+import  plotly.graph_objects    as      go
+from    json                    import  loads
+from    util.contract_settings  import  get_settings
+from    util.parsers            import  parse_tas, parse_tas_header, tas_rec
+from    util.rec_tools          import  get_precision
+from    util.sc_dt              import  ts_to_ds
+from    sys                     import  argv
+from    typing                  import  List
 
 
 CONFIG      = loads(open("./config.json").read())
@@ -138,12 +139,12 @@ def generate_series(
 if __name__ == "__main__":
 
     fn              = argv[1]
-    price_adj       = float(argv[2])
-    precision       = len(argv[2].split(".")[1])
-    vol_thresh      = int(argv[3])
-    delta_thresh    = float(argv[4])
-    cooldown_thresh = float(argv[5])
-    finish_thresh   = float(argv[6])
+    multiplier, _   = get_settings(fn)
+    precision       = get_precision(str(float))
+    vol_thresh      = int(argv[2])
+    delta_thresh    = float(argv[3])
+    cooldown_thresh = float(argv[4])
+    finish_thresh   = float(argv[5])
 
     with open(f"{SC_ROOT}/Data/{fn}.scid", "rb") as fd:
 
@@ -153,7 +154,7 @@ if __name__ == "__main__":
 
         generate_series(
             recs,
-            price_adj,
+            multiplier,
             vol_thresh,
             delta_thresh,
             cooldown_thresh,

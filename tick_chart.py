@@ -1,16 +1,16 @@
-from    bisect                  import  bisect_left
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
+from    util.contract_settings  import  get_settings
 from    util.features           import  delta
-from    util.plotting           import  gaussian_vscatter
+from    util.plotting           import  gaussian_vscatter, get_title
 from    util.aggregations       import  tick_series, vbp
 from    util.modelling          import  gaussian_estimates, vbp_kde
 from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
 
-# usage: python tick_chart.py CLN23_FUT_CME 0.01 2023-05-21 2023-05-22
+# usage: python tick_chart.py CLN23_FUT_CME 2023-05-21 2023-05-22
 
 
 BANDWIDTH   = 0.15
@@ -24,15 +24,14 @@ LVN         = True
 
 if __name__ == "__main__":
 
-    contract_id = argv[1]
-    title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
-    multiplier  = float(argv[2])
-    start       = argv[3] if len(argv) > 3 else None
-    end         = argv[4] if len(argv) > 4 else None
-    title       = f"{title} {start} - {end}"
-    recs        = get_tas(contract_id, multiplier, None, start, end)
-    tick_size   = multiplier # hack
-    precision   = get_precision(argv[2])
+    contract_id             = argv[1]
+    title                   = get_title(contract_id)
+    multiplier, tick_size   = get_settings(contract_id)
+    precision               = get_precision(str(tick_size))
+    start                   = argv[2] if len(argv) > 2 else None
+    end                     = argv[3] if len(argv) > 3 else None
+    title                   = f"{title} {start} - {end}"
+    recs                    = get_tas(contract_id, multiplier, None, start, end)
 
     if not recs:
 
@@ -42,7 +41,6 @@ if __name__ == "__main__":
 
     x, y, z, t, c                               = tick_series(recs)
     vbp_hist                                    = vbp(recs)
-    vbp_sorted                                  = sorted(vbp_hist)
     vbp_y, vbp_x, scale_factor, maxima, minima  = vbp_kde(vbp_hist, BANDWIDTH)
     gaussians                                   = gaussian_estimates(maxima, minima, vbp_hist)
     deltas                                      = delta(recs)
@@ -168,18 +166,15 @@ if __name__ == "__main__":
 
         for title, data in gaussians.items():
 
-            mu              = data["mu"]
-            sigma           = data["sigma"]
-            mu_tick         = round(mu, precision)
-            mu_nearest      = vbp_sorted[bisect_left(vbp_sorted, mu_tick)]
-            mu_count        = vbp_hist.count(mu_nearest)
+            mu      = data["mu"]
+            sigma   = data["sigma"]
 
             fig.add_trace(
                 gaussian_vscatter(
                     mu,
                     sigma,
-                    tick_size, 
-                    mu_count,
+                    vbp_hist,
+                    tick_size,
                     f"{title} [{sigma:0.2f}]"
                 ),
                 row = 1,

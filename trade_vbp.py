@@ -2,26 +2,28 @@ import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    util.aggregations       import  vbp
+from    util.contract_settings  import  get_settings
+from    util.plotting           import  get_title
 from    util.rec_tools          import  get_tas, tas_rec
 
 
 # usage:
 #
-#   - python trade_vbp.py CLQ23_FUT_CME 0.01 1000 2023-06-15
+#   - python trade_vbp.py CLQ23_FUT_CME 1000 2023-06-15
 
 
 FMT     = "%Y-%m-%dT%H:%M:%S"
 
 if __name__ == "__main__":
 
-    contract_id = argv[1]
-    title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
-    multiplier  = float(argv[2])
-    interval    = int(argv[3])
-    start       = argv[4] if len(argv) > 4 else None
-    end         = argv[5] if len(argv) > 5 else None
-    recs        = get_tas(contract_id, multiplier, FMT, start, end)
-    fig         = make_subplots(
+    contract_id     = argv[1]
+    title           = get_title
+    multiplier, _   = get_settings(contract_id)
+    interval        = int(argv[2])
+    start           = argv[3] if len(argv) > 3 else None
+    end             = argv[4] if len(argv) > 4 else None
+    recs            = get_tas(contract_id, multiplier, FMT, start, end)
+    fig             = make_subplots(
         rows                = 1,
         cols                = 2,
         column_widths       = [ 0.1, 0.9 ],

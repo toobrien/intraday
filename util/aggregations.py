@@ -152,7 +152,7 @@ def vbp(recs: List):
 
         hist += ([ rec[tas_rec.price] ] * rec[tas_rec.qty])
     
-    return hist
+    return sorted(hist)
 
 
 class ohlcv_rec(IntEnum):

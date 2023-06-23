@@ -1,12 +1,13 @@
 from    math                    import  log
 import  plotly.graph_objects    as      go
 from    sys                     import  argv
+from    util.contract_settings  import  get_settings
 from    util.aggregations       import  ohlcv, ohlcv_rec
 from    util.rec_tools          import  get_precision
 from    util.term_structure     import  get_terms
 
 
-# usage: python term_chg_chart.py NGM23 0.001 6 2023-03-27T00:00:00 2023-03-28T00:00:00 1:H 1
+# usage: python term_chg_chart.py NGM23 6 2023-03-27T00:00:00 2023-03-28T00:00:00 1:H 1
 
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
@@ -14,15 +15,15 @@ FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 if __name__ == "__main__":
 
-    init_symbol             = argv[1]
-    multiplier              = argv[2]
-    precision               = get_precision(multiplier)
-    multiplier              = float(multiplier)
-    n_months                = int(argv[3])
-    start                   = argv[4]
-    end                     = argv[5]
-    resolution              = argv[6]
-    trim_empty              = int(argv[7])
+    init_symbol     = argv[1]
+    multiplier, _   = get_settings(init_symbol)
+    precision       = get_precision(multiplier)
+    multiplier      = float(multiplier)
+    n_months        = int(argv[2])
+    start           = argv[3]
+    end             = argv[4]
+    resolution      = argv[5]
+    trim_empty      = int(argv[6])
 
     terms = get_terms(
                 init_symbol, 

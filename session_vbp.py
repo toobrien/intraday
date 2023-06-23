@@ -2,10 +2,12 @@ from    bisect                  import  bisect_left
 import  plotly.graph_objects    as      go
 from    sys                     import  argv
 from    util.aggregations       import  vbp
+from    util.contract_settings  import  get_settings
+from    util.plotting           import  get_title
 from    util.rec_tools          import  get_tas, date_index, tas_rec
 
 
-# usage: python session_vbp.py CLN23_FUT_CME 0.01 2023-06-08 2023-06-09 00.03 03.06 06.11:20 11:20.11:30 11:30.15 15.23:59:59
+# usage: python session_vbp.py CLN23_FUT_CME 2023-06-08 2023-06-09 00.03 03.06 06.11:20 11:20.11:30 11:30.15 15.23:59:59
 
 # (maximum 10 sessions)
 
@@ -27,13 +29,13 @@ SESSION_COLORS = [
 
 if __name__ == "__main__":
 
-    contract_id = argv[1]
-    title       = argv[1].split(".")[0] if "." in argv[1] else argv[1].split("_")[0]
-    multiplier  = float(argv[2])
-    start       = argv[3]
-    end         = argv[4]
-    sessions    = argv[5:]
-    recs        = get_tas(contract_id, multiplier, FMT, start, end)
+    contract_id     = argv[1]
+    title           = get_title(contract_id)
+    multiplier, _   = get_settings(contract_id)
+    start           = argv[2]
+    end             = argv[3]
+    sessions        = argv[4:]
+    recs            = get_tas(contract_id, multiplier, FMT, start, end)
 
     if not recs:
 

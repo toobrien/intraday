@@ -2,13 +2,14 @@ from    math                    import  log
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
+from    util.contract_settings  import  get_settings
 from    util.rec_tools          import  n_days_ago, tas_rec
 from    util.term_structure     import  get_terms
 
 
 # usage: 
-#           python term_range.py HOM23 0.0001 6 2023-04-01 2023-05-01
-#           python term_range.py HEM23 0.001 8 30
+#           python term_range.py HOM23 6 2023-04-01 2023-05-01
+#           python term_range.py HEM23 8 30
 
 
 def report(
@@ -87,19 +88,19 @@ def report(
 
 if __name__ == "__main__":
 
-    init_symbol = argv[1]
-    multiplier  = argv[2]
-    n_terms     = int(argv[3])
+    init_symbol     = argv[1]
+    multiplier, _   = get_settings(init_symbol)
+    n_terms         = int(argv[2])
 
     if len(argv) == 5:
 
-        start   = n_days_ago(int(argv[4]))
+        start   = n_days_ago(int(argv[3]))
         end     = n_days_ago(-1)
     
     else:
 
-        start       = argv[4]
-        end         = argv[5]
+        start       = argv[3]
+        end         = argv[4]
 
     report(
         init_symbol,

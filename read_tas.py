@@ -1,9 +1,10 @@
-from json           import loads
-from util.rec_tools import get_tas, tas_rec
-from sys            import argv
+from json                   import loads
+from util.contract_settings import get_settings
+from util.rec_tools         import get_precision, get_tas, tas_rec
+from sys                    import argv
 
 
-# usage: python read_tas.py HEK24_FUT_CME 0.001 2023-01-01 2023-06-01
+# usage: python read_tas.py HEK24_FUT_CME 2023-01-01 2023-06-01
 
 
 CONFIG  = loads(open("./config.json").read())
@@ -11,13 +12,13 @@ FMT     = "%Y-%m-%dT%H:%M:%S.%f"
 
 if __name__ == "__main__":
 
-    fn          = argv[1]
-    price_adj   = float(argv[2])
-    precision   = len(argv[2].split(".")[1]) if "." in argv[2] else len(argv[2])
-    start       = argv[3]
-    end         = argv[4]
+    contract_id     = argv[1]
+    multiplier, _   = get_settings(contract_id)
+    precision       = get_precision(float(multiplier))
+    start           = argv[2] if len(argv) > 2 else None
+    end             = argv[3] if len(argv) > 3 else None
 
-    recs = get_tas(fn, price_adj, FMT, start, end)
+    recs = get_tas(contract_id, multiplier, FMT, start, end)
 
     for r in recs:
 

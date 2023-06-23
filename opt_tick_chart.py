@@ -3,6 +3,7 @@ from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    typing                  import  List
 from    util.aggregations       import  split_tick_series, vbp
+from    util.contract_settings  import  get_settings
 from    util.features           import  ewma, twap
 from    util.parsers            import  tas_rec
 from    util.rec_tools          import  get_tas
@@ -15,7 +16,7 @@ FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 
 # usage:
 #
-#   python opt_tick_chart.py "LON23 P6000.FUT_OPT.NYMEX" CLN23_FUT_CME 0.01 2023-06-01 2023-06-02
+#   python opt_tick_chart.py "LON23 P6000.FUT_OPT.NYMEX" CLN23_FUT_CME 2023-06-01 2023-06-02
 
 
 def add_chart(
@@ -118,15 +119,14 @@ def add_chart(
 
 if __name__ == "__main__":
 
-    opt_id      = argv[1]
-    und_id      = argv[2]
-    title       = f"{und_id}\t{opt_id}"
-    multiplier  = float(argv[3])
-    start       = argv[4] if len(argv) > 4 else None
-    end         = argv[5] if len(argv) > 5 else None
-
-    opt_recs    = get_tas(opt_id, multiplier, None, start, end)
-    und_recs    = get_tas(und_id, multiplier, None, start, end)
+    opt_id          = argv[1]
+    und_id          = argv[2]
+    title           = f"{und_id}\t{opt_id}"
+    multiplier, _   = get_settings(opt_id)  # assumes options and future have same tick size
+    start           = argv[4] if len(argv) > 4 else None
+    end             = argv[5] if len(argv) > 5 else None
+    opt_recs        = get_tas(opt_id, multiplier, None, start, end)
+    und_recs        = get_tas(und_id, multiplier, None, start, end)
 
     if not opt_recs or not und_recs:
 
