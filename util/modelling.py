@@ -1,5 +1,5 @@
-from math               import log
-from numpy              import arange, array
+from math               import log, sqrt
+from numpy              import array
 from bisect             import bisect_left, bisect_right
 from scipy.stats        import gaussian_kde, norm
 from sklearn.cluster    import KMeans
@@ -99,7 +99,8 @@ def gaussian_estimates(
 def kmeans(
     x:              List, 
     y:              List, 
-    thresh:         float   = 0.10, 
+    thresh:         float   = 0.10,
+    min_clusters:   int     = 1,
     max_clusters:   int     = 25
 ):
 
@@ -108,7 +109,7 @@ def kmeans(
     arr             = array([ [ x[i], y[i] ] for i in range(len(x)) ])
     i               = 2
 
-    while i < max_clusters + 1:
+    while i < min_clusters + 1:
 
         km = KMeans(
             n_clusters  = i,
@@ -131,32 +132,29 @@ def kmeans(
     return km.cluster_centers_, km.labels_
 
 
-# x:        rec_tools.tick_series
+# y:        rec_tools.tick_series -- sequenced price series for labelling
 # vbp_hist: features.vbp
 
 def vbp_gmm(
-    x:              List,
-    vbp_hist:       List,
-    max_components: int     = 25
+    y:              List,
+    hist:           List,
+    min_components: int = 1,
+    max_components: int = 25
 ):
-
-    if not vbp_hist:
-
-        vbp_hist = vbp(x)
     
     cur     = None
     prev    = None
-    x_arr   = array(x).reshape(-1, 1)
-    vbp_arr = array(vbp_hist).reshape(-1, 1)
-    i       = 2
+    Y       = array(y).reshape(-1, 1)
+    X       = array(hist).reshape(-1, 1)
+    i       = min_components
 
     while i < max_components:
 
-        cur = GaussianMixture(n_components = i).fit(vbp_arr)
+        cur = GaussianMixture(n_components = i).fit(X)
 
         if prev:
 
-            if prev.aic(x_arr) < cur.aic(x_arr):
+            if prev.aic(X) < cur.aic(X):
 
                 # finished
 
@@ -166,8 +164,8 @@ def vbp_gmm(
         i       += 1
 
     means       = [ mu[0] for mu in prev.means_ ]
-    covariances = [ cov[0] for cov in prev.covariances_ ]
-    labels      = prev.predict(x_arr)
+    covariances = [ sqrt(cov[0]) for cov in prev.covariances_ ]
+    labels      = prev.predict(Y)
 
     print(f"features.gaussian_mixture: fitting finished with {i - 1} components")
 

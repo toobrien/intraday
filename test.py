@@ -1,4 +1,3 @@
-from    collections             import  Counter
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
@@ -99,7 +98,7 @@ def kmeans_test():
 
     recs            = get_tas("CLQ23_FUT_CME", 0.01, None, "2023-06-21")
     x, y, z, _, _   = tick_series(recs)
-    fig = make_subplots(rows = 2, cols = 2)
+    fig             = make_subplots(rows = 2, cols = 2)
 
     for params in [ 
         (0.8, 1, 1), 
@@ -145,11 +144,7 @@ def vbp_gmm_test():
     x, y, z, _, _           = tick_series(recs)
     fig                     = make_subplots(rows = 1, cols = 2, shared_yaxes = True)
 
-    means, covariances, labels = vbp_gmm(x, hist)
-
-    for label, count in dict(Counter(labels)).items():
-
-        print(label, count)
+    means, covariances, labels = vbp_gmm(y, hist)
 
     fig.add_trace(
         go.Scatter(
@@ -195,7 +190,8 @@ def vbp_gmm_test():
                 sigma,
                 hist,
                 tick_size,
-                f"component {i}"
+                f"c-{i} [{mu:0.2f}, {sigma:0.2f}]",
+                stdevs = 3
             ),
             row = 1,
             col = 1
