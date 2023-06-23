@@ -149,7 +149,7 @@ def vbp_gmm_test():
         horizontal_spacing  = 0.025,
     )
 
-    means, covariances, labels = vbp_gmm(y, hist, max_components = 5)
+    means, sigmas, labels = vbp_gmm(y, hist, max_components = 5)
 
     fig.add_trace(
         go.Scatter(
@@ -182,7 +182,7 @@ def vbp_gmm_test():
     for i in range(len(means)):
 
         mu      = round(float(means[i]), precision)
-        sigma   = round(float(covariances[i]), precision)
+        sigma   = round(float(sigmas[i]), precision)
 
         fig.add_trace(
             gaussian_vscatter(

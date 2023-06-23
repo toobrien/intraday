@@ -137,6 +137,7 @@ def kmeans(
 def vbp_gmm(
     y:              List,
     hist:           List,
+    thresh:         0.015,
     min_components: int = 1,
     max_components: int = 10
 ):
@@ -159,10 +160,10 @@ def vbp_gmm(
     i   = aics.index(min(aics))
     m   = models[i]
 
-    means       = [ mu[0] for mu in m.means_ ]
-    covariances = [ sqrt(cov[0]) for cov in m.covariances_ ]
-    labels      = m.predict(Y)
+    means   = [ mu[0] for mu in m.means_ ]
+    sigmas  = [ sqrt(cov[0]) for cov in m.covariances_ ]
+    labels  = m.predict(Y)
 
     print(f"features.gaussian_mixture: fitting finished; found {min_components + i} components")
 
-    return means, covariances, labels
+    return means, sigmas, labels
