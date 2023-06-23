@@ -142,7 +142,12 @@ def vbp_gmm_test():
     recs                    = get_tas(contract_id, multiplier, None, date)
     hist                    = vbp(recs)
     x, y, z, _, _           = tick_series(recs)
-    fig                     = make_subplots(rows = 1, cols = 2, shared_yaxes = True)
+    fig                     = make_subplots(
+        rows                = 1, 
+        cols                = 2, 
+        shared_yaxes        = True,
+        horizontal_spacing  = 0.025,
+    )
 
     means, covariances, labels = vbp_gmm(y, hist)
 
