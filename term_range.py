@@ -92,7 +92,7 @@ if __name__ == "__main__":
     multiplier, _   = get_settings(init_symbol)
     n_terms         = int(argv[2])
 
-    if len(argv) == 5:
+    if len(argv) == 4:
 
         start   = n_days_ago(int(argv[3]))
         end     = n_days_ago(-1)
