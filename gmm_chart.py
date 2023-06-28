@@ -79,6 +79,15 @@ if __name__ == "__main__":
             row = 1,
             col = 1
         )
+
+        fig.add_hline(
+            y                   = mu,
+            line_dash           = "dash",
+            line_color          = "#ff66ff",
+            opacity             = 0.5,
+            annotation_text     = f"{mu:0.2f}",
+            row                 = 1
+        )
         
 
     fig.show()
