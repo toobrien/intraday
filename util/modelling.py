@@ -126,7 +126,7 @@ def kmeans(
         prev_inertia    =  km.inertia_
         i               += 1
 
-    print(f"features.kmeans: fitting finished with {min(i, max_clusters)} clusters")
+    # print(f"features.kmeans: fitting finished with {min(i, max_clusters)} clusters")
 
     return km.cluster_centers_, km.labels_
 
@@ -155,7 +155,7 @@ def vbp_gmm(
         models.append(m)
         aics.append(m.aic(X))
 
-    chgs    = [ log(aics[i] / aics[i - 1]) for i in range(1, len(aics)) ] # not finished
+    # chgs    = [ log(aics[i] / aics[i - 1]) for i in range(1, len(aics)) ] # not finished
     i       = aics.index(min(aics))
     m       = models[i]
 
@@ -163,6 +163,6 @@ def vbp_gmm(
     sigmas  = [ sqrt(cov[0]) for cov in m.covariances_ ]
     labels  = m.predict(Y)
 
-    print(f"features.gaussian_mixture: fitting finished; found {min_components + i} components")
+    # print(f"features.gaussian_mixture: fitting finished; found {min_components + i} components")
 
     return means, sigmas, labels
