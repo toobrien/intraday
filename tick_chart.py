@@ -5,7 +5,7 @@ from    util.contract_settings  import  get_settings
 from    util.features           import  delta
 from    util.plotting           import  gaussian_vscatter, get_title
 from    util.aggregations       import  tick_series, vbp
-from    util.modelling          import  gaussian_estimates, vbp_kde
+from    util.modelling          import  gaussian_estimates, vbp_gmm, vbp_kde
 from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
@@ -17,9 +17,11 @@ BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 STDEVS      = 4
 KDE         = False
-GAUSSIAN    = True
 HVN         = True
 LVN         = True
+GAUSSIAN    = False
+GMM         = True
+GMM_MAX     = 5
 
 
 if __name__ == "__main__":
@@ -176,6 +178,36 @@ if __name__ == "__main__":
                     vbp_hist,
                     tick_size,
                     f"hvn [{mu:0.2f}, {sigma:0.2f}]"
+                ),
+                row = 1,
+                col = 1
+            )
+
+            fig.add_hline(
+                y                   = mu,
+                line_dash           = "dash",
+                line_color          = "#ff66ff",
+                opacity             = 0.5,
+                annotation_text     = f"{mu:0.2f}",
+                row                 = 1
+            )
+
+    if GMM:
+
+        mus, sigmas, _ = vbp_gmm(y, vbp_hist, max_components = GMM_MAX)
+
+        for i in range(len(mus)):
+
+            mu      = round(float(mus[i]), precision)
+            sigma   = round(float(sigmas[i]), precision)
+
+            fig.add_trace(
+                gaussian_vscatter(
+                    mu,
+                    sigma,
+                    vbp_hist,
+                    tick_size,
+                    f"c-{i} [{mu:0.{precision}f}, {sigma:0.{precision}f}]"
                 ),
                 row = 1,
                 col = 1
