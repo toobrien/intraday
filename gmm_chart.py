@@ -36,7 +36,7 @@ if __name__ == "__main__":
     means, sigmas, labels = vbp_gmm(y, hist, max_components = max_components)
 
     fig.add_trace(
-        go.Scatter(
+        go.Scattergl(
             {
                 "x":        x,
                 "y":        y,
