@@ -19,8 +19,8 @@ STDEVS      = 4
 KDE         = False
 HVN         = True
 LVN         = True
-GAUSSIAN    = False
-GMM         = True
+GAUSSIAN    = True
+GMM         = False
 GMM_MAX     = 5
 
 
