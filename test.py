@@ -108,7 +108,7 @@ def kmeans_test():
         thresh          = params[0]
         r               = params[1]
         c               = params[2]
-        centers, labels = kmeans(x, y, thresh)
+        _, _, labels    = kmeans(x, y, thresh)
 
         fig.add_trace(
             go.Scatter(

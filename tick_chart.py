@@ -194,7 +194,7 @@ if __name__ == "__main__":
 
     if GMM:
 
-        mus, sigmas, _ = vbp_gmm(y, vbp_hist, max_components = GMM_MAX)
+        _, mus, sigmas, _ = vbp_gmm(y, vbp_hist, max_components = GMM_MAX)
 
         for i in range(len(mus)):
 

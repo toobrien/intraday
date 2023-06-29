@@ -1,15 +1,20 @@
     
+from    numpy                   import  array
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.aggregations       import  tick_series, vbp
+from    util.aggregations       import  agg_tick_series, tick_series, vbp
 from    util.contract_settings  import  get_settings
 from    util.modelling          import  vbp_gmm
 from    util.plotting           import  gaussian_vscatter, get_title
 from    util.rec_tools          import  get_precision, get_tas
+from    util.sc_dt              import  ts_to_ds
 
 
-# python gmm_chart.py CLQ23_FUT_CME 10 2023-06-22
+# python gmm_chart.py CLQ23_FUT_CME 5 0.1 2023-06-01
+
+
+FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
 if __name__ == "__main__":
@@ -18,12 +23,14 @@ if __name__ == "__main__":
     title                   = get_title(contract_id)
     multiplier, tick_size   = get_settings(contract_id)
     max_components          = int(argv[2])
-    start                   = argv[3] if len(argv) > 3 else None
-    end                     = argv[4] if len(argv) > 4 else None
+    price_increment         = float(argv[3])
+    start                   = argv[4] if len(argv) > 4 else None
+    end                     = argv[5] if len(argv) > 5 else None
     precision               = get_precision(str(multiplier))
     recs                    = get_tas(contract_id, multiplier, None, start, end)
     hist                    = vbp(recs, precision)
     x, y, _, _, _           = tick_series(recs)
+    x_, y_, _, _, v, t      = agg_tick_series(recs, price_increment)
     fig                     = make_subplots(
         rows                = 1, 
         cols                = 2,
@@ -32,17 +39,27 @@ if __name__ == "__main__":
         shared_yaxes        = True,
         subplot_titles      = [ "", f"{title} [ {start} - {end} ]" ]
     )
-
-    means, sigmas, labels = vbp_gmm(y, hist, max_components = max_components)
+    m, means, sigmas, _     = vbp_gmm(y, hist, max_components = max_components)
+    labels                  = m.predict(array(y_).reshape(-1, 1))
 
     fig.add_trace(
         go.Scattergl(
             {
-                "x":        x,
-                "y":        y,
-                "mode":     "markers",
-                "marker":   { "color": labels },
-                "name":     contract_id
+                "x":            x_,
+                "y":            y_,
+                "mode":         "markers",
+                "marker":       {
+                                    "color":    labels,
+                                    "sizemode": "area",
+                                    "sizeref":  2. * max(v) / (40.**2),
+                                    "sizemin":  4
+                                },
+                "marker_size":  v,
+                "name":         contract_id,
+                "text":         [ 
+                                    f"{v[i]}<br>{ts_to_ds(t[i][0], FMT)}<br>{ts_to_ds(t[i][1], FMT)}" 
+                                    for i in range(len(t))
+                                ]
             }
         ),
         row = 1,

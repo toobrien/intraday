@@ -136,7 +136,7 @@ def kmeans(
 
     # print(f"features.kmeans: fitting finished with {min(i, max_clusters)} clusters")
 
-    return km.cluster_centers_, km.labels_
+    return km, km.cluster_centers_, km.labels_
 
 
 # y:        rec_tools.tick_series -- sequenced price series for labelling
@@ -173,4 +173,4 @@ def vbp_gmm(
 
     # print(f"features.gaussian_mixture: fitting finished; found {min_components + i} components")
 
-    return means, sigmas, labels
+    return m, means, sigmas, labels
