@@ -11,7 +11,7 @@ from    util.rec_tools          import  get_precision, get_tas
 from    util.sc_dt              import  ts_to_ds
 
 
-# python gmm_chart.py CLQ23_FUT_CME 5 0.1 2023-06-01
+# python gmm_chart.py CLQ23_FUT_CME 5:10 0.1 2023-06-01
 
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
@@ -22,7 +22,9 @@ if __name__ == "__main__":
     contract_id             = argv[1]
     title                   = get_title(contract_id)
     multiplier, tick_size   = get_settings(contract_id)
-    max_components          = int(argv[2])
+    components              = argv[2].split(":")
+    min_components          = int(components[0])
+    max_components          = int(components[1])
     price_increment         = float(argv[3])
     start                   = argv[4] if len(argv) > 4 else None
     end                     = argv[5] if len(argv) > 5 else None
@@ -39,7 +41,12 @@ if __name__ == "__main__":
         shared_yaxes        = True,
         subplot_titles      = [ "", f"{title} [ {start} - {end} ]" ]
     )
-    m, means, sigmas, _     = vbp_gmm(y, hist, max_components = max_components)
+    m, means, sigmas, _     = vbp_gmm(
+                                y, 
+                                hist, 
+                                min_components = min_components, 
+                                max_components = max_components
+                            )
     labels                  = m.predict(array(y_).reshape(-1, 1))
 
     fig.add_trace(
