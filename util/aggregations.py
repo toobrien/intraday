@@ -78,6 +78,63 @@ def tick_series(recs: List):
     return ( x, y, z, t, c )
 
 
+# aggregates trades by rounding to the given increment
+
+def agg_tick_series(recs: List, increment: float):
+
+    x = []  # contract number
+    y = []  # price
+    a = []  # volume traded at ask
+    b = []  # volume traded at bid
+    v = []  # total volume
+    t = []  # timestamp (start, end)
+    
+    prev_price  = increment * round(recs[0][tas_rec.price] / increment)
+    contract    = recs[0][tas_rec.qty]
+    bid_vol     = recs[0][tas_rec.qty] if not recs[0][tas_rec.side] else 0
+    ask_vol     = recs[0][tas_rec.qty] if recs[0][tas_rec.side] else 0
+    total_vol   = bid_vol + ask_vol
+    start       = recs[0][tas_rec.timestamp]
+
+    for rec in recs:
+
+        price   = increment * round(rec[tas_rec.price] / increment)
+        ts      = rec[tas_rec.timestamp]
+        qty     = rec[tas_rec.qty]
+        side    = rec[tas_rec.side]
+
+        if price != prev_price:
+
+            x.append(contract)
+            y.append(price)
+            a.append(ask_vol)
+            b.append(bid_vol)
+            v.append(total_vol)
+            t.append(( start, ts ))
+
+            bid_vol     = 0
+            ask_vol     = 0
+            total_vol   = 0
+            start       = ts
+            prev_price  = price
+            
+        contract    += qty
+        bid_vol     += qty if not side else 0
+        ask_vol     += qty if side else 0
+        total_vol   += qty
+    
+    # add final trade
+
+    x.append(contract)
+    y.append(price)
+    a.append(ask_vol)
+    b.append(bid_vol)
+    v.append(total_vol)
+    t.append(( start, ts ))
+
+    return ( x, y, a, b, v, t )
+
+
 # for bids/asks separately: x = timestamp, y = price, z = qty
 
 def split_tick_series(recs: List):

@@ -4,7 +4,7 @@ from bisect             import bisect_left, bisect_right
 from scipy.stats        import gaussian_kde
 from sklearn.cluster    import KMeans
 from sklearn.mixture    import GaussianMixture
-from statistics         import mean, mode, stdev
+from statistics         import mean, mode, StatisticsError, stdev
 from typing             import List
 
 
@@ -83,11 +83,19 @@ def gaussian_estimates(
 
         # sample pdf
 
-        x       = selected + right
-        mu      = mean(x)
-        sigma   = stdev(x)
+        try:
         
-        res[f"{mu:0.2f} hvn"] = { "mu": mu, "sigma": sigma }
+            x       = selected + right
+            mu      = mean(x)
+            sigma   = stdev(x)
+        
+            res[f"{mu:0.2f} hvn"] = { "mu": mu, "sigma": sigma }
+
+        except StatisticsError:
+
+            # no data
+
+            continue
 
     return res
 
