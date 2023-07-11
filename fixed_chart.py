@@ -1,7 +1,7 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
-from    util.aggregations       import  renko, vbp
+from    util.aggregations       import  fixed_series, vbp
 from    util.contract_settings  import  get_settings
 from    util.modelling          import  gaussian_estimates, vbp_kde
 from    util.plotting           import  gaussian_vscatter, get_title
@@ -9,7 +9,7 @@ from    util.rec_tools          import  get_precision, get_tas
 from    util.sc_dt              import  ts_to_ds
 
 
-# usage: python renko_chart.py CLQ23_FUT_CME 0.10 2023-07-01 2023-07-12
+# usage: python fixed_chart.py CLQ23_FUT_CME 0.10 2023-07-01 2023-07-12
 
 
 BANDWIDTH   = 0.15
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         exit()
 
     hist                                        = vbp(recs)
-    x, y, a, b, v, t                            = renko(recs, increment)
+    x, y, a, b, v, t                            = fixed_series(recs, increment)
     vbp_hist                                    = vbp(recs)
     vbp_x, vbp_y, scale_factor, maxima, minima  = vbp_kde(hist, BANDWIDTH)
     gaussians                                   = gaussian_estimates(maxima, minima, vbp_hist)
@@ -44,7 +44,6 @@ if __name__ == "__main__":
         rows                = 1,
         cols                = 2,
         column_widths       = [ 0.1, 0.9 ],
-        row_heights         = [ 0.8, 0.2 ],
         shared_yaxes        = True,
         shared_xaxes        = True,
         horizontal_spacing  = 0.025,

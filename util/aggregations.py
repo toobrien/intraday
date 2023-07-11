@@ -135,8 +135,7 @@ def agg_tick_series(recs: List, increment: float):
     return ( x, y, a, b, v, t )
 
 
-
-def renko(recs: List, increment: float):
+def fixed_series(recs: List, increment: float):
 
     x = []  # bar number
     y = []  # price
