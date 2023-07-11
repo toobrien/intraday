@@ -135,6 +135,57 @@ def agg_tick_series(recs: List, increment: float):
     return ( x, y, a, b, v, t )
 
 
+
+def renko(recs: List, increment: float):
+
+    x = []  # bar number
+    y = []  # price
+    a = []  # volume traded at ask
+    b = []  # volume traded at bid
+    v = []  # total volume
+    t = []  # timestamp (start, end)
+
+    prev_price  = increment * round(recs[0][tas_rec.price] / increment)
+    hi_lim      = prev_price + increment
+    lo_lim      = prev_price - increment
+    bar         = 0
+    ask_vol     = recs[0][tas_rec.qty] if recs[0][tas_rec.side] else 0
+    bid_vol     = recs[0][tas_rec.qty] if not recs[0][tas_rec.side] else 0
+    total_vol   = bid_vol + ask_vol
+    start       = recs[0][tas_rec.timestamp]
+
+    for rec in recs:
+
+        price   = rec[tas_rec.price]
+        ts      = rec[tas_rec.timestamp]
+        qty     = rec[tas_rec.qty]
+        side    = rec[tas_rec.side]
+
+        if price > hi_lim or price < lo_lim:
+
+            x.append(bar)
+            y.append(prev_price)
+            a.append(ask_vol)
+            b.append(bid_vol)
+            v.append(total_vol)
+            t.append(( start, ts ))
+
+            bar         += 1
+            bid_vol     =  0
+            ask_vol     =  0
+            total_vol   =  0
+            start       =  ts
+            prev_price  =  hi_lim if price > hi_lim else lo_lim
+            hi_lim      =  prev_price + increment
+            lo_lim      =  prev_price - increment
+
+        bid_vol     += qty if not side else 0
+        ask_vol     += qty if side else 0
+        total_vol   += qty
+
+    return ( x, y, a, b, v, t )
+
+
 # for bids/asks separately: x = timestamp, y = price, z = qty
 
 def split_tick_series(recs: List):
