@@ -15,6 +15,7 @@ from    util.sc_dt              import  ts_to_ds
 BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 STDEVS      = 4
+CLR_THRESH  = 0.7
 
 
 if __name__ == "__main__":
@@ -39,6 +40,25 @@ if __name__ == "__main__":
     vbp_hist                                    = vbp(recs)
     vbp_x, vbp_y, scale_factor, maxima, minima  = vbp_kde(hist, BANDWIDTH)
     gaussians                                   = gaussian_estimates(maxima, minima, vbp_hist)
+    c                                           = []
+
+    for i in range(len(v)):
+
+        bid_vol     = b[i]
+        ask_vol     = a[i]
+        total_vol   = v[i]
+
+        if bid_vol / total_vol > CLR_THRESH:
+
+            c.append("#FF0000")
+        
+        elif ask_vol / total_vol > CLR_THRESH:
+
+            c.append("#0000FF")
+        
+        else:
+
+            c.append("#CCCCCC")
 
     fig = make_subplots(
         rows                = 1,
@@ -60,7 +80,7 @@ if __name__ == "__main__":
                 "mode":         "markers",
                 "marker_size":  v,
                 "marker":       {
-                                    "color":    "#CCCCCC",
+                                    "color":    c,
                                     "sizemode": "area",
                                     "sizeref":  2. * max(v) / (40.**2),
                                     "sizemin":  4
