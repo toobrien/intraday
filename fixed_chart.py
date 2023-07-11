@@ -16,6 +16,7 @@ BANDWIDTH   = 0.15
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 STDEVS      = 4
 CLR_THRESH  = 0.7
+MODE        = "LINE"
 
 
 if __name__ == "__main__":
@@ -71,47 +72,49 @@ if __name__ == "__main__":
         subplot_titles      = ( title, "" )
     )
 
-    '''
-    fig.add_trace(
-        go.Scattergl(
-            {
-                "name":         title,
-                "x":            x,
-                "y":            y,
-                "mode":         "markers",
-                "marker_size":  v,
-                "marker":       {
-                                    "color":    c,
-                                    "sizemode": "area",
-                                    "sizeref":  2. * max(v) / (40.**2),
-                                    "sizemin":  4
-                                },
-                "text":         [
-                                    f"{v[i]}<br>{ts_to_ds(t[i][0], FMT)}<br>{ts_to_ds(t[i][1], FMT)}"
-                                    for i in range(len(t))
-                                ]
-            }
-        ),
-        row = 1,
-        col = 2
-    )
-    '''
+    if MODE == "SCATTER":
 
-    fig.add_trace(
-        go.Scattergl(
-            {
-                "name": title,
-                "x":    x,
-                "y":    y,
-                "text": [
-                            f"{v[i]}<br>{ts_to_ds(t[i][0], FMT)}<br>{ts_to_ds(t[i][1], FMT)}"
-                            for i in range(len(t))
-                        ]
-            }
-        ),
-        row = 1,
-        col = 2
-    )
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "name":         title,
+                    "x":            x,
+                    "y":            y,
+                    "mode":         "markers",
+                    "marker_size":  v,
+                    "marker":       {
+                                        "color":    c,
+                                        "sizemode": "area",
+                                        "sizeref":  2. * max(v) / (40.**2),
+                                        "sizemin":  4
+                                    },
+                    "text":         [
+                                        f"{v[i]}<br>{ts_to_ds(t[i][0], FMT)}<br>{ts_to_ds(t[i][1], FMT)}"
+                                        for i in range(len(t))
+                                    ]
+                }
+            ),
+            row = 1,
+            col = 2
+        )
+    
+    elif MODE == "LINE":
+
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "name": title,
+                    "x":    x,
+                    "y":    y,
+                    "text": [
+                                f"{v[i]}<br>{ts_to_ds(t[i][0], FMT)}<br>{ts_to_ds(t[i][1], FMT)}"
+                                for i in range(len(t))
+                            ]
+                }
+            ),
+            row = 1,
+            col = 2
+        )
 
     fig.add_trace(
         go.Histogram(
