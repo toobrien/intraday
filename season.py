@@ -33,7 +33,8 @@ if __name__ == "__main__":
                 rows                = 2,
                 cols                = 1,
                 row_heights         = [ 0.85, 0.15 ],
-                subplot_titles      = ( contract_id, None )
+                subplot_titles      = ( f"{contract_id} {season[0]} - {season[1]}", None ),
+                vertical_spacing    = 0.05
             )
 
     for date, bars in idx.items():
