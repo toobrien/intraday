@@ -279,7 +279,7 @@ class ohlcv_rec(IntEnum):
 
 
 def ohlcv(
-    recs: List, 
+    recs:       List, 
     resolution: str,
     out_fmt:    str     = None, # None  = use microsecond timestamp
     trim_empty: bool    = False # False = carry forward close for bars with no trades, True = delete bars with no trades
