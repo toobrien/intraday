@@ -3,6 +3,7 @@ from    plotly.subplots         import  make_subplots
 from    sys                     import  argv
 from    time                    import  time
 from    util.aggregations       import  ohlcv, ohlcv_rec, tick_series, vbp, intraday_ranges
+from    util.bar_tools          import  get_bars
 from    util.modelling          import  gaussian_estimates, kmeans, vbp_kde
 from    util.rec_tools          import  date_index, get_tas, tas_rec
 from    util.sc_dt              import  ts_to_ds
@@ -131,13 +132,23 @@ def kmeans_test():
     fig.show()
 
 
+def bar_test():
+
+    contract_id = "ESU23_FUT_CME"
+
+    bars = get_bars(contract_id, "2023-07-07T00:00:00", "2023-07-12T11:30:00")
+
+    pass
+
+
 TESTS = {
     0: test_date_index,
     1: test_intraday_ranges,
     2: ohlcv_test,
     3: vbp_kde_test,
     4: gaussian_estimates_test,
-    5: kmeans_test
+    5: kmeans_test,
+    6: bar_test
 }
 
 

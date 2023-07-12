@@ -104,7 +104,7 @@ if __name__ == "__main__":
     fns = [
         fn for fn in
         listdir(f"{SC_ROOT}/Data")
-        if ".scid" in fn
+        if fn[-5:] == ".scid"
     ]
 
     skipped     = 0
