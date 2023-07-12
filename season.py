@@ -6,7 +6,7 @@ from    util.bar_tools          import  bar_rec, get_bars, get_sessions
 from    util.contract_settings  import  get_settings
 
 
-# python season.py ESU23_FUT_CME 12.13 2023-06-01
+# python season.py ESU23_FUT_CME 12.13 2023-07-01
 
 
 # TICKS_PER_BIN = 4
