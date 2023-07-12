@@ -35,8 +35,6 @@ def get_bars(
     end:            str = None
 ):
 
-    start   = start.split("T")
-    end     = end.split("T")
     fn      = f"{SC_ROOT}/data/{contract_id}.scid_BarData.txt"
     df      = pl.read_csv(fn).with_columns(
                 [
@@ -46,18 +44,20 @@ def get_bars(
             ) # standardize date format and drop whitespace from time col
 
     if start:
-    
-        df =    df.filter(
+
+        start   = start.split("T")
+        df      = df.filter(
                     (pl.col("Date") > start[0]) |
                     ((pl.col("Date") == start[0]) & (pl.col(" Time") > start[1]))
                 )
 
     if end:
 
-        df =    df.filter(
-                    (pl.col("Date") < end[0]) |
-                    ((pl.col("Date") == end[0]) & (pl.col(" Time") < end[1]))
-                )
+        end = end.split("T")
+        df  = df.filter(
+                (pl.col("Date") < end[0]) |
+                ((pl.col("Date") == end[0]) & (pl.col(" Time") < end[1]))
+            )
 
     return df.rows()
 
@@ -71,7 +71,7 @@ def get_sessions(
     res         = {}
     date_key    = lambda b: b[bar_rec.date]
     time_key    = lambda b: b[bar_rec.time]
-    dates   = sorted(List(set([ bar[bar_rec.date] for bar in bars ])))
+    dates       = sorted(list(set([ bar[bar_rec.date] for bar in bars ])))
 
     for date in dates:
 
@@ -82,8 +82,8 @@ def get_sessions(
 
         if selected:
 
-            i = bisect_left(selected, start, time_key)
-            j = bisect_right(selected, end, time_key)
+            i = bisect_left(selected, start, key = time_key)
+            j = bisect_right(selected, end, key = time_key)
 
             session = selected[i : j]
 
