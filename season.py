@@ -1,19 +1,26 @@
 import  plotly.graph_objects    as      go
+from    plotly.subplots         import  make_subplots
+from    statistics              import  mean, median
 from    sys                     import  argv
 from    util.bar_tools          import  bar_rec, get_bars, get_sessions
-from    util.rec_tools          import  n_days_ago
+from    util.contract_settings  import  get_settings
 
 
-# python season.py ESU23_FUT_CME 30 12.13
+# python season.py ESU23_FUT_CME 12.13 2023-06-01
+
+
+# TICKS_PER_BIN = 4
 
 
 if __name__ == "__main__":
 
     contract_id     = argv[1]
-    days_ago        = int(argv[2])
-    season          = argv[3].split(".")
-    start           = f"{n_days_ago(days_ago)}T00:00:00"
-    bars            = get_bars(contract_id, start)
+    season          = argv[2].split(".")
+    start           = f"{argv[3]}T00:00:00" if len(argv) > 3 else None
+    end             = f"{argv[4]}T00:00:00" if len(argv) > 4 else None
+    _, tick_size    = get_settings(contract_id)
+    bars            = get_bars(contract_id, start, end)
+    chgs            = []
 
     if not bars:
 
@@ -22,7 +29,12 @@ if __name__ == "__main__":
         exit()
 
     idx     = get_sessions(bars, season[0], season[1])
-    fig     = go.Figure()
+    fig     = make_subplots(
+                rows                = 2,
+                cols                = 1,
+                row_heights         = [ 0.85, 0.15 ],
+                subplot_titles      = ( contract_id, None )
+            )
 
     for date, bars in idx.items():
 
@@ -35,7 +47,31 @@ if __name__ == "__main__":
                     "y":    [ bar[bar_rec.last] - base for bar in bars ],
                     "name": date
                 }
-            )
+            ),
+            row = 1,
+            col = 1
         )
+
+        chgs.append(bars[-1][bar_rec.last] - base)
+
+    abs_chg = [ abs(x) for x in chgs ]
+    
+    print(f"mean:   {mean(abs_chg):0.2f}")
+    print(f"median: {median(abs_chg):0.2f}")
+
+    # n_bins = int(abs(max(chgs) - min(chgs)) / tick_size / TICKS_PER_BIN)
+
+    n_bins = 100
+
+    fig.add_trace(
+        go.Histogram(
+            x               = chgs,
+            marker_color    = "#0000FF",
+            nbinsx          = n_bins,
+            name            = "chg"
+        ),
+        row = 2,
+        col = 1
+    )
 
     fig.show()
