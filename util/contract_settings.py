@@ -97,11 +97,11 @@ def get_settings(fn: str):
 
         con_id = fn.split(".")[0]
 
-        if ":" in con_id:
+        if "~" in con_id:
 
             # butterfly, etc.
 
-            sym = con_id.split(":")[0]
+            sym = con_id.split("~")[0]
 
         else:
 
