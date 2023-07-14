@@ -24,7 +24,7 @@ if __name__ == "__main__":
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
     bars            = get_bars(contract_id, start, end)
-    title           = f"{contract_id} {start} - {end}"
+    title           = f"{contract_id} {session[0]} - {session[1]}"
 
     if not bars:
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
         c.append(close)
         vals.append(max(width - abs(close), 0))
 
-        print(f"{date}\t{vals[-1]:0.2f}")
+        print(f"{date}\t{vals[-1]:0.2f}\t[ {close + base:0.{precision}f}, {base:0.{precision}f} ]")
 
     vals    = sorted(vals)
     p_best  = bisect_right(vals, 0) / len(vals) * 100
