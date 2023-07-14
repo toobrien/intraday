@@ -76,17 +76,4 @@ if __name__ == "__main__":
         )
     )
 
-    '''
-    fig.add_trace(
-        go.Scatter(
-            {
-                "x":    x,
-                "y":    p90s,
-                "name": "p90",
-                "marker": { "color": "#FF0000" }
-            }
-        )
-    )
-    '''
-
     fig.show()
