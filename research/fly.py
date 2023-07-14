@@ -24,7 +24,7 @@ if __name__ == "__main__":
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
     bars            = get_bars(contract_id, start, end)
-    title           = f"{contract_id} {session[0]} - {session[1]}"
+    title           = f"{contract_id} {session[0]} - {session[1]} w: {width:0.{precision}f}"
 
     if not bars:
 
@@ -39,6 +39,7 @@ if __name__ == "__main__":
     l       = []
     c       = []
     vals    = []
+    text    = []
 
     for date, bars in idx.items():
 
@@ -55,7 +56,11 @@ if __name__ == "__main__":
         c.append(close)
         vals.append(max(width - abs(close), 0))
 
-        print(f"{date}\t{vals[-1]:0.2f}\t[ {close + base:0.{precision}f}, {base:0.{precision}f} ]")
+        val_txt = f"{vals[-1]:0.2f}"
+        rng_txt = f"{close + base:0.{precision}f}, {base:0.{precision}f}"
+        text.append(f"{val_txt}<br>{rng_txt}")
+
+        print(f"{date}\t{val_txt}\t{rng_txt}")
 
     vals    = sorted(vals)
     p_best  = bisect_right(vals, 0) / len(vals) * 100
@@ -91,7 +96,8 @@ if __name__ == "__main__":
                 "high":     h,
                 "low":      l,
                 "close":    c,
-                "name":     "price"
+                "name":     "price",
+                "text":     text
             }
         ),
         row = 1,
