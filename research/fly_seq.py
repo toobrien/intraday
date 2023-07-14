@@ -63,6 +63,8 @@ if __name__ == "__main__":
 
     fig = go.Figure()
 
+    fig.update_layout(title = f"{title} n: {len(idx)}")
+
     fig.add_trace(
         go.Scatter(
             {
