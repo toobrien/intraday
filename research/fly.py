@@ -17,8 +17,8 @@ if __name__ == "__main__":
 
     contract_id     = argv[1]
     session         = argv[2].split(".")
-    strike_inc      = float(argv[4])
-    width           = float(argv[3])
+    strike_inc      = float(argv[3])
+    width           = float(argv[4])
     start           = f"{argv[5]}T0" if len(argv) > 5 else None
     end             = f"{argv[6]}T0" if len(argv) > 6 else None
     _, tick_size    = get_settings(contract_id)
