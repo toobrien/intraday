@@ -34,46 +34,43 @@ if __name__ == "__main__":
         exit()
 
     idx     = get_sessions(bars, session[0], session[1])
-    x       = []
-    val_mu  = []
-    p90s    = []
-    max_len = max([ len(series) for series in idx.values() ])
-    idx     = { key: val for key, val in idx.items() if len(val) == max_len }   # prune incomplete series
-    times   = [ bar[bar_rec.time] for bar in list(idx.values())[0] ]            # all series times should be aligned
+    data    = {}
 
-    for i in range(0, max_len, time_inc):
+    for date, bars in idx.items():
 
-        x.append(times[i])
-
-        vals = []
-
-        for date, bars in idx.items():
+        for i in range(0, len(bars), time_inc):
 
             selected    = bars[i:]
+            time        = selected[0][bar_rec.time]
             base        = strike_inc * round(selected[0][bar_rec.open] / strike_inc) # round to nearest strike
             close       = selected[-1][bar_rec.last] - base
+            val         = max(width - abs(close), 0)
 
-            vals.append(max(width - abs(close), 0))
+            if time not in data:
 
-        vals    = sorted(vals)
-        p90     = vals[int(len(vals) * 0.9)]
+                data[time] = []
+            
+            data[time].append(val)
 
-        val_mu.append(mean(vals))
-        p90s.append(p90)
+    x       = sorted(list(data.keys()))
+    y       = [ mean(data[time]) for time in x ]
+    text    = [ f"n = {len(data[time])}" for time in x ]
 
     fig = go.Figure()
 
-    fig.update_layout(title = f"{title} n: {len(idx)}")
+    fig.update_layout(title = f"{title}")
 
     fig.add_trace(
         go.Scatter(
             {
-                "x":    x,
-                "y":    val_mu,
-                "name": "vals",
-                "marker": { "color": "#0000FF" }
+                "x":        x,
+                "y":        y,
+                "text":     text,
+                "name":     "avg val",
+                "marker":   { "color": "#0000FF" }
             }
         )
     )
+
 
     fig.show()
