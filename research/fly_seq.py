@@ -1,5 +1,3 @@
-from    bisect                  import  bisect_right
-from    math                    import  ceil
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    statistics              import  mean, median
@@ -34,43 +32,70 @@ if __name__ == "__main__":
         exit()
 
     idx     = get_sessions(bars, session[0], session[1])
-    data    = {}
+    vals    = {}
+    rngs    = {}
 
     for date, bars in idx.items():
 
         for i in range(0, len(bars), time_inc):
 
-            selected    = bars[i:]
-            time        = selected[0][bar_rec.time]
-            base        = strike_inc * round(selected[0][bar_rec.open] / strike_inc) # round to nearest strike
-            close       = selected[-1][bar_rec.last] - base
+            time        = bars[i][bar_rec.time]
+            base        = strike_inc * round(bars[i][bar_rec.open] / strike_inc) # round to nearest strike
+            close       = bars[-1][bar_rec.last] - base
             val         = max(width - abs(close), 0)
+            rng         = bars[i][bar_rec.high] - bars[i][bar_rec.low]
 
-            if time not in data:
+            if time not in vals:
 
-                data[time] = []
+                vals[time] = []
             
-            data[time].append(val)
+            vals[time].append(val)
 
-    x       = sorted(list(data.keys()))
-    y       = [ mean(data[time]) for time in x ]
-    text    = [ f"n = {len(data[time])}" for time in x ]
+            if time not in rngs:
 
-    fig = go.Figure()
+                rngs[time] = []
+            
+            rngs[time].append(rng)
 
-    fig.update_layout(title = f"{title}")
+    x       = sorted(list(vals.keys()))
+    val_avg = [ mean(vals[time]) for time in x ]
+    rng_avg = [ mean(rngs[time]) for time in x ] 
+    text    = [ f"n = {len(vals[time])}" for time in x ]
+
+    fig = make_subplots(
+        rows                = 2,
+        cols                = 1,
+        row_heights         = [ 0.85, 0.15 ],
+        subplot_titles      = (title, None),
+        vertical_spacing    = 0.1
+    )
 
     fig.add_trace(
         go.Scatter(
             {
                 "x":        x,
-                "y":        y,
+                "y":        val_avg,
                 "text":     text,
                 "name":     "avg val",
                 "marker":   { "color": "#0000FF" }
             }
-        )
+        ),
+        row = 1,
+        col = 1
     )
 
+    fig.add_trace(
+        go.Bar(
+            {
+                "x":        x,
+                "y":        rng_avg,
+                "text":     text,
+                "name":     "avg rng",
+                "marker":   { "color": "#0000FF" }
+            }
+        ),
+        row = 2,
+        col = 1
+    )
 
     fig.show()
