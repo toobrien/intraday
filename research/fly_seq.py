@@ -31,41 +31,48 @@ if __name__ == "__main__":
         
         exit()
 
-    idx     = get_sessions(bars, session[0], session[1])
-    vals    = {}
-    rngs    = {}
+    idx         = get_sessions(bars, session[0], session[1])
+    vals        = {}
+    rngs        = {}
+    touches     = {}
 
     for date, bars in idx.items():
 
         for i in range(0, len(bars), time_inc):
 
             time        = bars[i][bar_rec.time]
-            base        = strike_inc * round(bars[i][bar_rec.open] / strike_inc) # round to nearest strike
+            base        = strike_inc * round(bars[i][bar_rec.open] / strike_inc)                    # round to nearest strike
             close       = bars[-1][bar_rec.last] - base
             val         = max(width - abs(close), 0)
             rng         = bars[i][bar_rec.high] - bars[i][bar_rec.low]
+            hi          = abs(max(bars[i:], key = lambda b: b[bar_rec.high])[bar_rec.high] - base)
+            lo          = abs(min(bars[i:], key = lambda b: b[bar_rec.low])[bar_rec.low] - base)
+            touch       = 1 if max(hi, lo) >= width else 0
 
-            if time not in vals:
+            for t in [
+                (vals, val),
+                (rngs, rng),
+                (touches, touch)
+            ]:
 
-                vals[time] = []
+                data = t[0]
+
+                if time not in data:
+
+                    data[time] = []
             
-            vals[time].append(val)
-
-            if time not in rngs:
-
-                rngs[time] = []
-            
-            rngs[time].append(rng)
+                data[time].append(t[1])
 
     x       = sorted(list(vals.keys()))
     val_avg = [ mean(vals[time]) for time in x ]
-    rng_avg = [ mean(rngs[time]) for time in x ] 
+    rng_avg = [ mean(rngs[time]) for time in x ]
+    p_touch = [ mean(touches[time]) for time in x ]
     text    = [ f"n = {len(vals[time])}" for time in x ]
 
     fig = make_subplots(
-        rows                = 2,
+        rows                = 3,
         cols                = 1,
-        row_heights         = [ 0.85, 0.15 ],
+        row_heights         = [ 0.70, 0.15, 0.15 ],
         subplot_titles      = (title, None),
         vertical_spacing    = 0.1
     )
@@ -89,12 +96,24 @@ if __name__ == "__main__":
             {
                 "x":        x,
                 "y":        rng_avg,
-                "text":     text,
                 "name":     "avg rng",
                 "marker":   { "color": "#0000FF" }
             }
         ),
         row = 2,
+        col = 1
+    )
+
+    fig.add_trace(
+        go.Bar(
+            {
+                "x":        x,
+                "y":        p_touch,
+                "name":     "p(touch)",
+                "marker":   { "color": "#FF0000" }
+            }
+        ),
+        row = 3,
         col = 1
     )
 
