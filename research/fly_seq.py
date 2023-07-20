@@ -34,27 +34,27 @@ if __name__ == "__main__":
     idx         = get_sessions(bars, session[0], session[1])
     vals        = {}
     rngs        = {}
-    touches     = {}
+    vars        = {}
     zeroes      = {}
 
     for date, bars in idx.items():
 
         for i in range(0, len(bars), time_inc):
 
-            time        = bars[i][bar_rec.time]
-            base        = strike_inc * round(bars[i][bar_rec.open] / strike_inc)                    # round to nearest strike
-            close       = bars[-1][bar_rec.last] - base
-            val         = max(width - abs(close), 0)
-            rng         = bars[i][bar_rec.high] - bars[i][bar_rec.low]
-            hi          = abs(max(bars[i:], key = lambda b: b[bar_rec.high])[bar_rec.high] - base)
-            lo          = abs(min(bars[i:], key = lambda b: b[bar_rec.low])[bar_rec.low] - base)
-            touch       = 1 if max(hi, lo) >= width else 0
-            zero        = 1 if val == 0 else 0
+            time    = bars[i][bar_rec.time]
+            base    = strike_inc * round(bars[i][bar_rec.open] / strike_inc)                    # round to nearest strike
+            close   = bars[-1][bar_rec.last] - base
+            val     = max(width - abs(close), 0)
+            rng     = bars[i][bar_rec.high] - bars[i][bar_rec.low]
+            hi      = abs(max(bars[i:], key = lambda b: b[bar_rec.high])[bar_rec.high] - base)
+            lo      = abs(min(bars[i:], key = lambda b: b[bar_rec.low])[bar_rec.low] - base)
+            var     = max(hi, lo)
+            zero    = 1 if val == 0 else 0
 
             for t in [
                 (vals, val),
                 (rngs, rng),
-                (touches, touch),
+                (vars, var),
                 (zeroes, zero)
             ]:
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     x       = sorted(list(vals.keys()))
     val_avg = [ mean(vals[time]) for time in x ]
     rng_avg = [ mean(rngs[time]) for time in x ]
-    p_touch = [ mean(touches[time]) for time in x ]
+    avg_var = [ mean(vars[time]) for time in x ]
     p_zero  = [ mean(zeroes[time]) for time in x ]
     text    = [ f"n = {len(vals[time])}" for time in x ]
 
@@ -112,8 +112,8 @@ if __name__ == "__main__":
         go.Bar(
             {
                 "x":        x,
-                "y":        p_touch,
-                "name":     "p(touch)",
+                "y":        avg_var,
+                "name":     "avg_var",
                 "marker":   { "color": "#FF0000" }
             }
         ),
