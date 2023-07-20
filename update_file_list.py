@@ -46,4 +46,5 @@ SETTINGS = [
     ( "6B{MYY}_FUT_CME",                "HMUZ",             True     ),
     ( "6J{MYY}_FUT_CME",                "HMUZ",             True     ),
     ( "6M{MYY}_FUT_CME",                "HMUZ",             True     )
+
 ]
