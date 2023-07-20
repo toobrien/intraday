@@ -1,6 +1,6 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
-from    statistics              import  mean, median
+from    statistics              import  mean
 from    sys                     import  argv, path
 path.append(".")
 from    util.bar_tools          import  bar_rec, get_bars, get_sessions
