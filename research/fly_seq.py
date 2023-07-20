@@ -35,6 +35,7 @@ if __name__ == "__main__":
     vals        = {}
     rngs        = {}
     touches     = {}
+    zeroes      = {}
 
     for date, bars in idx.items():
 
@@ -48,11 +49,13 @@ if __name__ == "__main__":
             hi          = abs(max(bars[i:], key = lambda b: b[bar_rec.high])[bar_rec.high] - base)
             lo          = abs(min(bars[i:], key = lambda b: b[bar_rec.low])[bar_rec.low] - base)
             touch       = 1 if max(hi, lo) >= width else 0
+            zero        = 1 if val == 0 else 0
 
             for t in [
                 (vals, val),
                 (rngs, rng),
-                (touches, touch)
+                (touches, touch),
+                (zeroes, zero)
             ]:
 
                 data = t[0]
@@ -67,12 +70,13 @@ if __name__ == "__main__":
     val_avg = [ mean(vals[time]) for time in x ]
     rng_avg = [ mean(rngs[time]) for time in x ]
     p_touch = [ mean(touches[time]) for time in x ]
+    p_zero  = [ mean(zeroes[time]) for time in x ]
     text    = [ f"n = {len(vals[time])}" for time in x ]
 
     fig = make_subplots(
-        rows                = 3,
+        rows                = 4,
         cols                = 1,
-        row_heights         = [ 0.70, 0.15, 0.15 ],
+        row_heights         = [ 0.70, 0.10, 0.10, 0.10 ],
         subplot_titles      = (title, None),
         vertical_spacing    = 0.1
     )
@@ -114,6 +118,19 @@ if __name__ == "__main__":
             }
         ),
         row = 3,
+        col = 1
+    )
+
+    fig.add_trace(
+        go.Bar(
+            {
+                "x":        x,
+                "y":        p_zero,
+                "name":     "p(worthless)",
+                "marker":   { "color": "#FF00FF" }
+            }
+        ),
+        row = 4,
         col = 1
     )
 
