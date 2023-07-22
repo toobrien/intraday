@@ -53,8 +53,7 @@ if __name__ == "__main__":
         go.Histogram(
             {
                 "x":            rngs,
-                "histnorm":     "probability density",
-                "name":         "pdf",
+                "name":         "count",
                 "marker_color": "#0000FF"
             }
         ),
