@@ -61,9 +61,18 @@ CONTRACT_SETTINGS = {
 
 def get_settings(fn: str):
 
-    settings = None
+    not_stock   = True
+    settings    = None
+    sym         = None
 
-    if "." not in fn:
+    if "NQTV" in fn:
+
+        # stock
+
+        sym         = fn.split("-")[0]
+        not_stock   = False
+
+    elif "." not in fn:
 
         # single
 
@@ -115,7 +124,13 @@ def get_settings(fn: str):
 
     if sym:
 
-        settings = CONTRACT_SETTINGS[sym]
+        if not_stock:
+
+            settings = CONTRACT_SETTINGS[sym]
+        
+        else:
+
+            settings = ( 0.01, 0.01 )
     
     return settings
 

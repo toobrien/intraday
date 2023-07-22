@@ -118,6 +118,10 @@ if __name__ == "__main__":
     
     for fn in fns:
 
+        if "NQTV" in fn:
+
+            continue
+
         expiry = search(pattern, fn)[0]
 
         exp_month   = expiry[0]
