@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
             count += 1
 
-            print(f"{bars[i][bar_rec.date]} {bars[i][bar_rec.time]}")
+            print(f"{bars[i][bar_rec.date]} {bars[i][bar_rec.time]} {rngs[i]:0.{precision}f}")
 
     print(f"mu:         {mu:0.{precision}f}")
     print(f"sigma:      {sigma:0.{precision}f}")
