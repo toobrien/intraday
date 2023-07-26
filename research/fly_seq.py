@@ -8,7 +8,7 @@ from    util.contract_settings  import  get_settings
 from    util.rec_tools          import  get_precision
 
 
-# python research/fly_seq.py ESU23_FUT_CME 06:30.13 5.0 5.0 5 2023-03-01 2023-07-14
+# python research/fly_seq.py ESU23_FUT_CME 06:30.13 5.0 5.0 5 2023-03-01 2023-08-01
 
 
 if __name__ == "__main__":

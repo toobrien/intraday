@@ -3,6 +3,8 @@ from numpy          import arange
 from scipy.stats    import norm
 
 
+# example: fly(4552.50, 4550.00, 5.00, 0.0006, 0.01)
+
 def fly(
     cur_price:  float,
     mid:        float,  # middle strike
@@ -20,13 +22,6 @@ def fly(
     x       = arange(a, b, step)
     y       = norm.pdf(x)
 
-    val     = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] * step for i in range(len(x)) ])
+    val     = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] for i in range(len(x)) ]) * step
 
     return val
-
-
-if __name__ == "__main__":
-
-    # example
-
-    fly(4552.50, 4550.00, 5.00, 0.0006, 0.01)
