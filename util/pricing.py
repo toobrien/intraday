@@ -8,7 +8,7 @@ def fly(
     mid:        float,  # middle strike
     width:      float,  # mid strike -> wing
     f_sigma:    float,  # est. stdev of forward price distribution (as log return)
-    step:       float   # number of samples for pricing
+    step:       float   # sample increment for pricing
 ):
 
     upper   = log((mid + width) / cur_price)
