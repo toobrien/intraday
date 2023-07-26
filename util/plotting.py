@@ -1,5 +1,4 @@
 from    bisect                  import  bisect_left
-from    collections             import  Counter
 import  plotly.graph_objects    as      go
 from    numpy                   import  arange
 from    scipy.stats             import  norm
