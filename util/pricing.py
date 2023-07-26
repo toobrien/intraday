@@ -14,12 +14,13 @@ def fly(
     upper   = log((mid + width) / cur_price)
     lower   = log((mid - width) / cur_price)
 
-    a = min(upper, lower) / f_sigma
-    b = max(upper, lower) / f_sigma
+    a       = min(upper, lower) / f_sigma
+    b       = max(upper, lower) / f_sigma
 
-    x   = arange(a, b, step)
-    y   = norm.pdf(x)
-    val = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] * step for i in range(len(x)) ])
+    x       = arange(a, b, step)
+    y       = norm.pdf(x)
+
+    val     = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] * step for i in range(len(x)) ])
 
     return val
 
