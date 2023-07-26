@@ -19,13 +19,13 @@ def fly(
 
     x   = arange(a, b, step)
     y   = norm.pdf(x)
-    y_  = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] * step for i in range(len(x)) ])
+    val = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] * step for i in range(len(x)) ])
 
-    pass
+    return val
 
 
 if __name__ == "__main__":
 
     # example
-    
+
     fly(4552.50, 4550.00, 5.00, 0.0006, 0.01)
