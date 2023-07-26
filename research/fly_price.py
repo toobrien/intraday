@@ -9,7 +9,7 @@ from    util.pricing            import  fly
 from    util.rec_tools          import  get_precision
 
 
-# python research/fly_price.py ESU23_FUT_CME 12:00.13:00 5.0 5.0 5 2023-03-01 2023-08-01
+# python research/fly_price.py ESU23_FUT_CME 12:00.13:00 5.0 5.0 2023-03-01 2023-08-01
 
 
 if __name__ == "__main__":
@@ -18,7 +18,6 @@ if __name__ == "__main__":
     session         = argv[2].split(".")
     strike_inc      = float(argv[3])
     width           = float(argv[4])
-    time_inc        = int(argv[5])
     start           = f"{argv[6]}T0" if len(argv) > 6 else None
     end             = f"{argv[7]}T0" if len(argv) > 7 else None
     _, tick_size    = get_settings(contract_id)
@@ -97,9 +96,5 @@ if __name__ == "__main__":
                 }
             )
         )
-
-    for time in sorted(f_sigmas.keys()):
-
-        print(f"{time}\t{f_sigmas[time]}")
 
     fig.show()
