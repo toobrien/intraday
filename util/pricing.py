@@ -7,7 +7,7 @@ def fly(
     cur_price:  float,
     mid:        float,  # middle strike
     width:      float,  # mid strike -> wing
-    f_sigma:    float,  # log return forward stdev
+    f_sigma:    float,  # est. stdev of forward price distribution (as log return)
     step:       float   # number of samples for pricing
 ):
 
@@ -26,4 +26,6 @@ def fly(
 
 if __name__ == "__main__":
 
-    fly(4553.50, 4550.0, 5.0, 0.00065, 0.01)
+    # example
+    
+    fly(4552.50, 4550.00, 5.00, 0.0006, 0.01)
