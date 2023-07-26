@@ -97,4 +97,10 @@ if __name__ == "__main__":
             )
         )
 
+    '''
+    for time in sorted(f_sigmas.keys()):
+
+        print(f"{time}\t{f_sigmas[time]:0.6f}")
+    '''
+        
     fig.show()
