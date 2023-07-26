@@ -39,3 +39,31 @@ def gaussian_vscatter(
     )
 
     return trace
+
+
+def general_gaussian_hscatter(
+    mu:     float,
+    sigma:  float,
+    hist:   List,
+    name:   str,
+    color:  str     = "#ff66ff",
+    stdevs: float   = 3,
+    step:   float   = 0.01
+):
+    
+    mu_count    = hist.count(hist[bisect_left(hist, mu)])
+    x           = arange(mu - stdevs * sigma, mu + stdevs * sigma, step)
+    y           = norm.pdf(x, loc = mu, scale = sigma)
+    p_mu        = norm.pdf(mu, loc = mu, scale = sigma)
+    scale       = mu_count / p_mu
+
+    trace = go.Scatter(
+        {
+            "x":        x,
+            "y":        y * scale,
+            "marker":   { "color": color },
+            "name":     name
+        }
+    )
+
+    return trace
