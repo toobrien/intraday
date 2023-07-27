@@ -109,6 +109,8 @@ if __name__ == "__main__":
 
     fig = go.Figure()
 
+    fig.update_layout(title = title)
+
     for date, bars in idx.items():
 
         if strategy in [ "fly", "iron_fly" ]:
