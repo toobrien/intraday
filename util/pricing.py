@@ -7,10 +7,10 @@ from scipy.stats    import norm
 
 def fly(
     cur_price:  float,
-    mid:        float,  # middle strike
-    width:      float,  # mid strike -> wing
-    f_sigma:    float,  # est. stdev of forward price distribution (as log return)
-    step:       float   # sample increment for pricing
+    mid:        float,          # middle strike
+    width:      float,          # mid strike -> wing
+    f_sigma:    float,          # est. stdev of forward price distribution (as log return)
+    step:       float = 0.01    # sample increment for pricing
 ):
 
     upper   = log((mid + width) / cur_price)
@@ -23,5 +23,23 @@ def fly(
     y       = norm.pdf(x)
 
     val     = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] for i in range(len(x)) ]) * step
+
+    return val
+
+
+IRON_FLY_SCALE = 5 # num sigmas for pricing iron fly
+
+def iron_fly(
+    cur_price:  float,
+    mid:        float,          # middle strike
+    width:      float,          # mid strike -> wing
+    f_sigma:    float,          # est. stdev of forward price distribution (as log return)
+    step:       float = 0.1     # sample increment for pricing
+):
+    
+    x       = arange(-IRON_FLY_SCALE, IRON_FLY_SCALE, step)
+    y       = norm.pdf(x)
+
+    val     = sum([ ( min(abs((cur_price * e**(x[i] * f_sigma) - mid)), width) ) * y[i] for i in range(len(x)) ]) * step
 
     return val
