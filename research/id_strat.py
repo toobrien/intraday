@@ -59,7 +59,9 @@ def price_fly(
         x.append(time)
         y.append(val)
 
-    return x, y
+    t = [ str(mid_strike) for i in range(len(x)) ]
+
+    return x, y, t
 
 
 if __name__ == "__main__":
@@ -129,7 +131,7 @@ if __name__ == "__main__":
                 width       = float(params[1])
                 mid_strike  = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) # round to nearest strike 
 
-                x, y = price_fly(strategy, mid_strike, width, s_bars, f_sigmas)
+                x, y, t = price_fly(strategy, mid_strike, width, s_bars, f_sigmas)
         
         else: 
             
@@ -144,17 +146,34 @@ if __name__ == "__main__":
                 {
                     "x":    x,
                     "y":    y,
-                    "name": date
+                    "name": date,
+                    "text": t
                 }
             )
         )
         
     fig.show()
 
+    # f_sigma debug
+
     '''
     for time in sorted(f_sigmas.keys()):
 
         print(f"{time}\t{f_sigmas[time]:0.6f}")
+
+    fig2 = go.Figure()
+
+    x_ = sorted(list(f_sigmas.keys()))
+    y_ = [ f_sigmas[x] for x in x_ ]
+
+    fig2.add_trace(
+        go.Bar(
+            x = x_,
+            y = y_
+        )
+    )
+
+    fig2.show()
     '''
 
     mins = sorted([ min(y) for y in ys ])
