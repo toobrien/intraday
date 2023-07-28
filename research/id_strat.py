@@ -184,8 +184,8 @@ if __name__ == "__main__":
     for p in [ 5, 15, 50, 85, 95 ]:
 
         pct = f"{str(p).rjust(2)}%:"
-        lo  = f"{percentile(mins, p):0.{precision}}".rjust(11)
-        hi  = f"{percentile(maxs, p):0.{precision}}".rjust(15)
+        lo  = f"{percentile(mins, p):0.{precision}f}".rjust(11)
+        hi  = f"{percentile(maxs, p):0.{precision}f}".rjust(15)
 
         print(f"{pct}{lo}{hi}")
 
