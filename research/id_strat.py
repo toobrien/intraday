@@ -1,7 +1,7 @@
 from    math                    import  log
 from    numpy                   import  percentile
 import  plotly.graph_objects    as      go
-from    statistics              import  stdev
+from    statistics              import  mean, stdev
 from    sys                     import  argv, path
 path.append(".")
 from    typing                  import  List
@@ -11,7 +11,7 @@ from    util.pricing            import  fly, iron_fly
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 5.0
+# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 0 5.0
 
 
 def price_fly(
@@ -129,7 +129,11 @@ if __name__ == "__main__":
                
                 strike_inc  = float(params[0])
                 width       = float(params[1])
-                mid_strike  = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) # round to nearest strike 
+                offset      = int(params[2])
+
+                # round mid strike to nearest atm strike (+ offset, if any)
+
+                mid_strike  = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) + offset * strike_inc
 
                 x, y, t = price_fly(strategy, mid_strike, width, s_bars, f_sigmas)
         
@@ -189,5 +193,10 @@ if __name__ == "__main__":
 
         print(f"{pct}{lo}{hi}")
 
-    print(f"\nn_samples: {n_samples}")
+    final_vals = [ y_[-1] for y_ in ys ]
+
+    print("\n")
+    print(f"final val avg:      {mean(final_vals):0.{precision}f}")
+    print(f"final val stdev:    {stdev(final_vals):0.{precision}f}")
+    print(f"n_samples:          {n_samples}")
 
