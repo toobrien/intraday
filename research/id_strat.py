@@ -170,5 +170,5 @@ if __name__ == "__main__":
 
         print(f"{pct}{lo}{hi}")
 
-    print(f"n_samples: {n_samples}")
+    print(f"\nn_samples: {n_samples}")
 
