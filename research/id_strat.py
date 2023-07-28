@@ -77,7 +77,7 @@ if __name__ == "__main__":
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
     bars            = get_bars(contract_id, date_start, date_end)
-    title           = f"{contract_id}\t{strategy}\t{', '.join(params)}"
+    title           = f"{contract_id}\t{strategy}\t{', '.join(params)}\t{date_start} - {date_end}"
 
     if not bars:
 
