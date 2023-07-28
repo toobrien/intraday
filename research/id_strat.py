@@ -1,4 +1,5 @@
 from    math                    import  log
+from    numpy                   import  percentile
 import  plotly.graph_objects    as      go
 from    statistics              import  stdev
 from    sys                     import  argv, path
@@ -10,7 +11,7 @@ from    util.pricing            import  fly, iron_fly
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 2023-03-01 2023-08-01 5.0 5.0
+# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 5.0
 
 
 def price_fly(
@@ -67,9 +68,10 @@ if __name__ == "__main__":
     strategy        = argv[2]
     session_start   = argv[3]
     session_end     = argv[4]
-    date_start      = f"{argv[5]}T0" if len(argv) > 5 else None
-    date_end        = f"{argv[6]}T0" if len(argv) > 6 else None
-    params          = argv[7:]
+    expiration      = argv[5]
+    date_start      = f"{argv[6]}T0" if len(argv) > 6 else None
+    date_end        = f"{argv[7]}T0" if len(argv) > 7 else None
+    params          = argv[8:]
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
     bars            = get_bars(contract_id, date_start, date_end)
@@ -82,17 +84,22 @@ if __name__ == "__main__":
         exit()
 
     idx             = get_sessions(bars, session_start, session_end)
-    closes          = {
-                        date: idx[date][-1][bar_rec.last]
-                        for date in idx.keys()
-                    }
+    dt_idx          = { (bars[i][bar_rec.date], bars[i][bar_rec.time]) : i for i in range(len(bars)) }
     forward_returns = {}
 
-    for date, bars in idx.items():
+    for date, s_bars in idx.items():
 
-        close = closes[date]
+        try:
+        
+            settlement = bars[dt_idx[(date, expiration)]][bar_rec.last]
+        
+        except KeyError:
 
-        for bar in bars:
+            # incomplete session
+
+            continue
+
+        for bar in s_bars:
 
             time = bar[bar_rec.time]
 
@@ -100,7 +107,7 @@ if __name__ == "__main__":
 
                 forward_returns[time] = []
 
-            forward_returns[time].append(log(close / bar[bar_rec.last]))
+            forward_returns[time].append(log(settlement / bar[bar_rec.last]))
     
     f_sigmas = {
                 time: stdev(forward_returns[time])
@@ -111,19 +118,26 @@ if __name__ == "__main__":
 
     fig.update_layout(title = title)
 
-    for date, bars in idx.items():
+    ys          = []
+    n_samples   = 0
+
+    for date, s_bars in idx.items():
 
         if strategy in [ "fly", "iron_fly" ]:
                
                 strike_inc  = float(params[0])
                 width       = float(params[1])
-                mid_strike  = strike_inc * round(bars[0][bar_rec.open] / strike_inc) # round to nearest strike 
+                mid_strike  = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) # round to nearest strike 
 
-                x, y = price_fly(strategy, mid_strike, width, bars, f_sigmas)
+                x, y = price_fly(strategy, mid_strike, width, s_bars, f_sigmas)
         
         else: 
             
             pass
+
+        n_samples += 1
+
+        ys.append(y)
 
         fig.add_trace(
             go.Scattergl(
@@ -134,11 +148,27 @@ if __name__ == "__main__":
                 }
             )
         )
+        
+    fig.show()
 
     '''
     for time in sorted(f_sigmas.keys()):
 
         print(f"{time}\t{f_sigmas[time]:0.6f}")
     '''
-        
-    fig.show()
+
+    mins = sorted([ min(y) for y in ys ])
+    maxs = sorted([ max(y) for y in ys ])
+
+    print(f"{'lo'.rjust(15)}{'hi'.rjust(15)}")
+
+    for p in [ 5, 15, 50, 85, 95 ]:
+
+        pct = f"{str(p).rjust(2)}%:"
+        lo  = f"{percentile(mins, p):0.{precision}}".rjust(11)
+        hi  = f"{percentile(maxs, p):0.{precision}}".rjust(15)
+
+        print(f"{pct}{lo}{hi}")
+
+    print(f"n_samples: {n_samples}")
+
