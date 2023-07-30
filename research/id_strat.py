@@ -113,13 +113,13 @@ if __name__ == "__main__":
     session_start   = argv[3]
     session_end     = argv[4]
     expiration      = argv[5]
-    date_start      = f"{argv[6]}T0" if len(argv) > 6 else None
-    date_end        = f"{argv[7]}T0" if len(argv) > 7 else None
+    date_start      = argv[7] if len(argv) > 6 else None
+    date_end        = argv[7] if len(argv) > 7 else None
     strike_inc      = float(argv[8])
     params          = argv[9:]
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
-    bars            = get_bars(contract_id, date_start, date_end)
+    bars            = get_bars(contract_id, f"{date_start}T0", f"{date_end}T0")
     title           = f"{contract_id}\t{strategy}\t{', '.join(params)}\t{date_start} - {date_end}"
 
     if not bars:
