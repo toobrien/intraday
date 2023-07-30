@@ -3,6 +3,9 @@ from numpy          import arange
 from scipy.stats    import norm
 
 
+SIG_BOUND = 5 # max stdevs for pricing
+
+
 # example: fly(4552.50, 4550.00, 5.00, 0.0006, 0.01)
 
 def fly(
@@ -37,8 +40,6 @@ def fly(
     return val
 
 
-IRON_FLY_SCALE = 5 # num sigmas for pricing iron fly
-
 def iron_fly(
     cur_price:  float,
     mid:        float,          # middle strike
@@ -54,7 +55,7 @@ def iron_fly(
 
     else:
 
-        x   = arange(-IRON_FLY_SCALE, IRON_FLY_SCALE, step)
+        x   = arange(-SIG_BOUND, SIG_BOUND, step)
         y   = norm.pdf(x)
 
         val = sum([ ( min(width, abs((cur_price * e**(x[i] * f_sigma) - mid))) ) * y[i] for i in range(len(x)) ]) * step
