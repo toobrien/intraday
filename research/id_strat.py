@@ -7,18 +7,18 @@ path.append(".")
 from    typing                  import  List
 from    util.bar_tools          import  bar_rec, get_bars, get_sessions
 from    util.contract_settings  import  get_settings
-from    util.pricing            import  fly, iron_fly
+from    util.pricing            import  fly, iron_fly, call_vertical, put_vertical
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 0 5.0 0
+# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 5.0 0
 
 
 def price_fly(
-    kind:       str,            # "fly", "iron_fly"
+    strategy:   str,            # "fly", "iron_fly"
     mid_strike: float,
     width:      float,
-    bars:       List[bar_rec],
+    s_bars:     List[bar_rec],
     f_sigmas:   dict,
     precision:  float
 ):
@@ -28,19 +28,19 @@ def price_fly(
     t       = []
     pricer  = None
 
-    if kind == "fly":
+    if strategy == "fly":
 
         pricer = fly
     
-    elif kind == "iron_fly":
+    elif strategy == "iron_fly":
 
         pricer = iron_fly
     
     else:
 
-        return None, None
+        return None, None, None
 
-    for bar in bars:
+    for bar in s_bars:
 
         time    = bar[bar_rec.time]
         price   = bar[bar_rec.last]
@@ -58,6 +58,54 @@ def price_fly(
     return x, y, t
 
 
+def price_vertical(
+    strategy:   str,
+    width:      float, 
+    offset:     float,     
+    s_bars:     List[bar_rec],
+    f_sigmas:   dict,
+    precision:  float
+):
+
+    x       = []
+    y       = []
+    t       = []
+    pricer  = None
+
+    if strategy == "call_vertical":
+
+        pricer = call_vertical
+    
+    elif strategy == "put_vertical":
+
+        pricer = put_vertical
+    
+    else:
+
+        return None, None, None
+
+    # round strike to nearest atm strike (+ offset, if any)
+
+    strike = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) + offset * strike_inc
+    
+    for bar in s_bars:
+
+        time    = bar[bar_rec.time]
+        price   = bar[bar_rec.last]
+        val     = pricer(
+                    price,
+                    strike,
+                    width,
+                    f_sigmas[time],
+                )
+        
+        x.append(time)
+        y.append(val)
+        t.append(f"str: {strike:0.{precision}f}<br>cur: {price:0.{precision}f}<br>var: {price - strike:0.{precision}f}")
+    
+    return x, y, t
+
+
 if __name__ == "__main__":
 
     contract_id     = argv[1]
@@ -67,7 +115,8 @@ if __name__ == "__main__":
     expiration      = argv[5]
     date_start      = f"{argv[6]}T0" if len(argv) > 6 else None
     date_end        = f"{argv[7]}T0" if len(argv) > 7 else None
-    params          = argv[8:]
+    strike_inc      = float(argv[8])
+    params          = argv[9:]
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
     bars            = get_bars(contract_id, date_start, date_end)
@@ -119,20 +168,28 @@ if __name__ == "__main__":
 
     for date, s_bars in idx.items():
 
-        if strategy in [ "fly", "iron_fly" ]:
+        if "fly" in strategy:
                
-                strike_inc  = float(params[0])
-                width       = float(params[1])
-                offset      = int(params[2])
+            width       = float(params[0])
+            offset      = int(params[1])
 
-                # round mid strike to nearest atm strike (+ offset, if any)
+            # round mid strike to nearest atm strike (+ offset, if any)
 
-                mid_strike  = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) + offset * strike_inc
+            mid_strike  = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) + offset * strike_inc
 
-                x, y, t = price_fly(strategy, mid_strike, width, s_bars, f_sigmas, precision)
+            x, y, t = price_fly(strategy, mid_strike, width, s_bars, f_sigmas, precision)
         
-        else: 
+        elif "vertical" in strategy:
+
+            width   = float(params[0])
+            offset  = float(params[1])
             
+            x, y, t = price_vertical(strategy, width, offset, s_bars, f_sigmas, precision)
+    
+        else: 
+
+            # invalid strategy
+    
             pass
 
         n_samples += 1
