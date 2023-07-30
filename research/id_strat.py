@@ -113,7 +113,7 @@ if __name__ == "__main__":
     session_start   = argv[3]
     session_end     = argv[4]
     expiration      = argv[5]
-    date_start      = argv[7] if len(argv) > 6 else None
+    date_start      = argv[6] if len(argv) > 6 else None
     date_end        = argv[7] if len(argv) > 7 else None
     strike_inc      = float(argv[8])
     params          = argv[9:]
