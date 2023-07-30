@@ -61,7 +61,8 @@ def price_fly(
 def price_vertical(
     strategy:   str,
     width:      float, 
-    offset:     float,     
+    offset:     float,
+    strike_inc: float,     
     s_bars:     List[bar_rec],
     f_sigmas:   dict,
     precision:  float
@@ -184,7 +185,7 @@ if __name__ == "__main__":
             width   = float(params[0])
             offset  = float(params[1])
             
-            x, y, t = price_vertical(strategy, width, offset, s_bars, f_sigmas, precision)
+            x, y, t = price_vertical(strategy, width, offset, strike_inc, s_bars, f_sigmas, precision)
     
         else: 
 
