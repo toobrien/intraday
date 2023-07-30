@@ -11,7 +11,7 @@ from    util.pricing            import  fly, iron_fly
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 0 5.0
+# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 0 5.0 0
 
 
 def price_fly(
@@ -19,11 +19,13 @@ def price_fly(
     mid_strike: float,
     width:      float,
     bars:       List[bar_rec],
-    f_sigmas:   dict
+    f_sigmas:   dict,
+    precision:  float
 ):
 
     x       = []
     y       = []
+    t       = []
     pricer  = None
 
     if kind == "fly":
@@ -41,25 +43,17 @@ def price_fly(
     for bar in bars:
 
         time    = bar[bar_rec.time]
-        f_sigma = f_sigmas[time]
-
-        if f_sigma == 0:
-
-            # last bar, no fwd return
-
-            continue
-
-        val = pricer(
-                cur_price   = bar[bar_rec.last],
-                mid         = mid_strike,
-                width       = width,
-                f_sigma     = f_sigmas[time]
-            )
+        price   = bar[bar_rec.last]
+        val     = pricer(
+                    cur_price   = price,
+                    mid         = mid_strike,
+                    width       = width,
+                    f_sigma     = f_sigmas[time]
+                )
         
         x.append(time)
         y.append(val)
-
-    t = [ str(mid_strike) for i in range(len(x)) ]
+        t.append(f"mid: {mid_strike:0.{precision}f}<br>cur: {price:0.{precision}f}<br>var: {abs(mid_strike - price):0.{precision}f}")
 
     return x, y, t
 
@@ -135,7 +129,7 @@ if __name__ == "__main__":
 
                 mid_strike  = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) + offset * strike_inc
 
-                x, y, t = price_fly(strategy, mid_strike, width, s_bars, f_sigmas)
+                x, y, t = price_fly(strategy, mid_strike, width, s_bars, f_sigmas, precision)
         
         else: 
             
@@ -199,4 +193,3 @@ if __name__ == "__main__":
     print(f"final val avg:      {mean(final_vals):0.{precision}f}")
     print(f"final val stdev:    {stdev(final_vals):0.{precision}f}")
     print(f"n_samples:          {n_samples}")
-

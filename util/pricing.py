@@ -13,16 +13,26 @@ def fly(
     step:       float = 0.01    # sample increment for pricing
 ):
 
-    upper   = log((mid + width) / cur_price)
-    lower   = log((mid - width) / cur_price)
+    val = None
 
-    a       = min(upper, lower) / f_sigma
-    b       = max(upper, lower) / f_sigma
+    if f_sigma == 0:
 
-    x       = arange(a, b, step)
-    y       = norm.pdf(x)
+        # expiration
 
-    val     = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] for i in range(len(x)) ]) * step
+        val = max(0, width - abs(cur_price - mid))
+    
+    else:
+
+        upper   = log((mid + width) / cur_price)
+        lower   = log((mid - width) / cur_price)
+
+        a       = min(upper, lower) / f_sigma
+        b       = max(upper, lower) / f_sigma
+
+        x       = arange(a, b, step)
+        y       = norm.pdf(x)
+
+        val     = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] for i in range(len(x)) ]) * step
 
     return val
 
@@ -36,10 +46,17 @@ def iron_fly(
     f_sigma:    float,          # est. stdev of forward price distribution (as log return)
     step:       float = 0.1     # sample increment for pricing
 ):
-    
-    x       = arange(-IRON_FLY_SCALE, IRON_FLY_SCALE, step)
-    y       = norm.pdf(x)
+    val = None
 
-    val     = sum([ ( min(abs((cur_price * e**(x[i] * f_sigma) - mid)), width) ) * y[i] for i in range(len(x)) ]) * step
+    if f_sigma == 0:
+
+        val = min(width, abs(cur_price - mid))
+
+    else:
+
+        x   = arange(-IRON_FLY_SCALE, IRON_FLY_SCALE, step)
+        y   = norm.pdf(x)
+
+        val = sum([ ( min(width, abs((cur_price * e**(x[i] * f_sigma) - mid))) ) * y[i] for i in range(len(x)) ]) * step
 
     return val
