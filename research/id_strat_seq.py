@@ -53,6 +53,7 @@ if __name__ == "__main__":
         x = x.union(set([ bar[bar_rec.time] for bar in s_bars ]))
 
     x       = sorted(list(x))
+    x_      = []
     p_max   = []
     p_min   = []
     val_avg = []
@@ -81,6 +82,7 @@ if __name__ == "__main__":
         y_start     = [ ax["y"][0] for ax in res.values() if ax["x"][0] == t ]
         n_samples   = len(y_min)
 
+        x_.append(t)
         p_max.append(percentile(y_max, P_MAX))
         p_min.append(percentile(y_min, P_MIN))
         val_avg.append(mean(y_start))
@@ -93,14 +95,14 @@ if __name__ == "__main__":
     for trace in [
         ( p_max,    f"max_val p = {P_MAX}, w = [{WIN_I}:{WIN_J}]",  "#cccccc" ),
         ( p_min,    f"min_val p = {P_MIN}, w = [{WIN_I}:{WIN_J}]",  "#cccccc" ),
-        ( val_avg,  "avg_val_at_t]",                                "#0000FF" ),
+        ( val_avg,  "avg_val_at_t",                                 "#0000FF" ),
         ( fin_avg,  "avg_exp",                                      "#FF0000" ),
     ]:
 
         fig.add_trace(
             go.Scattergl(
                 {
-                    "x":    x,
+                    "x":    x_,
                     "y":    trace[0],
                     "name": trace[1],
                     "line": { "color": trace[2] }
