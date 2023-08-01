@@ -7,7 +7,7 @@ path.append(".")
 from    typing                  import  List, Callable
 from    util.bar_tools          import  bar_rec, get_bars, get_sessions
 from    util.contract_settings  import  get_settings
-from    util.pricing            import  fly, iron_fly, call_vertical, put_vertical
+from    util.pricing            import  fly, iron_fly, call_vertical, put_vertical, straddle
 from    util.rec_tools          import  get_precision
 
 
@@ -18,7 +18,8 @@ PRICERS = {
     "fly":              fly,
     "iron_fly":         iron_fly,
     "call_vertical":    call_vertical,
-    "put_vertical":     put_vertical
+    "put_vertical":     put_vertical,
+    "straddle":         straddle
 }
 
 
@@ -50,20 +51,12 @@ def price_strategy(
     return x, y, t
 
 
-def price_strategy_by_session(
-    strategy:       str,
-    bars:           List,       
-    session_start:  str,
-    session_end:    str,
-    expiration:     str,
-    strike_inc:     float,
-    offset:         int,
-    params:         dict,
-    precision:      float
+def calc_fsigmas(
+    bars: List[bar_rec],
+    idx: dict,
+    expiration: str
 ):
 
-    res             = {}
-    idx             = get_sessions(bars, session_start, session_end)
     dt_idx          = { (bars[i][bar_rec.date], bars[i][bar_rec.time]) : i for i in range(len(bars)) }
     forward_returns = {}
 
@@ -93,7 +86,22 @@ def price_strategy_by_session(
                     time: stdev(forward_returns[time])
                     for time in forward_returns.keys()
                 }
-    pricer      = PRICERS[strategy]
+
+    return f_sigmas
+
+
+def price_strategy_by_session(
+    strategy:       str,    
+    idx:            dict,
+    f_sigmas:       dict,
+    strike_inc:     float,
+    offset:         int,
+    params:         dict,
+    precision:      float
+):
+
+    res     = {}
+    pricer  = PRICERS[strategy]
 
     for date, s_bars in idx.items():
 
@@ -122,6 +130,10 @@ def price_strategy_by_session(
 
                 price_params["hi_strike"] = ref_strike
     
+        elif strategy == "straddle":
+
+            price_params = { "mid_strike": ref_strike }
+
         else:
 
             print("invalid strategy")
@@ -162,17 +174,17 @@ if __name__ == "__main__":
         
         exit()
 
-    res = price_strategy_by_session(
-            strategy,
-            bars,
-            session_start,
-            session_end,
-            expiration,
-            strike_inc,
-            offset,
-            params,
-            precision
-        )
+    idx         = get_sessions(bars, session_start, session_end)
+    f_sigmas    = calc_fsigmas(bars, idx, expiration)
+    res         = price_strategy_by_session(
+                    strategy,
+                    idx,
+                    f_sigmas,
+                    strike_inc,
+                    offset,
+                    params,
+                    precision
+                )
 
     fig         = go.Figure()
     y_min       = []

@@ -109,3 +109,26 @@ def put_vertical(
         val = sum([ min(max(0, hi_strike - cur_price * e**(x[i] * f_sigma)), width) * y[i] for i in range(len(x)) ]) * step
 
     return val
+
+
+def straddle(
+    cur_price:  float,
+    mid_strike: float,      # est. stdev of forward price distribution (as log return)
+    f_sigma:    float,
+    step:       float = 0.1 # pdf sample increment for pricing
+):
+    
+    val = None
+
+    if f_sigma == 0:
+
+        val = abs(cur_price - mid_strike)
+    
+    else:
+
+        x   = arange(-SIG_BOUND, SIG_BOUND, step)
+        y   = norm.pdf(x)
+
+        val = sum([ abs(cur_price * e**(x[i] * f_sigma) - mid_strike) * y[i] for i in range(len(x)) ]) * step
+    
+    return val
