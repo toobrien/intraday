@@ -50,29 +50,19 @@ def price_strategy(
     return x, y, t
 
 
-if __name__ == "__main__":
+def price_strategy_by_session(
+    strategy:       str,
+    bars:           List,       
+    session_start:  str,
+    session_end:    str,
+    expiration:     str,
+    strike_inc:     float,
+    offset:         int,
+    params:         dict,
+    precision:      float
+):
 
-    contract_id     = argv[1]
-    strategy        = argv[2]
-    session_start   = argv[3]
-    session_end     = argv[4]
-    expiration      = argv[5]
-    date_start      = argv[6] if len(argv) > 6 else None
-    date_end        = argv[7] if len(argv) > 7 else None
-    strike_inc      = float(argv[8])
-    offset          = float(argv[9])
-    params          = argv[10:]
-    _, tick_size    = get_settings(contract_id)
-    precision       = get_precision(str(tick_size))
-    bars            = get_bars(contract_id, f"{date_start}T0", f"{date_end}T0")
-    title           = f"{contract_id}\t{strategy}\t{', '.join(params)}\t{date_start} - {date_end}"
-
-    if not bars:
-
-        print("no bars matched")
-        
-        exit()
-
+    res             = {}
     idx             = get_sessions(bars, session_start, session_end)
     dt_idx          = { (bars[i][bar_rec.date], bars[i][bar_rec.time]) : i for i in range(len(bars)) }
     forward_returns = {}
@@ -99,17 +89,10 @@ if __name__ == "__main__":
 
             forward_returns[time].append(log(settlement / bar[bar_rec.last]))
     
-    f_sigmas = {
-                time: stdev(forward_returns[time])
-                for time in forward_returns.keys()
-            }
-
-    fig = go.Figure()
-
-    fig.update_layout(title = title)
-
-    ys          = []
-    n_samples   = 0
+    f_sigmas    = {
+                    time: stdev(forward_returns[time])
+                    for time in forward_returns.keys()
+                }
     pricer      = PRICERS[strategy]
 
     for date, s_bars in idx.items():
@@ -147,9 +130,63 @@ if __name__ == "__main__":
 
         x, y, t = price_strategy(ref_strike, pricer, price_params, s_bars, f_sigmas, precision)
 
-        n_samples += 1
+        res[date] = {
+            "x": x,
+            "y": y,
+            "t": t
+        }
 
-        ys.append(y)
+    return res
+
+
+if __name__ == "__main__":
+
+    contract_id     = argv[1]
+    strategy        = argv[2]
+    session_start   = argv[3]
+    session_end     = argv[4]
+    expiration      = argv[5]
+    date_start      = argv[6] if len(argv) > 6 else None
+    date_end        = argv[7] if len(argv) > 7 else None
+    strike_inc      = float(argv[8])
+    offset          = float(argv[9])
+    params          = argv[10:]
+    _, tick_size    = get_settings(contract_id)
+    precision       = get_precision(str(tick_size))
+    bars            = get_bars(contract_id, f"{date_start}T0", f"{date_end}T0")
+    title           = f"{contract_id}\t{strategy}\t{', '.join(params)}\t{date_start} - {date_end}"
+
+    if not bars:
+
+        print("no bars matched")
+        
+        exit()
+
+    res = price_strategy_by_session(
+            strategy,
+            bars,
+            session_start,
+            session_end,
+            expiration,
+            strike_inc,
+            offset,
+            params,
+            precision
+        )
+
+    fig         = go.Figure()
+    y_min       = []
+    y_max       = []
+    y_fin       = []
+    n_samples   = 0
+
+    fig.update_layout(title = title)
+
+    for date, ax in res.items():
+
+        x = ax["x"]
+        y = ax["y"]
+        t = ax["t"]
 
         fig.add_trace(
             go.Scattergl(
@@ -161,47 +198,30 @@ if __name__ == "__main__":
                 }
             )
         )
-        
+
+        y_min.append(min(y))
+        y_max.append(max(y))
+        y_fin.append(y[-1])
+
+        n_samples += 1
+
     fig.show()
 
-    # f_sigma debug
+    y_min = sorted(y_min)
+    y_max = sorted(y_max)
+    y_fin = sorted(y_fin)
 
-    '''
-    for time in sorted(f_sigmas.keys()):
+    print(f"{'lo'.rjust(15)}{'hi'.rjust(15)}{'fin'.rjust(15)}")
 
-        print(f"{time}\t{f_sigmas[time]:0.6f}")
+    for p in [ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ]:
 
-    fig2 = go.Figure()
+        pct = f"{str(p).rjust(3)}%:"
+        lo  = f"{percentile(y_min, p):0.{precision}f}".rjust(10)
+        hi  = f"{percentile(y_max, p):0.{precision}f}".rjust(15)
+        fin = f"{percentile(y_fin, p):0.{precision}f}".rjust(15)
 
-    x_ = sorted(list(f_sigmas.keys()))
-    y_ = [ f_sigmas[x] for x in x_ ]
-
-    fig2.add_trace(
-        go.Bar(
-            x = x_,
-            y = y_
-        )
-    )
-
-    fig2.show()
-    '''
-
-    mins = sorted([ min(y) for y in ys ])
-    maxs = sorted([ max(y) for y in ys ])
-
-    print(f"{'lo'.rjust(15)}{'hi'.rjust(15)}")
-
-    for p in [ 5, 15, 50, 85, 95 ]:
-
-        pct = f"{str(p).rjust(2)}%:"
-        lo  = f"{percentile(mins, p):0.{precision}f}".rjust(11)
-        hi  = f"{percentile(maxs, p):0.{precision}f}".rjust(15)
-
-        print(f"{pct}{lo}{hi}")
-
-    final_vals = [ y_[-1] for y_ in ys ]
+        print(f"{pct}{lo}{hi}{fin}")
 
     print("\n")
-    print(f"final val avg:      {mean(final_vals):0.{precision}f}")
-    print(f"final val stdev:    {stdev(final_vals):0.{precision}f}")
-    print(f"n_samples:          {n_samples}")
+    print(f"fin avg:    {mean(y_fin):0.{precision}f}")
+    print(f"n_samples:  {n_samples}")
