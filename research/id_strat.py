@@ -13,6 +13,8 @@ from    util.rec_tools          import  get_precision
 
 # python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 0 5.0
 
+WIN_I       = 0
+WIN_J       = None
 SHOW_CHART  = False
 PRICERS     = {
                 "fly":              fly,
@@ -225,13 +227,14 @@ if __name__ == "__main__":
     y_max = sorted(y_max)
     y_fin = sorted(y_fin)
 
+    print(f"window [{WIN_I}:{WIN_J}]")
     print(f"{'lo'.rjust(15)}{'hi'.rjust(15)}{'fin'.rjust(15)}")
 
     for p in [ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ]:
 
         pct = f"{str(p).rjust(3)}%:"
-        lo  = f"{percentile(y_min, p):0.{precision}f}".rjust(10)
-        hi  = f"{percentile(y_max, p):0.{precision}f}".rjust(15)
+        lo  = f"{percentile(y_min[WIN_I:WIN_J], p):0.{precision}f}".rjust(10)
+        hi  = f"{percentile(y_max[WIN_I:WIN_J], p):0.{precision}f}".rjust(15)
         fin = f"{percentile(y_fin, p):0.{precision}f}".rjust(15)
 
         print(f"{pct}{lo}{hi}{fin}")
