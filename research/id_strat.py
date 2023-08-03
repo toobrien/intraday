@@ -13,14 +13,14 @@ from    util.rec_tools          import  get_precision
 
 # python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 0 5.0
 
-
-PRICERS = {
-    "fly":              fly,
-    "iron_fly":         iron_fly,
-    "call_vertical":    call_vertical,
-    "put_vertical":     put_vertical,
-    "straddle":         straddle
-}
+SHOW_CHART  = False
+PRICERS     = {
+                "fly":              fly,
+                "iron_fly":         iron_fly,
+                "call_vertical":    call_vertical,
+                "put_vertical":     put_vertical,
+                "straddle":         straddle
+            }
 
 
 def price_strategy(
@@ -217,7 +217,9 @@ if __name__ == "__main__":
 
         n_samples += 1
 
-    fig.show()
+    if SHOW_CHART:
+    
+        fig.show()
 
     y_min = sorted(y_min)
     y_max = sorted(y_max)
