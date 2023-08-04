@@ -3,7 +3,10 @@ from numpy          import arange
 from scipy.stats    import norm
 
 
-SIG_BOUND = 5 # max stdevs for pricing
+SIG_BOUND   = 5                                         # max stdevs for pricing
+DEF_STEP    = 0.1                                       # increment for sampling pdf
+X           = arange(-SIG_BOUND, SIG_BOUND, DEF_STEP)
+Y           = norm.pdf(X)
 
 
 # example: fly(4552.50, 4550.00, 5.00, 0.0006, 0.01)
@@ -42,10 +45,9 @@ def fly(
 
 def iron_fly(
     cur_price:  float,
-    mid:        float,          # middle strike
-    width:      float,          # mid strike -> wing
-    f_sigma:    float,          # est. stdev of forward price distribution (as log return)
-    step:       float = 0.1     # pdf sample increment for pricing
+    mid:        float,  # middle strike
+    width:      float,  # mid strike -> wing
+    f_sigma:    float   # est. stdev of forward price distribution (as log return)
 ):
     val = None
 
@@ -55,10 +57,7 @@ def iron_fly(
 
     else:
 
-        x   = arange(-SIG_BOUND, SIG_BOUND, step)
-        y   = norm.pdf(x)
-
-        val = sum([ ( min(width, abs((cur_price * e**(x[i] * f_sigma) - mid))) ) * y[i] for i in range(len(x)) ]) * step
+        val = sum([ ( min(width, abs((cur_price * e**(X[i] * f_sigma) - mid))) ) * Y[i] for i in range(len(X)) ]) * DEF_STEP
 
     return val
 
@@ -66,9 +65,8 @@ def iron_fly(
 def call_vertical(
     cur_price:  float,
     lo_strike:  float,          
-    width:      float,          # high strike -> low strike          
-    f_sigma:    float,          # est. stdev of forward price distribution (as log return)
-    step:       float = 0.1     # pdf sample increment for pricing
+    width:      float,  # high strike -> low strike          
+    f_sigma:    float   # est. stdev of forward price distribution (as log return)
 ):
     
     val = None
@@ -79,10 +77,7 @@ def call_vertical(
 
     else:
 
-        x   = arange(-SIG_BOUND, SIG_BOUND, step)
-        y   = norm.pdf(x)
-
-        val = sum([ min(max(0, cur_price * e**(x[i] * f_sigma) - lo_strike), width) * y[i] for i in range(len(x)) ]) * step
+        val = sum([ min(max(0, cur_price * e**(X[i] * f_sigma) - lo_strike), width) * Y[i] for i in range(len(X)) ]) * DEF_STEP
 
     return val
 
@@ -90,9 +85,8 @@ def call_vertical(
 def put_vertical(
     cur_price:  float,
     hi_strike:  float,          
-    width:      float,          # high strike -> low strike          
-    f_sigma:    float,          # est. stdev of forward price distribution (as log return)
-    step:       float = 0.1     # pdf sample increment for pricing
+    width:      float,  # high strike -> low strike          
+    f_sigma:    float   # est. stdev of forward price distribution (as log return)
 ):
     
     val = None
@@ -103,19 +97,15 @@ def put_vertical(
 
     else:
 
-        x   = arange(-SIG_BOUND, SIG_BOUND, step)
-        y   = norm.pdf(x)
-
-        val = sum([ min(max(0, hi_strike - cur_price * e**(x[i] * f_sigma)), width) * y[i] for i in range(len(x)) ]) * step
+        val = sum([ min(max(0, hi_strike - cur_price * e**(X[i] * f_sigma)), width) * Y[i] for i in range(len(X)) ]) * DEF_STEP
 
     return val
 
 
 def straddle(
     cur_price:  float,
-    mid_strike: float,      # est. stdev of forward price distribution (as log return)
-    f_sigma:    float,
-    step:       float = 0.1 # pdf sample increment for pricing
+    mid_strike: float,
+    f_sigma:    float   # est. stdev of forward price distribution (as log return)
 ):
     
     val = None
@@ -126,9 +116,6 @@ def straddle(
     
     else:
 
-        x   = arange(-SIG_BOUND, SIG_BOUND, step)
-        y   = norm.pdf(x)
-
-        val = sum([ abs(cur_price * e**(x[i] * f_sigma) - mid_strike) * y[i] for i in range(len(x)) ]) * step
+        val = sum([ abs(cur_price * e**(X[i] * f_sigma) - mid_strike) * Y[i] for i in range(len(X)) ]) * DEF_STEP
     
     return val
