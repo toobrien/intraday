@@ -11,11 +11,10 @@ from    util.pricing            import  fly, iron_fly, call_vertical, put_vertic
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 5.0 0 5.0
+# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 1 5.0 0 5.0
 
 WIN_I       = 0
 WIN_J       = None
-SHOW_CHART  = False
 PRICERS     = {
                 "fly":              fly,
                 "iron_fly":         iron_fly,
@@ -162,9 +161,10 @@ if __name__ == "__main__":
     expiration      = argv[5]
     date_start      = argv[6] if len(argv) > 6 else None
     date_end        = argv[7] if len(argv) > 7 else None
-    strike_inc      = float(argv[8])
-    offset          = float(argv[9])
-    params          = argv[10:]
+    show_chart      = int(argv[8])
+    strike_inc      = float(argv[9])
+    offset          = float(argv[10])
+    params          = argv[11:]
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
     bars            = get_bars(contract_id, f"{date_start}T0", f"{date_end}T0")
@@ -192,6 +192,7 @@ if __name__ == "__main__":
     y_min       = []
     y_max       = []
     y_fin       = []
+    y_ini       = []
     n_samples   = 0
 
     fig.update_layout(title = title)
@@ -215,11 +216,12 @@ if __name__ == "__main__":
 
         y_min.append(min(y))
         y_max.append(max(y))
+        y_ini.append(y[0])
         y_fin.append(y[-1])
 
         n_samples += 1
 
-    if SHOW_CHART:
+    if show_chart:
     
         fig.show()
 
@@ -240,5 +242,6 @@ if __name__ == "__main__":
         print(f"{pct}{lo}{hi}{fin}")
 
     print("\n")
+    print(f"start avg:  {mean(y_ini):0.{precision}f}")
     print(f"fin avg:    {mean(y_fin):0.{precision}f}")
     print(f"n_samples:  {n_samples}")
