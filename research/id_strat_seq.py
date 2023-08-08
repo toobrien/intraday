@@ -10,13 +10,13 @@ from    util.contract_settings  import  get_settings
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat_seq.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 1 2023-05-01 2023-09-01 5.0 0 5.0
+# python research/id_strat_seq.py ESU23_FUT_CME fly 12:00:00 12:59:00 12:59:00 1 2023-05-01 2023-09-01 5.0 0 5.0
 
 
-P_MAX = 85
-P_MIN = 85
-WIN_I = 0
-WIN_J = 10
+P_MAX = 90
+P_MIN = 90
+WIN_I = 30
+WIN_J = None
 
 
 if __name__ == "__main__":
@@ -76,8 +76,8 @@ if __name__ == "__main__":
 
         # filter out series that aren't aligned with if clause
 
-        y_min       = sorted([ min(ax["y"][WIN_I:WIN_J]) for ax in res.values() if ax["x"][0] == t ])
-        y_max       = sorted([ max(ax["y"][WIN_I:WIN_J]) for ax in res.values() if ax["x"][0] == t ])
+        y_min       = sorted([ min(ax["y"][WIN_I if WIN_I < len(ax) else 0:WIN_J]) for ax in res.values() if ax["x"][0] == t ])
+        y_max       = sorted([ max(ax["y"][WIN_I if WIN_I < len(ax) else 0:WIN_J]) for ax in res.values() if ax["x"][0] == t ])
         y_fin       = [ ax["y"][-1]  for ax in res.values() if ax["x"][0] == t ]
         y_start     = [ ax["y"][0] for ax in res.values() if ax["x"][0] == t ]
         n_samples   = len(y_min)

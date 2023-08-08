@@ -11,7 +11,7 @@ from    util.pricing            import  fly, iron_fly, call_vertical, put_vertic
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 13:00:00 13:00:00 2023-05-01 2023-08-01 1 5.0 0 5.0
+# python research/id_strat.py ESU23_FUT_CME fly 12:00:00 12:59:00 12:59:00 2023-05-01 2023-08-01 1 5.0 0 5.0
 
 WIN_I       = 0
 WIN_J       = None
