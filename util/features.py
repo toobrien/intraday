@@ -35,7 +35,7 @@ def delta(recs: List):
 
 def ewma(recs: List, window: int):
 
-    return Series(recs).ewm_mean(span = window)
+    return list(Series(recs).ewm_mean(span = window))
 
 
 def liq_by_price(

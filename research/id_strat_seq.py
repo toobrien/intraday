@@ -7,16 +7,20 @@ from    research.id_strat       import  calc_fsigmas, get_sessions, price_strate
 from    time                    import  time
 from    util.bar_tools          import  bar_rec, get_bars
 from    util.contract_settings  import  get_settings
+from    util.features           import  ewma
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat_seq.py ESU23_FUT_CME fly 12:00:00 12:59:00 12:59:00 1 2023-05-01 2023-09-01 5.0 0 5.0
+# python research/id_strat_seq.py ESU23_FUT_CME fly 12:45:00 12:59:00 12:59:00 1 2023-05-01 2023-09-01 5.0 0 5.0
 
-
-P_MAX = 90
-P_MIN = 90
-WIN_I = 30
-WIN_J = None
+SHOW_MAX    = False
+SHOW_MIN    = True
+SHOW_EWMA   = True
+EWMA_WIN    = 5
+P_MAX       = 90
+P_MIN       = 90
+WIN_I       = 3
+WIN_J       = None
 
 
 if __name__ == "__main__":
@@ -76,8 +80,8 @@ if __name__ == "__main__":
 
         # filter out series that aren't aligned with if clause
 
-        y_min       = sorted([ min(ax["y"][WIN_I if WIN_I < len(ax) else 0:WIN_J]) for ax in res.values() if ax["x"][0] == t ])
-        y_max       = sorted([ max(ax["y"][WIN_I if WIN_I < len(ax) else 0:WIN_J]) for ax in res.values() if ax["x"][0] == t ])
+        y_min       = sorted([ min(ax["y"][WIN_I if WIN_I < len(ax["y"]) else 0:WIN_J]) for ax in res.values() if ax["x"][0] == t ])
+        y_max       = sorted([ max(ax["y"][WIN_I if WIN_I < len(ax["y"]) else 0:WIN_J]) for ax in res.values() if ax["x"][0] == t ])
         y_fin       = [ ax["y"][-1]  for ax in res.values() if ax["x"][0] == t ]
         y_start     = [ ax["y"][0] for ax in res.values() if ax["x"][0] == t ]
         n_samples   = len(y_min)
@@ -92,20 +96,26 @@ if __name__ == "__main__":
 
     fig.update_layout(title = title)
 
-    for trace in [
-        ( p_max,    f"max_val p = {P_MAX}, w = [{WIN_I}:{WIN_J}]",  "#cccccc" ),
-        ( p_min,    f"min_val p = {P_MIN}, w = [{WIN_I}:{WIN_J}]",  "#cccccc" ),
-        ( val_avg,  "avg_val_at_t",                                 "#0000FF" ),
-        ( fin_avg,  "avg_exp",                                      "#FF0000" ),
-    ]:
+    ewma_ = ewma(fin_avg, EWMA_WIN)
+
+    traces = [
+        ( val_avg,  "avg_val_at_t",                                 "#0000FF",  True                                   ),
+        ( fin_avg,  "avg_exp",                                      "#FF0000",  True                                   ),
+        ( p_max,    f"max_val p = {P_MAX}, w = [{WIN_I}:{WIN_J}]",  "#cccccc",  True if SHOW_MAX     else "legendonly" ),
+        ( p_min,    f"min_val p = {P_MIN}, w = [{WIN_I}:{WIN_J}]",  "#cccccc",  True if SHOW_MIN     else "legendonly" ),
+        ( ewma_,    f"ewma(avg_exp)[{EWMA_WIN}]",                   "#E60283",  True if SHOW_EWMA    else "legendonly" )
+    ]
+
+    for trace in traces:
 
         fig.add_trace(
             go.Scattergl(
                 {
-                    "x":    x_,
-                    "y":    trace[0],
-                    "name": trace[1],
-                    "line": { "color": trace[2] }
+                    "x":        x_,
+                    "y":        trace[0],
+                    "name":     trace[1],
+                    "line":     { "color": trace[2] },
+                    "visible":  trace[3]
                 }
             )
         )
