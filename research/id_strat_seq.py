@@ -13,8 +13,10 @@ from    util.rec_tools          import  get_precision
 
 # python research/id_strat_seq.py ESU23_FUT_CME fly 12:45:00 12:59:00 12:59:00 1 2023-05-01 2023-09-01 5.0 0 5.0
 
+SHOW_VAL    = True
+SHOW_FIN    = False
 SHOW_MAX    = False
-SHOW_MIN    = True
+SHOW_MIN    = False
 SHOW_EWMA   = True
 EWMA_WIN    = 5
 P_MAX       = 90
@@ -99,11 +101,11 @@ if __name__ == "__main__":
     ewma_ = ewma(fin_avg, EWMA_WIN)
 
     traces = [
-        ( val_avg,  "avg_val_at_t",                                 "#0000FF",  True                                   ),
-        ( fin_avg,  "avg_fin",                                      "#FF0000",  True                                   ),
-        ( p_max,    f"max_val p = {P_MAX}, w = [{WIN_I}:{WIN_J}]",  "#cccccc",  True if SHOW_MAX     else "legendonly" ),
-        ( p_min,    f"min_val p = {P_MIN}, w = [{WIN_I}:{WIN_J}]",  "#cccccc",  True if SHOW_MIN     else "legendonly" ),
-        ( ewma_,    f"ewma(avg_fin)[{EWMA_WIN}]",                   "#E60283",  True if SHOW_EWMA    else "legendonly" )
+        ( val_avg,  "avg_val_at_t",                                 "#0000FF",  True if SHOW_VAL    else "legendonly" ),
+        ( fin_avg,  "avg_fin",                                      "#FF0000",  True if SHOW_FIN    else "legendonly" ),
+        ( p_max,    f"max_val p = {P_MAX}, w = [{WIN_I}:{WIN_J}]",  "#cccccc",  True if SHOW_MAX    else "legendonly" ),
+        ( p_min,    f"min_val p = {P_MIN}, w = [{WIN_I}:{WIN_J}]",  "#cccccc",  True if SHOW_MIN    else "legendonly" ),
+        ( ewma_,    f"ewma(avg_fin)[{EWMA_WIN}]",                   "#E60283",  True if SHOW_EWMA   else "legendonly" )
     ]
 
     for trace in traces:
