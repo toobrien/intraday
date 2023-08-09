@@ -100,10 +100,10 @@ if __name__ == "__main__":
 
     traces = [
         ( val_avg,  "avg_val_at_t",                                 "#0000FF",  True                                   ),
-        ( fin_avg,  "avg_exp",                                      "#FF0000",  True                                   ),
+        ( fin_avg,  "avg_fin",                                      "#FF0000",  True                                   ),
         ( p_max,    f"max_val p = {P_MAX}, w = [{WIN_I}:{WIN_J}]",  "#cccccc",  True if SHOW_MAX     else "legendonly" ),
         ( p_min,    f"min_val p = {P_MIN}, w = [{WIN_I}:{WIN_J}]",  "#cccccc",  True if SHOW_MIN     else "legendonly" ),
-        ( ewma_,    f"ewma(avg_exp)[{EWMA_WIN}]",                   "#E60283",  True if SHOW_EWMA    else "legendonly" )
+        ( ewma_,    f"ewma(avg_fin)[{EWMA_WIN}]",                   "#E60283",  True if SHOW_EWMA    else "legendonly" )
     ]
 
     for trace in traces:
