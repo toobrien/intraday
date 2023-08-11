@@ -4,7 +4,7 @@ from scipy.stats    import norm
 
 
 SIG_BOUND   = 5                                         # max stdevs for pricing
-DEF_STEP    = 0.1                                       # increment for sampling pdf
+DEF_STEP    = 0.20                                      # increment for sampling pdf
 X           = arange(-SIG_BOUND, SIG_BOUND, DEF_STEP)
 Y           = norm.pdf(X)
 
@@ -16,7 +16,6 @@ def fly(
     mid:        float,          # middle strike
     width:      float,          # mid strike -> wing
     f_sigma:    float,          # est. stdev of forward price distribution (as log return)
-    step:       float = 0.01    # pdf sample increment for pricing
 ):
 
     val = None
@@ -29,16 +28,7 @@ def fly(
     
     else:
 
-        upper   = log((mid + width) / cur_price)
-        lower   = log((mid - width) / cur_price)
-
-        a       = min(upper, lower) / f_sigma
-        b       = max(upper, lower) / f_sigma
-
-        x       = arange(a, b, step)
-        y       = norm.pdf(x)
-
-        val     = sum([ (width - abs((cur_price * e**(x[i] * f_sigma) - mid))) * y[i] for i in range(len(x)) ]) * step
+        val     = sum([ (width - abs((cur_price * e**(X[i] * f_sigma) - mid))) * Y[i] for i in range(len(X)) ]) * DEF_STEP
 
     return val
 
