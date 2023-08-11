@@ -8,7 +8,7 @@
 
 CONTRACT_SETTINGS = {
 
-    # multiplier    # tick size
+            # multiplier    # tick size
 
     "CL":   ( 0.01,         0.01,           ),
     "LO":   ( 0.01,         0.01,           ),
@@ -52,7 +52,8 @@ CONTRACT_SETTINGS = {
     "6E":   ( 0.0001,       0.000050,       ),
     "6B":   ( 0.0001,       0.000100,       ),
     "6J":   ( 0.000001,     0.0000005,      ),
-    "6M":   ( 0.000001,     0.000010,       )
+    "6M":   ( 0.000001,     0.000010,       ),
+    "SPX":  ( 1,            0.01            )
 
 }
 
@@ -65,7 +66,13 @@ def get_settings(fn: str):
     settings    = None
     sym         = None
 
-    if "NQTV" in fn:
+    if ":" in fn:
+
+        # frd file
+
+        sym = fn.split(":")[0]
+
+    elif "NQTV" in fn:
 
         # stock
 

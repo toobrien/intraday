@@ -5,12 +5,9 @@ import  polars  as      pl
 from    typing  import  List
 
 
-# note: files must be manually updated from the chart, as far as i know: 
-# 
-#   Edit >> Export Bar Data to Text File
-
-
-SC_ROOT = loads(open("./config.json", "r").read())["sc_root"]
+CONFIG      = loads(open("./config.json", "r").read())
+SC_ROOT     = CONFIG["sc_root"]
+FRD_ROOT    = CONFIG["frd_root"]
 
 
 class bar_rec(IntEnum):
@@ -29,19 +26,8 @@ class bar_rec(IntEnum):
 
 # start, end format: YYYY-MM-DDTHH:MM:SS
 
-def get_bars(
-    contract_id:    str, 
-    start:          str = None, 
-    end:            str = None
-):
 
-    fn      = f"{SC_ROOT}/data/{contract_id}.scid_BarData.txt"
-    df      = pl.read_csv(fn).with_columns(
-                [
-                    pl.col("Date").str.to_datetime("%Y/%m/%d").dt.strftime("%Y-%m-%d"),
-                    pl.col(" Time").str.replace_all(" ", "")
-                ]
-            ) # standardize date format and drop whitespace from time col
+def trim_range(df, start: str, end: str):
 
     if start:
 
@@ -58,6 +44,78 @@ def get_bars(
                 (pl.col("Date") < end[0]) |
                 ((pl.col("Date") == end[0]) & (pl.col(" Time") < end[1]))
             )
+
+    return df
+
+
+def get_bars(
+    contract_id:    str, 
+    start:          str = None, 
+    end:            str = None
+):
+
+    bars = None
+
+    if ":" in contract_id:
+
+        parts       = contract_id.split(":")
+        contract_id = parts[0]
+        resolution  = parts[1]
+
+        bars = get_frd_bars(contract_id, resolution, start, end)
+
+    else:
+
+        bars = get_sc_bars(contract_id, start, end)
+
+    return bars
+
+
+def get_sc_bars(
+    contract_id:    str,
+    start:          str,
+    end:            str
+):
+
+    fn      = f"{SC_ROOT}/data/{contract_id}.scid_BarData.txt"
+    df      = pl.read_csv(fn).with_columns(
+                [
+                    pl.col("Date").str.to_datetime("%Y/%m/%d").dt.strftime("%Y-%m-%d"),
+                    pl.col(" Time").str.replace_all(" ", "")
+                ]
+            ) # standardize date format and drop whitespace from time col
+
+    df = trim_range(df, start, end)
+
+    return df.rows()
+
+
+# for ohlc from firstratedata
+# naming convention: <symbol>_<resolution>.csv
+
+def get_frd_bars(
+    symbol:     str,
+    resolution: str,
+    start:      str = None,
+    end:        str = None
+):
+    
+    fn = f"{FRD_ROOT}/{symbol}/{symbol}_{resolution}.csv"
+    df = pl.read_csv(fn)
+
+    df = df.with_columns(
+        pl.col("datetime").str.slice(0, 10).alias("Date"),
+        pl.col("datetime").str.slice(11).alias(" Time")
+    ).select(
+        pl.col("Date"),
+        pl.col(" Time"),
+        pl.col("open"),
+        pl.col("high"),
+        pl.col("low"),
+        pl.col("close")
+    )
+
+    df = trim_range(df, start, end)
 
     return df.rows()
 

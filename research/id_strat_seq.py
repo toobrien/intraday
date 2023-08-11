@@ -19,8 +19,8 @@ SHOW_MAX    = False
 SHOW_MIN    = False
 SHOW_EWMA   = True
 EWMA_WIN    = 5
-P_MAX       = 90
-P_MIN       = 90
+P_MAX       = 80
+P_MIN       = 80
 WIN_I       = 3
 WIN_J       = None
 
@@ -39,10 +39,10 @@ if __name__ == "__main__":
     strike_inc      = float(argv[9])
     offset          = float(argv[10])
     params          = argv[11:]
+    bars            = get_bars(contract_id, f"{date_start}T0", f"{date_end}T0")
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
-    bars            = get_bars(contract_id, f"{date_start}T0", f"{date_end}T0")
-    title           = f"{contract_id}\t{strategy}\t{', '.join(params)}\t{date_start} - {date_end}"
+    title           = f"{contract_id}\t{strategy}\t{', '.join(argv[9:])}\t{date_start} - {date_end}"
 
     if not bars:
 
