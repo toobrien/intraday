@@ -109,7 +109,7 @@ def price_strategy_by_session(
 
         # round reference strike to nearest atm strike (+ offset, if any)
 
-        ref_strike  = strike_inc * round(s_bars[0][bar_rec.open] / strike_inc) + offset * strike_inc
+        ref_strike  = strike_inc * round(s_bars[0][bar_rec.last] / strike_inc) + offset * strike_inc
 
         if "fly" in strategy:
                
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
     bars            = get_bars(contract_id, f"{date_start}T0", f"{date_end}T0")
-    title           = f"{contract_id}\t{strategy}\t{', '.join(params)}\t{date_start} - {date_end}"
+    title           = f"{contract_id}\t{strategy}\t{', '.join(argv[11:])}\t{date_start} - {date_end}"
 
     if not bars:
 
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     print(f"window [{WIN_I}:{WIN_J}]")
     print(f"{'lo'.rjust(15)}{'hi'.rjust(15)}{'fin'.rjust(15)}")
 
-    for p in [ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ]:
+    for p in range(5, 105, 5):
 
         pct = f"{str(p).rjust(3)}%:"
         lo  = f"{percentile(y_min[WIN_I:WIN_J], p):0.{precision}f}".rjust(10)

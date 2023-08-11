@@ -119,3 +119,41 @@ def straddle(
         val = sum([ abs(cur_price * e**(X[i] * f_sigma) - mid_strike) * Y[i] for i in range(len(X)) ]) * DEF_STEP
     
     return val
+
+
+def put(
+    cur_price:  float,
+    strike:     float,          
+    f_sigma:    float   # est. stdev of forward price distribution (as log return)
+):
+    
+    val = None
+
+    if f_sigma == 0:
+
+        val = max(0, strike - cur_price)
+
+    else:
+
+        val = sum([ max(0, strike - cur_price * e**(X[i] * f_sigma)) * Y[i] for i in range(len(X)) ]) * DEF_STEP
+
+    return val
+
+
+def call(
+    cur_price:  float,
+    strike:     float,          
+    f_sigma:    float   # est. stdev of forward price distribution (as log return)
+):
+    
+    val = None
+
+    if f_sigma == 0:
+
+        val = max(0, cur_price - strike)
+
+    else:
+
+        val = sum([ max(0, cur_price * e**(X[i] * f_sigma) - strike) * Y[i] for i in range(len(X)) ]) * DEF_STEP
+
+    return val
