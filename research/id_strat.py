@@ -14,7 +14,7 @@ from    util.rec_tools          import  get_precision
 # python research/id_strat.py ESU23_FUT_CME fly 12:00:00 12:59:00 12:59:00 2023-05-01 2023-09-01 1 5.00 0 5.00
 
 
-WIN_I       = 0
+WIN_I       = 5
 WIN_J       = None
 PRICERS     = {
                 "fly":              fly,

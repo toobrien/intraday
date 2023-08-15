@@ -13,7 +13,7 @@ from    util.rec_tools          import  get_precision
 
 # python research/id_strat_seq.py ESU23_FUT_CME fly 12:45:00 12:59:00 12:59:00 1 2023-05-01 2023-09-01 5.0 0 5.0
 
-SHOW_VAL    = True
+SHOW_VAL    = False
 SHOW_FIN    = False
 SHOW_MAX    = False
 SHOW_MIN    = False
