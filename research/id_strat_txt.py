@@ -80,7 +80,7 @@ if __name__ == "__main__":
                             for _, v in get_sessions(bars, t, session_end).items()
                         ]
 
-            elif "VAL" in mode:
+            elif "CUR" in mode:
 
                 vals    =   [
                             (  v[0][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[0][bar_rec.time]] )
