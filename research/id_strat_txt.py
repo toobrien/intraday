@@ -1,10 +1,11 @@
+from    numpy                   import  percentile
 from    statistics              import  mean
 from    sys                     import  argv, path
+from    time                    import  time
 
 path.append(".")
 
 from    research.id_strat       import  calc_fsigmas, get_sessions
-from    time                    import  time
 from    util.bar_tools          import  bar_rec, get_bars
 from    util.contract_settings  import  get_settings
 from    util.features           import  ewma
@@ -108,7 +109,27 @@ if __name__ == "__main__":
 
                 pass
             
-            out[i][j] = mean(y)
+            if "PCT_N" in mode:
+
+                pct         = float(mode.split(":")[1])
+                y           = sorted(y)
+                out[i][j]   = percentile(y, pct)
+
+            elif "PCT_A" in mode:
+
+                thresh      = float(mode.split(":")[1])
+                y           = [ 1 if val > thresh else 0 for val in y ]
+                out[i][j]   = mean(y)
+
+            elif "PCT_B" in mode:
+
+                thresh      = float(mode.split(":")[1])
+                y           = [ 1 if val < thresh else 0 for val in y ]
+                out[i][j]   = mean(y)
+
+            else:
+                
+                out[i][j] = mean(y)
 
     if "EWMA" in mode:
     
