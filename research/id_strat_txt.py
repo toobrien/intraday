@@ -3,16 +3,16 @@ from    sys                     import  argv, path
 
 path.append(".")
 
-from    research.id_strat       import  calc_fsigmas, get_sessions, price_strategy_by_session
+from    research.id_strat       import  calc_fsigmas, get_sessions
 from    time                    import  time
 from    util.bar_tools          import  bar_rec, get_bars
 from    util.contract_settings  import  get_settings
 from    util.features           import  ewma
-from    util.pricing            import  fly
+from    util.pricing            import  fly, iron_fly
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat_txt.py SPX:1m fly 15:00:00 15:59:00 15:59:00 1 2023-05-01 2023-09-01 EWMA_EXP -1:1 5.0 5.0
+# python research/id_strat_txt.py SPX:1m fly 15:00:00 15:59:00 15:59:00 1 2023-05-01 2023-09-01 EWMA_FIN -1:1 5.0 5.0
 
 
 EWMA_WIN    = 5
@@ -73,10 +73,10 @@ if __name__ == "__main__":
             t       = x[j]
             y       = []
             
-            if "EXP" in mode:
+            if "FIN" in mode:
 
                 vals    =   [
-                            (  v[-1][bar_rec.last], v[0][bar_rec.last], 0 )
+                            (  v[-1][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[-1][bar_rec.time]] )
                             for _, v in get_sessions(bars, t, session_end).items()
                         ]
 
@@ -93,10 +93,12 @@ if __name__ == "__main__":
 
                 exit()
 
-            if strategy == "fly":
+            if "fly" in strategy:
+
+                pricer = fly if strategy == "fly" else iron_fly
 
                 y = [
-                    fly(cur_price = row[0], mid = get_ref_strike(row[1], offset), width = params[0], f_sigma = row[2])
+                    pricer(cur_price = row[0], mid = get_ref_strike(row[1], offset), width = params[0], f_sigma = row[2])
                     for row in vals
                 ]
 
