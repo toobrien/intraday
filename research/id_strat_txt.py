@@ -1,4 +1,5 @@
 from    numpy                   import  percentile
+import  plotly.graph_objects    as      go
 from    statistics              import  mean
 from    sys                     import  argv, path
 from    time                    import  time
@@ -13,7 +14,7 @@ from    util.pricing            import  fly, iron_fly
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat_txt.py SPX:1m fly 15:00:00 15:59:00 15:59:00 1 2023-05-01 2023-09-01 EWMA_FIN -1:1 5.0 5.0
+# python research/id_strat_txt.py SPX:1m fly 15:00:00 15:59:00 15:59:00 1 2023-05-01 2023-09-01 EWMA_FIN 1 -1:1 5.0 5.0
 
 
 EWMA_WIN    = 5
@@ -36,9 +37,10 @@ if __name__ == "__main__":
     date_start      = argv[7] if len(argv) > 7 else None
     date_end        = argv[8] if len(argv) > 8 else None
     mode            = argv[9]
-    offset_rng      = [ int(i) for i in argv[10].split(":") ]
-    strike_inc      = float(argv[11])
-    params          = [ float(i) for i in argv[12:] ]
+    plot            = int(argv[10])
+    offset_rng      = [ int(i) for i in argv[11].split(":") ]
+    strike_inc      = float(argv[12])
+    params          = [ float(i) for i in argv[13:] ]
     bars            = get_bars(contract_id, f"{date_start}T0", f"{date_end}T0")
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
@@ -74,12 +76,11 @@ if __name__ == "__main__":
             t       = x[j]
             y       = []
             curs    = [
-                        (  v[-1][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[-1][bar_rec.time]] )
+                        (  v[0][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[0][bar_rec.time]] )
                         for _, v in get_sessions(bars, t, session_end).items()
                     ]
-
             fins    = [
-                        (  v[0][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[0][bar_rec.time]] )
+                        (  v[-1][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[-1][bar_rec.time]] )
                         for _, v in get_sessions(bars, t, session_end).items()
                     ]
 
@@ -95,7 +96,7 @@ if __name__ == "__main__":
                         for row in fins
                     ]
                 diff    = [ a[i] - b[i] for i in range(len(a)) ]
-                y       = a if mode == "CUR" else b if mode == "FIN" else diff if mode == "DIFF" else None
+                y       = a if "CUR" in mode else b if "FIN" in mode else diff if "DIFF" in mode else None
 
             else:
 
@@ -148,5 +149,28 @@ if __name__ == "__main__":
     for row in rows:
 
         print(row)
+
+    if plot:
+
+        fig = go.Figure()
+
+        fig.update_layout(title = mode)
+
+        for i in range(len(out)):
+
+            strike =  i + offset_rng[0]
+            title  =  str(strike) if strike != 0 else "atm"
+
+            fig.add_trace(
+                go.Scatter(
+                    {
+                        "x":    x,
+                        "y":    out[i],
+                        "name": title
+                    }
+                )
+            )
+
+        fig.show()
 
     print(f"\nfinished in {time() - t0:0.1f}s")
