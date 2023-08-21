@@ -154,7 +154,7 @@ if __name__ == "__main__":
 
         fig = go.Figure()
 
-        fig.update_layout(title = mode)
+        fig.update_layout(title = " ".join(argv[1:]))
 
         for i in range(len(out)):
 
