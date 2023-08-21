@@ -73,41 +73,43 @@ if __name__ == "__main__":
 
             t       = x[j]
             y       = []
-            
-            if "FIN" in mode:
+            curs    = [
+                        (  v[-1][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[-1][bar_rec.time]] )
+                        for _, v in get_sessions(bars, t, session_end).items()
+                    ]
 
-                vals    =   [
-                            (  v[-1][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[-1][bar_rec.time]] )
-                            for _, v in get_sessions(bars, t, session_end).items()
-                        ]
-
-            elif "CUR" in mode:
-
-                vals    =   [
-                            (  v[0][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[0][bar_rec.time]] )
-                            for _, v in get_sessions(bars, t, session_end).items()
-                        ]
-            
-            else:
-
-                print("invalid mode")
-
-                exit()
+            fins    = [
+                        (  v[0][bar_rec.last], v[0][bar_rec.last], f_sigmas[v[0][bar_rec.time]] )
+                        for _, v in get_sessions(bars, t, session_end).items()
+                    ]
 
             if "fly" in strategy:
 
-                pricer = fly if strategy == "fly" else iron_fly
-
-                y = [
-                    pricer(cur_price = row[0], mid = get_ref_strike(row[1], offset), width = params[0], f_sigma = row[2])
-                    for row in vals
-                ]
+                pricer  = fly if strategy == "fly" else iron_fly
+                a       = [
+                        pricer(cur_price = row[0], mid = get_ref_strike(row[1], offset), width = params[0], f_sigma = row[2])
+                        for row in curs
+                    ]
+                b       = [
+                        pricer(cur_price = row[0], mid = get_ref_strike(row[1], offset), width = params[0], f_sigma = row[2])
+                        for row in fins
+                    ]
+                diff    = [ a[i] - b[i] for i in range(len(a)) ]
+                y       = a if mode == "CUR" else b if mode == "FIN" else diff if mode == "DIFF" else None
 
             else:
 
                 # not yet implemented
+                
+                print("invalid strategy")
 
-                pass
+                exit()
+
+            if not y:
+
+                print("invalid mode")
+
+                exit()
             
             if "PCT_N" in mode:
 
