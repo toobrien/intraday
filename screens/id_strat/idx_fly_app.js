@@ -1,8 +1,9 @@
 
 
-const SERVER    = "localhost";
-const PORT      = 8080;
-const l1_data   = {};
+const   SERVER    = "localhost";
+const   PORT      = 8080;
+const   L1_DATA   = {};
+let     REF_DATA  = null;
 
 
 async function set_ws_handlers(client) {
@@ -42,7 +43,8 @@ async function init() {
     const ul_conid  = opt_defs.ul_conid; 
     const fly_defs  = client.get_butterfly_defs(opt_defs.defs, "-", 1);
     const conids    = fly_defs.map(def => def.conid);
-        
+    REF_DATA        = config.rows;
+
     conids.push(ul_conid);
 
     // set_ws_handlers(client);
