@@ -22,6 +22,7 @@ APP                         = Flask(
 APP.config["CACHE_TYPE"]    = "null"
 CORS(APP)
 
+
 CONFIG = {
     "expiry":       None,
     "host":         "localhost",
