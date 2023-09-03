@@ -2,6 +2,36 @@
 
 const SERVER    = "localhost";
 const PORT      = 8080;
+const l1_data   = {};
+
+
+async function set_ws_handlers(client) {
+
+    /*
+        {
+            "31": "4514.95",
+            "6119": "q28",
+            "6509": "Z",
+            "server_id": "q28",
+            "conidEx": "416904",
+            "conid": 416904,
+            "_updated": 1693723535040,
+            "topic": "smd+416904"
+        }
+        {
+            "_updated": 1693723590349,
+            "topic": "smd+28812380;;;646629987/-1,646629993/2,646630013/-1"
+        }
+    */
+
+    let handler = null;
+
+    client.set_ws_handlers(msg_handler = handler);
+
+}
+
+
+async function update_view() {}
 
 
 async function init() {
@@ -15,11 +45,8 @@ async function init() {
         
     conids.push(ul_conid);
 
-    // client.sub_l1(conids);
-
-    // await new Promise(resolve => setTimeout(resolve, 10000));
-    
-    // client.unsub_l1(conids);
+    client.sub_l1(conids);
+    // setInterval(update_view, 10);
 
 }
 
