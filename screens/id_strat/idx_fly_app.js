@@ -45,7 +45,10 @@ async function init() {
         
     conids.push(ul_conid);
 
+    // set_ws_handlers(client);
+
     client.sub_l1(conids);
+    
     // setInterval(update_view, 10);
 
 }
