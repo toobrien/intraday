@@ -85,11 +85,11 @@ function update_model_vals() {
         let model   = MODEL_DATA[TIME_I];
         let strike  = FLY_STRIKES[i];
         let offset  = round(strike - UL_LAST, MODEL_INC);
-        let j       = offset + OFFSET_BASE;
+        let j       = offset - OFFSET_BASE;
 
         if (0 <= j && j < model.length)
         
-            MODEL_VALS[FLY_I[i]] = model[j];
+            MODEL_VALS[i] = model[j];
 
     }
 
