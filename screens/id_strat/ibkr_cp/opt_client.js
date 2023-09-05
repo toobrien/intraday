@@ -108,10 +108,15 @@ class opt_client {
     async get_defs_fut(ul_sym, ul_month, exp, lo_str, hi_str, right) {}
 
 
-    async set_handlers(msg_handler, err_handler, opn_handler, cls_handler) {
+    async set_ws_handlers(
+        msg_handler = null,
+        err_handler = null, 
+        opn_handler = null, 
+        cls_handler = null
+    ) {
 
-        this.base_client.set_ws_handlers(
-            msg_handler = handler,
+        await this.base_client.set_ws_handlers(
+            msg_handler = msg_handler,
             err_handler = err_handler,
             opn_handler = opn_handler,
             cls_handler = cls_handler
