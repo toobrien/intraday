@@ -26,6 +26,7 @@ CORS(APP)
 CONFIG = {
     "expiry":       None,
     "host":         "localhost",
+    "increment":    None,
     "offsets":      None,
     "port":         8080,
     "rows":         None,
@@ -62,8 +63,9 @@ if __name__ == "__main__":
     t0 = time()
 
     CONFIG["expiry"]    = argv[-3]
-    CONFIG["lo_strike"] = int(argv[-2])
+    CONFIG["increment"] = float(argv[12])
     CONFIG["hi_strike"] = int(argv[-1])
+    CONFIG["lo_strike"] = int(argv[-2])
     CONFIG["offsets"]   = [ int(i) for i in argv[11].split(":") ]
     CONFIG["rows"]      = run(argv[0:-3])
 

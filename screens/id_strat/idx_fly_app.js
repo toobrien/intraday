@@ -1,9 +1,20 @@
 
 
-const   SERVER    = "localhost";
-const   PORT      = 8080;
-const   L1_DATA   = {};
-let     REF_DATA  = null;
+const   SERVER      = "localhost";
+const   PORT        = 8080;
+const   FLY_IDS     = {};
+let     FLY_STRIKES = null;
+const   L1_DATA     = {};
+let     MODEL_INC   = null;
+let     MODEL_VALS  = null;
+let     OFFSET_BASE = null;
+let     MODEL_DATA  = null;
+let     TIME_IDX    = null;
+let     UL_CONID    = null;
+let     UL_LAST     = null;
+
+
+function round(val, increment) { return Math.round(val / increment) * increment; }
 
 
 async function set_ws_handlers(client) {
@@ -25,9 +36,50 @@ async function set_ws_handlers(client) {
         }
     */
 
-    let handler = null;
+    let handler = async (evt) => {
+
+        if (evt.data) {
+            
+            let msg = JSON.parse(await evt.data.text());
+
+            if (msg.conidEx && FLY_IDS[msg.conidEx]) {
+
+                let i = FLY_IDS[msg.conidEx];
+
+                if (msg[mdf.ask])   L1_DATA[mdf.ask][i]     = msg[mdf.ask];
+                if (msg[mdf.bid])   L1_DATA[mdf.bid][i]     = msg[mdf.bid];
+                if (msg[mdf.last])  L1_DATA[mdf.last][i]    = msg[mdf.ask];
+
+            } else if (msg.conid && msg.conid == UL_CONID)
+
+                if (msg[mdf.last]) UL_LAST = msg[mdf.last];
+        
+        }
+
+    };
 
     client.set_ws_handlers(msg_handler = handler);
+
+}
+
+
+function update_model_vals() {
+
+    if (!UL_LAST) 
+
+        // not ready
+
+        return;
+
+    for (let i = 0; i < FLY_IDS.length; i++) {
+
+        let strike  = FLY_STRIKES[i];
+        let offset  = round(strike - UL_LAST, MODEL_INC);
+        let j       = offset + OFFSET_BASE;
+
+        MODEL_VALS[FLY_IDS[i]] = MODEL_DATA[TIME_IDX][j];
+
+    }
 
 }
 
@@ -43,12 +95,26 @@ async function init() {
     const ul_conid  = opt_defs.ul_conid; 
     const fly_defs  = client.get_butterfly_defs(opt_defs.defs, "-", 1);
     const conids    = fly_defs.map(def => def.conid);
-    REF_DATA        = config.rows;
 
-    conids.push(ul_conid);
+    MODEL_INC       = config.increment;
+    OFFSET_BASE     = config.offsets[0];
+    MODEL_DATA      = config.rows;
 
-    // set_ws_handlers(client);
+    for (let i = 0; i < conids.length; i++)
 
+        FLY_IDS[conids[i].conid] = i;
+
+    L1_DATA[mdf.bid]    = new Float32Array(conids.length);
+    L1_DATA[mdf.ask]    = new Float32Array(conids.length);
+    L1_DATA[mdf.last]   = new Float32Array(conids.length);
+
+    FLY_STRIKES = fly_defs.map((def) => { def.strike });
+    MODEL_VALS  = new Float32Array(conids.length);
+    UL_CONID    = ul_conid;
+
+    set_ws_handlers(client);
+
+    client.sub_l1([ ul_conid ]);
     client.sub_l1(conids);
     
     // setInterval(update_view, 10);
