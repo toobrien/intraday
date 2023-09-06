@@ -129,6 +129,7 @@ async function init_view(config) {
 
     CHART_DIV       = document.createElement("div");
     CHART_DIV.id    = "chart_div";
+    CHART_DIV.style = "height: 800px"; 
 
     TRACES[0] = {
         x:      FLY_STRIKES,
