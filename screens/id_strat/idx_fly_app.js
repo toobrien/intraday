@@ -2,9 +2,11 @@
 
 const   SERVER      = "localhost";
 const   PORT        = 8080;
+
 const   FLY_I       = {};
-let     FLY_STRIKES = null;
 const   L1_DATA     = {};
+
+let     FLY_STRIKES = null;
 let     MODEL_INC   = null;
 let     MODEL_VALS  = null;
 let     OFFSET_BASE = null;
@@ -13,6 +15,11 @@ let     TIME_I      = null;
 let     TIME_IDX    = null;
 let     UL_CONID    = null;
 let     UL_LAST     = null;
+
+let     SLIDER      = null;
+let     SLIDER_LBL  = null;
+let     CHART       = null;
+
 const   INTERVAL    = 2000;
 
 
@@ -57,7 +64,8 @@ async function set_ws_handlers(client) {
                 if (msg[mdf.last]) {
 
                     const last  = msg[mdf.last];
-                    UL_LAST     = typeof last === "string" ? parseFloat(last.substring(1)) : last;
+                    UL_LAST     =   typeof last === "string" && last[0] == "C" ? 
+                                    parseFloat(last.substring(1)) : parseFloat(last);
                 
                 }
 
@@ -106,7 +114,39 @@ async function update() {
 
 }
 
-async function init_view() {}
+async function init_view() {
+
+    // slider
+
+    const view  = document.getElementById("view");
+    SLIDER      = document.createElement("input");
+    
+    SLIDER.id               = "slider";
+    SLIDER.type             = "range";
+    SLIDER.min              = 0;
+    SLIDER.value            = 0;
+    SLIDER.max              = TIME_IDX.length - 1;
+
+    SLIDER_LBL              = document.createElement("p");
+    SLIDER_LBL.innerHTML    = `${TIME_IDX[TIME_I]}`;
+
+    const update_slider = (val) => {
+
+        TIME_I                  = parseInt(val);
+        SLIDER_LBL.innerHTML    = `${TIME_IDX[TIME_I]}`;
+
+    };
+
+    SLIDER.onchange = update_slider;
+
+    view.appendChild(SLIDER);
+    view.appendChild(SLIDER_LBL);
+
+    // chart
+
+    // ...
+
+}
 
 
 async function init() {
