@@ -18,9 +18,11 @@ let     UL_LAST     = null;
 
 let     SLIDER      = null;
 let     SLIDER_LBL  = null;
-let     CHART       = null;
 
-const   INTERVAL    = 2000;
+let     CHART_DIV   = null;
+const   TRACES      = [ null, null, null, null ];
+
+const   INTERVAL    = 100;
 
 
 function round(val, increment) { return Math.round(val / increment) * increment; }
@@ -104,7 +106,14 @@ function update_model_vals() {
 }
 
 
-async function update_view() {}
+async function update_view() {
+
+    Plotly.update("chart_div", { y: L1_DATA[mdf.bid] }, [ 0 ]);
+    Plotly.update("chart_div", { y: L1_DATA[mdf.ask] }, [ 1 ]);
+    Plotly.update("chart_div", { y: L1_DATA[mdf.last] }, [ 2 ]);
+    Plotly.update("chart_div", { y: MODEL_VALS }, [ 3 ] );
+
+}
 
 
 async function update() {
@@ -116,35 +125,76 @@ async function update() {
 
 async function init_view() {
 
+    const view = document.getElementById("view");
+
+    // chart
+
+    CHART_DIV       = document.createElement("div");
+    CHART_DIV.id    = "chart_div";
+
+    TRACES[0] = {
+        x:      FLY_STRIKES,
+        y:      L1_DATA[mdf.bid],
+        type:   "scatter",
+        marker: { color: "#0000FF" },
+        mode:   "markers",
+        name:   "bid"
+    };
+
+    TRACES[1] = {
+        x:      FLY_STRIKES,
+        y:      L1_DATA[mdf.ask],
+        type:   "scatter",
+        marker: { color: "#FF0000" },
+        mode:   "markers",
+        name:   "ask"
+    };
+
+    TRACES[2] = {
+        x:      FLY_STRIKES,
+        y:      L1_DATA[mdf.last],
+        type:   "scatter",
+        marker: { color: "#cccccc" },
+        mode:   "markers",
+        name:   "last"
+    };
+
+    TRACES[3] = {
+        x:      FLY_STRIKES,
+        y:      MODEL_VALS,
+        type:   "scatter",
+        marker: { color: "#D9027D" },
+        mode:   "markers",
+        name:   "model"
+    };
+
+    view.appendChild(CHART_DIV);
+
+    Plotly.newPlot("chart_div", TRACES);
+
     // slider
 
-    const view  = document.getElementById("view");
-    SLIDER      = document.createElement("input");
-    
+    SLIDER                  = document.createElement("input");
     SLIDER.id               = "slider";
     SLIDER.type             = "range";
     SLIDER.min              = 0;
     SLIDER.value            = 0;
     SLIDER.max              = TIME_IDX.length - 1;
 
-    SLIDER_LBL              = document.createElement("p");
+    SLIDER_LBL              = document.createElement("text");
     SLIDER_LBL.innerHTML    = `${TIME_IDX[TIME_I]}`;
 
-    const update_slider = (val) => {
+    const update_slider = (evt) => {
 
-        TIME_I                  = parseInt(val);
+        TIME_I                  = parseInt(evt.target.value);
         SLIDER_LBL.innerHTML    = `${TIME_IDX[TIME_I]}`;
 
     };
 
     SLIDER.onchange = update_slider;
 
-    view.appendChild(SLIDER);
     view.appendChild(SLIDER_LBL);
-
-    // chart
-
-    // ...
+    view.appendChild(SLIDER);
 
 }
 
