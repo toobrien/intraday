@@ -7,10 +7,11 @@ const   FLY_I       = {};
 const   L1_DATA     = {};
 
 let     FLY_STRIKES = null;
+let     MODEL_DATA  = null;
 let     MODEL_INC   = null;
 let     MODEL_VALS  = null;
+let     MODEL_TXT   = null;
 let     OFFSET_BASE = null;
-let     MODEL_DATA  = null;
 let     TIME_I      = null;
 let     TIME_IDX    = null;
 let     UL_CONID    = null;
@@ -18,9 +19,9 @@ let     UL_LAST     = null;
 
 let     SLIDER      = null;
 let     SLIDER_LBL  = null;
-
 let     CHART_DIV   = null;
 const   TRACES      = [ null, null, null, null ];
+let     UL_LBL      = null;
 
 const   INTERVAL    = 100;
 
@@ -29,23 +30,6 @@ function round(val, increment) { return Math.round(val / increment) * increment;
 
 
 async function set_ws_handlers(client) {
-
-    /*
-        {
-            "31": "4514.95",
-            "6119": "q28",
-            "6509": "Z",
-            "server_id": "q28",
-            "conidEx": "416904",
-            "conid": 416904,
-            "_updated": 1693723535040,
-            "topic": "smd+416904"
-        }
-        {
-            "_updated": 1693723590349,
-            "topic": "smd+28812380;;;646629987/-1,646629993/2,646630013/-1"
-        }
-    */
 
     let handler = async (evt) => {
 
@@ -97,9 +81,12 @@ function update_model_vals() {
         let offset  = round(strike - UL_LAST, MODEL_INC);
         let j       = offset - OFFSET_BASE;
 
-        if (0 <= j && j < model.length)
+        if (0 <= j && j < model.length) {
         
-            MODEL_VALS[i] = model[j];
+            MODEL_VALS[i]   = model[j];
+            MODEL_TXT[i]    = offset;
+
+        }
 
     }
 
@@ -111,7 +98,9 @@ async function update_view() {
     Plotly.update("chart_div", { y: L1_DATA[mdf.bid] }, [ 0 ]);
     Plotly.update("chart_div", { y: L1_DATA[mdf.ask] }, [ 1 ]);
     Plotly.update("chart_div", { y: L1_DATA[mdf.last] }, [ 2 ]);
-    Plotly.update("chart_div", { y: MODEL_VALS }, [ 3 ] );
+    Plotly.update("chart_div", { y: MODEL_VALS, text: MODEL_TXT }, [ 3 ] );
+
+    UL_LBL.innerHTML = UL_LAST;
 
 }
 
@@ -123,7 +112,7 @@ async function update() {
 
 }
 
-async function init_view() {
+async function init_view(config) {
 
     const view = document.getElementById("view");
 
@@ -162,15 +151,35 @@ async function init_view() {
     TRACES[3] = {
         x:      FLY_STRIKES,
         y:      MODEL_VALS,
+        text:   MODEL_TXT,
         type:   "scatter",
         marker: { color: "#D9027D" },
         mode:   "markers",
         name:   "model"
     };
 
+    layout = {
+                xaxis: {         
+                    tickmode: "array",
+                    tickvals: FLY_STRIKES
+                },
+                yaxis: {
+                    range: [ 0, config.width ]
+                }
+            };
+
     view.appendChild(CHART_DIV);
 
-    Plotly.newPlot("chart_div", TRACES);
+    Plotly.newPlot("chart_div", TRACES, layout);
+
+    // ul
+
+    UL_LBL = document.createElement("text");
+    
+    UL_LBL.innerHTML = UL_LAST;
+
+    view.appendChild(UL_LBL);
+    view.appendChild(document.createElement("br"));
 
     // slider
 
@@ -221,10 +230,11 @@ async function init() {
     L1_DATA[mdf.last]   = new Float32Array(conids.length);
 
     FLY_STRIKES = fly_defs.map((def) => { return def.md; });
+    MODEL_DATA  = Object.values(MODEL_DATA);
     MODEL_VALS  = new Float32Array(conids.length);
+    MODEL_TXT   = new Float32Array(conids.length);
     TIME_I      = 0;
     TIME_IDX    = Object.keys(MODEL_DATA);
-    MODEL_DATA  = Object.values(MODEL_DATA);
     UL_CONID    = ul_conid;
 
     await set_ws_handlers(client);
@@ -232,7 +242,7 @@ async function init() {
     client.sub_l1([ ul_conid ]);
     client.sub_l1(conids);
     
-    init_view();
+    init_view(config);
     setInterval(update, INTERVAL);
 
 }

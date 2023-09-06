@@ -33,7 +33,8 @@ CONFIG = {
     "strategy":     None,
     "ul_sym":       None,
     "hi_strike":    None,
-    "lo_strike":    None
+    "lo_strike":    None,
+    "width":        None
 }
 
 
@@ -68,6 +69,7 @@ if __name__ == "__main__":
     CONFIG["lo_strike"] = int(argv[-2])
     CONFIG["offsets"]   = [ int(i) for i in argv[11].split(":") ]
     CONFIG["rows"]      = run(argv[0:-3])
+    CONFIG["width"]     = float(argv[-4])
 
     print(f"id_strat_txt: {time() - t0:0.1f}s")
 
