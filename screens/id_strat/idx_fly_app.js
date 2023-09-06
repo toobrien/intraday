@@ -83,7 +83,7 @@ function update_model_vals() {
 
         if (0 <= j && j < model.length) {
         
-            MODEL_VALS[i]   = model[j];
+            MODEL_VALS[i]   = -model[j];
             MODEL_TXT[i]    = offset;
 
         }
@@ -95,10 +95,19 @@ function update_model_vals() {
 
 async function update_view() {
 
-    Plotly.update("chart_div", { y: L1_DATA[mdf.bid] }, [ 0 ]);
-    Plotly.update("chart_div", { y: L1_DATA[mdf.ask] }, [ 1 ]);
-    Plotly.update("chart_div", { y: L1_DATA[mdf.last] }, [ 2 ]);
-    Plotly.update("chart_div", { y: MODEL_VALS, text: MODEL_TXT }, [ 3 ] );
+    Plotly.update(
+        "chart_div",
+        {
+            y: [
+                L1_DATA[mdf.bid],
+                L1_DATA[mdf.ask],
+                L1_DATA[mdf.last],
+                MODEL_VALS
+            ],
+            text: [ null, null, null, MODEL_TXT ]
+        },
+        [ 0, 1, 2, 3 ]
+    );
 
     UL_LBL.innerHTML = UL_LAST;
 
@@ -164,7 +173,7 @@ async function init_view(config) {
                     tickvals: FLY_STRIKES
                 },
                 yaxis: {
-                    range: [ 0, config.width ]
+                    range: [ -config.width, 0 ]
                 }
             };
 
@@ -230,11 +239,11 @@ async function init() {
     L1_DATA[mdf.last]   = new Float32Array(conids.length);
 
     FLY_STRIKES = fly_defs.map((def) => { return def.md; });
-    MODEL_DATA  = Object.values(MODEL_DATA);
     MODEL_VALS  = new Float32Array(conids.length);
     MODEL_TXT   = new Float32Array(conids.length);
     TIME_I      = 0;
     TIME_IDX    = Object.keys(MODEL_DATA);
+    MODEL_DATA  = Object.values(MODEL_DATA);
     UL_CONID    = ul_conid;
 
     await set_ws_handlers(client);
