@@ -90,6 +90,12 @@ function update_model_vals() {
             MODEL_Y[i]      = -model[i];
             MODEL_TXT[i]    = offset;
 
+        } else {
+
+            MODEL_X[i]      = null;
+            MODEL_Y[i]      = null;
+            MODEL_TXT[i]    = null;
+            
         }
 
     }
