@@ -109,7 +109,7 @@ async function update_view() {
     Plotly.update(
         "chart_div",
         {
-            x : [ null, null, null, MODEL_X ],
+            x : [ FLY_STRIKES, FLY_STRIKES, FLY_STRIKES, MODEL_X ],
             y: [
                 L1_DATA[mdf.bid],
                 L1_DATA[mdf.ask],
@@ -121,7 +121,7 @@ async function update_view() {
         [ 0, 1, 2, 3 ]
     );
 
-    UL_LBL.innerHTML = UL_LAST;
+    UL_LBL.innerHTML = `    ${UL_LAST}`;
 
 }
 
@@ -171,8 +171,8 @@ async function init_view(config) {
     };
 
     TRACES[3] = {
-        x:      FLY_STRIKES,
-        y:      MODEL_VALS,
+        x:      MODEL_X,
+        y:      MODEL_Y,
         text:   MODEL_TXT,
         type:   "scatter",
         marker: { color: "#D9027D" },
@@ -194,29 +194,22 @@ async function init_view(config) {
 
     Plotly.newPlot("chart_div", TRACES, layout);
 
-    // ul
-
-    UL_LBL = document.createElement("text");
-    
-    UL_LBL.innerHTML = UL_LAST;
-
-    view.appendChild(UL_LBL);
-    view.appendChild(document.createElement("br"));
-
     // buttons
 
     L_BTN               = document.createElement("button");
+    L_BTN.innerHTML     = "<";
     L_BTN.id            = "l_btn";
     L_BTN.onclick       = (evt) => { 
-                            TIME_I = max(0, TIME_I - 1); 
-                            TIME_LBL.innerHTML = `${TIME_IDX[TIME_I]}`; 
+                            TIME_I = Math.max(0, TIME_I - 1); 
+                            TIME_LBL.innerHTML = `    ${TIME_IDX[TIME_I]}`; 
                         };
 
     R_BTN               = document.createElement("button");
+    R_BTN.innerHTML     = ">";
     R_BTN.id            = "r_btn";
     R_BTN.onclick       = (evt) => { 
-                            TIME_I = min(TIME_IDX.length - 1, TIME_I + 1); 
-                            TIME_LBL.innerHTML = `${TIME_IDX[TIME_I]}`; 
+                            TIME_I = Math.min(TIME_IDX.length - 1, TIME_I + 1); 
+                            TIME_LBL.innerHTML = `    ${TIME_IDX[TIME_I]}`; 
                         };
 
     TIME_LBL            = document.createElement("text");
@@ -226,6 +219,14 @@ async function init_view(config) {
     view.appendChild(L_BTN);
     view.appendChild(R_BTN);
     view.appendChild(TIME_LBL);
+
+    // ul price label
+
+    UL_LBL = document.createElement("text");
+
+    UL_LBL.innerHTML = `    ${UL_LAST}`;
+
+    view.appendChild(UL_LBL);
 
 }
 
@@ -240,9 +241,12 @@ async function init() {
     const conids    = fly_defs.map(def => def.conid);
 
     MODEL_INC       = config.increment;
-    OFFSETS         = config.offsets;
+    OFFSETS         = Array.from(
+                        { length: (config.offsets[1] - config.offsets[0]) / config.increment }, 
+                        (_, i) => config.offsets[0] + i * config.increment
+                    );
     MODEL_DATA      = config.rows;
-
+    
     for (let i = 0; i < conids.length; i++)
 
         FLY_I[conids[i]] = i;
