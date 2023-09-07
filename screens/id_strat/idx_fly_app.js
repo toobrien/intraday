@@ -9,9 +9,10 @@ const   L1_DATA     = {};
 let     FLY_STRIKES = null;
 let     MODEL_DATA  = null;
 let     MODEL_INC   = null;
-let     MODEL_VALS  = null;
 let     MODEL_TXT   = null;
-let     OFFSET_BASE = null;
+let     MODEL_X     = null;
+let     MODEL_Y     = null;
+let     OFFSETS     = null;
 let     TIME_I      = null;
 let     TIME_IDX    = null;
 let     UL_CONID    = null;
@@ -74,16 +75,19 @@ function update_model_vals() {
 
         return;
 
-    for (let i = 0; i < FLY_STRIKES.length; i++) {
+    const lo = FLY_STRIKES[0];
+    const hi = FLY_STRIKES[FLY_STRIKES.length - 1];
+
+    for (let i = 0; i < OFFSETS.length; i++) {
 
         let model   = MODEL_DATA[TIME_I];
-        let strike  = FLY_STRIKES[i];
-        let offset  = round(strike - UL_LAST, MODEL_INC);
-        let j       = offset - OFFSET_BASE;
+        let offset  = OFFSETS[i];
+        let x       = round(offset + UL_LAST, MODEL_INC);
 
-        if (0 <= j && j < model.length) {
+        if (lo <= x && x < hi) {
         
-            MODEL_VALS[i]   = -model[j];
+            MODEL_X[i]      = x;
+            MODEL_Y[i]      = -model[i];
             MODEL_TXT[i]    = offset;
 
         }
@@ -98,11 +102,12 @@ async function update_view() {
     Plotly.update(
         "chart_div",
         {
+            x : [ null, null, null, MODEL_X ],
             y: [
                 L1_DATA[mdf.bid],
                 L1_DATA[mdf.ask],
                 L1_DATA[mdf.last],
-                MODEL_VALS
+                MODEL_Y
             ],
             text: [ null, null, null, MODEL_TXT ]
         },
@@ -228,7 +233,7 @@ async function init() {
     const conids    = fly_defs.map(def => def.conid);
 
     MODEL_INC       = config.increment;
-    OFFSET_BASE     = config.offsets[0];
+    OFFSETS         = config.offsets;
     MODEL_DATA      = config.rows;
 
     for (let i = 0; i < conids.length; i++)
@@ -240,8 +245,9 @@ async function init() {
     L1_DATA[mdf.last]   = new Float32Array(conids.length);
 
     FLY_STRIKES = fly_defs.map((def) => { return def.md; });
-    MODEL_VALS  = new Float32Array(conids.length);
-    MODEL_TXT   = new Float32Array(conids.length);
+    MODEL_X     = new Float32Array(OFFSETS.length);
+    MODEL_Y     = new Float32Array(OFFSETS.length)
+    MODEL_TXT   = new Float32Array(OFFSETS.length);
     TIME_I      = 0;
     TIME_IDX    = Object.keys(MODEL_DATA);
     MODEL_DATA  = Object.values(MODEL_DATA);
