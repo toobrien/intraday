@@ -18,8 +18,9 @@ let     TIME_IDX    = null;
 let     UL_CONID    = null;
 let     UL_LAST     = null;
 
-let     SLIDER      = null;
-let     SLIDER_LBL  = null;
+let     L_BTN       = null;
+let     R_BTN       = null;
+let     TIME_LBL    = null;
 let     CHART_DIV   = null;
 const   TRACES      = [ null, null, null, null ];
 let     UL_LBL      = null;
@@ -95,7 +96,7 @@ function update_model_vals() {
             MODEL_X[i]      = null;
             MODEL_Y[i]      = null;
             MODEL_TXT[i]    = null;
-            
+
         }
 
     }
@@ -202,29 +203,29 @@ async function init_view(config) {
     view.appendChild(UL_LBL);
     view.appendChild(document.createElement("br"));
 
-    // slider
+    // buttons
 
-    SLIDER                  = document.createElement("input");
-    SLIDER.id               = "slider";
-    SLIDER.type             = "range";
-    SLIDER.min              = 0;
-    SLIDER.value            = 0;
-    SLIDER.max              = TIME_IDX.length - 1;
+    L_BTN               = document.createElement("button");
+    L_BTN.id            = "l_btn";
+    L_BTN.onclick       = (evt) => { 
+                            TIME_I = max(0, TIME_I - 1); 
+                            TIME_LBL.innerHTML = `${TIME_IDX[TIME_I]}`; 
+                        };
 
-    SLIDER_LBL              = document.createElement("text");
-    SLIDER_LBL.innerHTML    = `${TIME_IDX[TIME_I]}`;
+    R_BTN               = document.createElement("button");
+    R_BTN.id            = "r_btn";
+    R_BTN.onclick       = (evt) => { 
+                            TIME_I = min(TIME_IDX.length - 1, TIME_I + 1); 
+                            TIME_LBL.innerHTML = `${TIME_IDX[TIME_I]}`; 
+                        };
 
-    const update_slider = (evt) => {
+    TIME_LBL            = document.createElement("text");
+    TIME_LBL.innerHTML  = `${TIME_IDX[TIME_I]}`;
+    
 
-        TIME_I                  = parseInt(evt.target.value);
-        SLIDER_LBL.innerHTML    = `${TIME_IDX[TIME_I]}`;
-
-    };
-
-    SLIDER.onchange = update_slider;
-
-    view.appendChild(SLIDER_LBL);
-    view.appendChild(SLIDER);
+    view.appendChild(L_BTN);
+    view.appendChild(R_BTN);
+    view.appendChild(TIME_LBL);
 
 }
 
