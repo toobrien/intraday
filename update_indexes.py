@@ -122,8 +122,13 @@ if __name__ == "__main__":
 
             continue
 
-        expiry = search(pattern, fn)[0]
-
+        res = search(pattern, fn)
+        
+        if not res:
+            
+            continue
+        
+        expiry      = res[0]
         exp_month   = expiry[0]
         exp_year    = expiry[1:]
 
