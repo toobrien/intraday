@@ -627,12 +627,13 @@ def get_records_by_contract(
 
 
 def get_indexed_opt_series(
-    symbol:     str,
-    cur_time:   str,
-    expiration: str,
-    start_date: str,
-    end_date:   str,
-    trim:       bool = True         # trim most contracts without expiried options 
+    symbol:     str,            # e.g. "ZC"
+    cur_time:   str,            # or start for window of interest
+    exp_date:   str,            # for option of interest (no time, only date)
+    start_date: str,            # use data between "start_date" and "end_date" for historical valuation
+    end_date:   str,                
+    trim:       bool = True,    # trim most contracts without expiried options
+    inc_stl:    bool = True     # append the settlement on expiration day. set "False" if not valuing until expiration.
 ):
     
     pass
