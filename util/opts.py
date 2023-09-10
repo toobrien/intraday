@@ -633,7 +633,7 @@ def get_indexed_opt_series(
     start_date: str,            # use data between "start_date" and "end_date" for historical valuation
     end_date:   str,                
     trim:       bool = True,    # trim most contracts without expiried options
-    inc_stl:    bool = True     # append the settlement on expiration day. set "False" if not valuing until expiration.
+    inc_stl:    bool = True     # appends the settlement on expiration day as 0 index. set "False" if not valuing until expiration.
 ):
     
     pass
