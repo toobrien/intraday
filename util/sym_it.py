@@ -1,10 +1,10 @@
 from bisect     import  bisect_right
-from json       import  loads
 from parsers    import  depth_rec, tas_rec, parse_tas, parse_tas_header, parse_depth, parse_depth_header
-from time       import  time
+from sys        import  path
 
+path.append(".")
 
-SC_ROOT = loads(open("./config.json").read())["sc_root"]
+from config     import CONFIG
 
 
 class SymIt:
@@ -26,8 +26,8 @@ class SymIt:
         self.lob_recs   = []
         self.tas_i      = 0
         self.lob_i      = 0
-        self.tas_fd     = open(f"{SC_ROOT}/Data/{symbol}.scid", "rb")
-        self.lob_fd     = open(f"{SC_ROOT}/Data/MarketDepthData/{symbol}.{date}.depth", "rb")
+        self.tas_fd     = open(f"{CONFIG['sc_root']}/Data/{symbol}.scid", "rb")
+        self.lob_fd     = open(f"{CONFIG['sc_root']}/Data/MarketDepthData/{symbol}.{date}.depth", "rb")
 
         parse_tas_header(self.tas_fd)
         parse_depth_header(self.lob_fd)

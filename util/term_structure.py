@@ -1,7 +1,7 @@
 from util.rec_tools import get_tas
 
 
-MONTHS      = [ "F", "G", "H", "J", "K", "M", "N", "Q", "U", "V", "X", "Z"]
+MONTHS = [ "F", "G", "H", "J", "K", "M", "N", "Q", "U", "V", "X", "Z"]
 
 
 def get_term_ids(init_symbol: str, n_months: int):

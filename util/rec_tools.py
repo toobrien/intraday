@@ -1,13 +1,17 @@
 from datetime       import  datetime, timedelta
 from json           import  loads
+from bisect         import  bisect_left, bisect_right
+from sys            import  path
+from typing         import  List
+
+path.append(".")
+
+from config         import  CONFIG
 from util.parsers   import  bulk_parse_tas, depth_rec, parse_depth, parse_depth_header, \
                             parse_tas_header, tas_rec, transform_depth, transform_tas
-from bisect         import  bisect_left, bisect_right
-from typing         import  List
 from util.sc_dt     import  ds_to_ts
 
 
-CONFIG      = loads(open("./config.json", "r").read())
 SC_ROOT     = CONFIG["sc_root"]
 IDX_ROOT    = CONFIG["idx_root"]
 INDEXES     = {}

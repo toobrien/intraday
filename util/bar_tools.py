@@ -1,11 +1,14 @@
 from    bisect  import  bisect_left, bisect_right
 from    enum    import  IntEnum
-from    json    import  loads
 import  polars  as      pl
+from    sys     import  path
 from    typing  import  List
 
+path.append(".")
 
-CONFIG      = loads(open("./config.json", "r").read())
+from    config  import  CONFIG
+
+
 SC_ROOT     = CONFIG["sc_root"]
 FRD_ROOT    = CONFIG["frd_root"]
 

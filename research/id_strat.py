@@ -3,7 +3,9 @@ from    numpy                   import  percentile
 import  plotly.graph_objects    as      go
 from    statistics              import  mean, stdev
 from    sys                     import  argv, path
+
 path.append(".")
+
 from    typing                  import  List, Callable
 from    util.bar_tools          import  bar_rec, get_bars, get_sessions
 from    util.contract_settings  import  get_settings
