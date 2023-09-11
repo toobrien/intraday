@@ -1,9 +1,12 @@
-from datetime       import datetime
-from json           import loads
-from numpy          import datetime64, timedelta64
+from datetime   import datetime
+from numpy      import datetime64, timedelta64
+from sys        import path
+
+path.append(".")
+
+from config     import CONFIG
 
 
-CONFIG          = loads(open("./config.json", "r").read())
 UTC_OFFSET_US   = timedelta64(int(CONFIG["utc_offset"] * 3.6e9), "us")
 SC_EPOCH        = datetime64("1899-12-30") + UTC_OFFSET_US
 
