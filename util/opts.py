@@ -616,7 +616,10 @@ def get_records_by_contract(
     return res
 
 
-def index_bars(header, ul_bars, max_index):
+# for use with get_indexed_opt_series
+# indexes each bar as minutes until a given expiration
+
+def index_bars(exp_header, ul_bars, max_index):
 
     return None
 
