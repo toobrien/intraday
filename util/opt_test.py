@@ -7,11 +7,7 @@ from    time        import  time
 path.append(".")
 
 from    util.opts   import  get_expirations, get_records_by_contract
-from    config      import  CONFIG
-
-path.append(CONFIG["fdb_v2_root"])
-
-from    data.cat_df import  cat_df
+from    util.cat_df import  cat_df
 
 
 def get_rec_test(

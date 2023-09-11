@@ -8,11 +8,7 @@ from    typing                  import  List
 
 path.append(".")
 
-from    config                  import CONFIG
-
-path.append(CONFIG["fdb_v2_root"])
-
-from    data.cat_df             import cat_df
+from    util.cat_df             import cat_df
 
 
 DATE_FMT    = "%Y-%m-%d"
