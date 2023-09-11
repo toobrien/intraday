@@ -20,7 +20,7 @@ def cat_df(
     end:    str
 ):
 
-    path    = expanduser(CFG[type][0])
+    path    = expanduser(CFG[type][0]) if "~" in CFG[type][0] else CFG[type][0]
     key     = CFG[type][1]
     fns     = sorted(listdir(path))[1:] 
     fns     = fns[bisect_left(fns, start) : bisect_right(fns, end)][1:] # skip .gitignore
