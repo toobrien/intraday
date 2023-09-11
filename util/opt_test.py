@@ -6,7 +6,7 @@ from    time        import  time
 
 path.append(".")
 
-from    util.opts   import  get_expirations, get_records_by_contract
+from    util.opts   import  get_expirations, get_records_by_contract, get_indexed_opt_series
 from    util.cat_df import  cat_df
 
 
@@ -89,10 +89,35 @@ def check_expirations(
     pass
 
 
+def check_indexed_opt_series(
+    symbol:     str,
+    cur_dt:     str,
+    exp_date:   str,
+    start_date: str,
+    end_date:   str,
+    trim:       bool = True,
+    inc_stl:    bool = True
+    
+):
+    
+    res = get_indexed_opt_series(
+            symbol, 
+            cur_dt, 
+            exp_date, 
+            start_date, 
+            end_date, 
+            bool(trim), 
+            bool(inc_stl)
+        )
+
+    pass
+
+
 TESTS = {
-    "get_rec":              get_rec_test,
-    "get_expirations":      get_expirations_test,
-    "check_expirations":    check_expirations
+    "get_rec":                  get_rec_test,
+    "get_expirations":          get_expirations_test,
+    "check_expirations":        check_expirations,
+    "check_indexed_opt_series": check_indexed_opt_series
 }
 
 
