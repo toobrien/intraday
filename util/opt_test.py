@@ -90,16 +90,16 @@ def check_expirations(
 
 
 TESTS = {
-    0: get_rec_test,
-    1: get_expirations_test,
-    2: check_expirations
+    "get_rec":              get_rec_test,
+    "get_expirations":      get_expirations_test,
+    "check_expirations":    check_expirations
 }
 
 
 if __name__ == "__main__":
 
     t0      = time()
-    test    = int(argv[1])
+    test    = argv[1]
     args    = argv[2:]
 
     TESTS[test](*args)

@@ -1,5 +1,6 @@
 from    bisect  import  bisect_left, bisect_right
 from    os      import  listdir
+from    os.path import  expanduser
 import  polars  as      pl
 from    sys     import  path
 from    time    import  time
@@ -19,7 +20,7 @@ def cat_df(
     end:    str
 ):
 
-    path    = CFG[type][0]
+    path    = expanduser(CFG[type][0])
     key     = CFG[type][1]
     fns     = sorted(listdir(path))[1:] 
     fns     = fns[bisect_left(fns, start) : bisect_right(fns, end)][1:] # skip .gitignore
