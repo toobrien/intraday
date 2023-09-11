@@ -76,8 +76,8 @@ def get_bars(
 
 def get_sc_bars(
     contract_id:    str,
-    start:          str,
-    end:            str
+    start:          str = None,
+    end:            str = None
 ):
 
     fn      = f"{SC_ROOT}/data/{contract_id}.scid_BarData.txt"

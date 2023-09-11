@@ -43,6 +43,8 @@ def get_expirations_test(
     pass
 
 
+# note: doesnt work for index options -- futures only
+
 def check_expirations(
     start:      str,
     end:        str,
@@ -92,7 +94,7 @@ def check_expirations(
 def check_indexed_opt_series(
     symbol:     str,
     cur_dt:     str,
-    exp_date:   str,
+    exp_dt:     str,
     start_date: str,
     end_date:   str,
     trim:       bool = True,
@@ -103,11 +105,11 @@ def check_indexed_opt_series(
     res = get_indexed_opt_series(
             symbol, 
             cur_dt, 
-            exp_date, 
+            exp_dt, 
             start_date, 
             end_date, 
-            bool(trim), 
-            bool(inc_stl)
+            trim    != "False", 
+            inc_stl != "False"
         )
 
     pass

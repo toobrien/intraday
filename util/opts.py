@@ -1,6 +1,6 @@
 from    datetime                import  datetime
 from    enum                    import  IntEnum
-from    pandas                  import  bdate_range, date_range, DateOffset, Timestamp
+from    pandas                  import  bdate_range, date_range, DateOffset, Timestamp, Timedelta
 from    pandas.tseries.holiday  import  USFederalHolidayCalendar
 from    pandas.tseries.offsets  import  BDay, MonthBegin, MonthEnd
 from    sys                     import  path
@@ -8,6 +8,7 @@ from    typing                  import  List
 
 path.append(".")
 
+from    util.bar_tools          import get_bars
 from    util.cat_df             import cat_df
 
 
@@ -381,17 +382,6 @@ class base_rec(IntEnum):
     dte     = 4 
 
 
-def get_expiration_series(
-    symbol:     str,        # e.g. ZC, CL, etc.
-    type:       str,        # monthly (M) or weekly (W), or both (*)
-    dte:        int,        # time remaining for option strategy
-    start:      str,        # data start date yyyy-mm-dd
-    end:        str         # data end date   yyyy-mm-dd
-):
-    
-    pass
-
-
 def get_expirations(
     sym:    str,
     recs:   List[base_rec]
@@ -480,6 +470,10 @@ def get_expirations(
 
             third_wed   = date_range(bom, eom, freq = "W-WED")[2]
             monthly_exp = date_range(bom, third_wed, freq = "W-FRI")[-2]
+        
+        elif rule == "3FRI":
+
+            monthly_exp = date_range(bom, eom, freq = "W-FRI")[2]
 
         # exclude first monthly expiration (it was for the previous underlying)
         # unless it is the only monthly expiration
@@ -617,21 +611,65 @@ def get_records_by_contract(
 
                 tmp[contract_id] = recs
 
-            res = tmp
+        res = tmp
 
     return res
+
+
+def index_bars(header, ul_bars, max_index):
+
+    return None
 
 
 def get_indexed_opt_series(
     symbol:     str,            # e.g. "ZC"
     cur_dt:     str,            # or start for window of interest ( YYYY-MM-DDTHH:MM:SS )
-    exp_date:   str,            # for option of interest (no time, only date)
+    exp_dt:     str,            # for option of interest (no time, only date)
     start_date: str,            # use data between "start_date" and "end_date" for historical valuation
     end_date:   str,                
     trim:       bool = True,    # trim most contracts without expiried options
     inc_stl:    bool = True     # appends the settlement on expiration day as 0 index. set "False" if not valuing until expiration.
 ):
+
+    max_index   = int(Timedelta(Timestamp(exp_dt) - Timestamp(cur_dt)).seconds / 60)
+    index       = {}
+
+    # obtain settlements from daily data
     
     records_by_contract = get_records_by_contract(symbol, start_date, end_date, trim)
 
-    pass
+    # build index headers
+
+    for id, rows in records_by_contract.items():
+
+        date_idx    = [ row[0] for row in rows ]
+        ul_conid    = f"{symbol}{id[0]}{id[1]}_FUT_CME"
+        ul_bars     = get_bars(ul_conid)
+        exps        = get_expirations(symbol, rows)
+
+        for exp in exps:
+
+            exp_date = exp[0].split("T")[0]
+            
+            try:
+
+                i       = date_idx.index(exp_date)
+                settle  = rows[i][3]
+                header  = (
+                            ul_conid,
+                            exp[2],
+                            exp[0],
+                            settle   
+                        )
+                
+                index[header] = index_bars(header, ul_bars, max_index)
+
+            except ValueError:
+
+                # no settlement for opt expiration, skip
+
+                continue
+
+        
+
+    return index
