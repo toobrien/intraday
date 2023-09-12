@@ -97,8 +97,8 @@ def check_indexed_opt_series(
     exp_dt:     str,
     start_date: str,
     end_date:   str,
-    trim:       bool = True,
-    inc_stl:    bool = True
+    trim:       str = "True",
+    inc_stl:    str = "True"
     
 ):
     
