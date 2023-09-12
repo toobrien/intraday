@@ -1,3 +1,4 @@
+from    bisect                  import  bisect_left, bisect_right
 from    datetime                import  datetime
 from    enum                    import  IntEnum
 from    pandas                  import  bdate_range, date_range, DateOffset, Timestamp, Timedelta
@@ -8,11 +9,12 @@ from    typing                  import  List
 
 path.append(".")
 
-from    util.bar_tools          import get_bars
+from    util.bar_tools          import bar_rec, get_bars
 from    util.cat_df             import cat_df
 
 
 DATE_FMT    = "%Y-%m-%d"
+DT_FMT      = "%Y-%m-%dT%H:%M:%S"
 OPT_DEFS    = {
 
 
@@ -616,14 +618,6 @@ def get_records_by_contract(
     return res
 
 
-# for use with get_indexed_opt_series
-# indexes each bar as minutes until a given expiration
-
-def index_bars(exp_header, ul_bars, max_index):
-
-    return None
-
-
 def get_indexed_opt_series(
     symbol:     str,            # e.g. "ZC"
     cur_dt:     str,            # or start for window of interest ( YYYY-MM-DDTHH:MM:SS )
@@ -634,7 +628,7 @@ def get_indexed_opt_series(
     inc_stl:    bool = True     # appends the settlement on expiration day as 0 index. set "False" if not valuing until expiration.
 ):
 
-    max_index   = int(Timedelta(Timestamp(exp_dt) - Timestamp(cur_dt)).seconds / 60)
+    max_index   = int(Timedelta(Timestamp(exp_dt) - Timestamp(cur_dt)).total_seconds() / 60)
     index       = {}
 
     # obtain settlements from daily data
@@ -648,31 +642,52 @@ def get_indexed_opt_series(
         date_idx    = [ row[0] for row in rows ]
         ul_conid    = f"{symbol}{id[0]}{id[1]}_FUT_CME"
         ul_bars     = get_bars(ul_conid)
+        ul_dts      = [ f"{bar[bar_rec.date]}T{bar[bar_rec.time]}" for bar in ul_bars ]
+        ul_last     = [ bar[bar_rec.last] for bar in ul_bars ]
         exps        = get_expirations(symbol, rows)
 
         for exp in exps:
-
-            exp_date = exp[0].split("T")[0]
             
             try:
 
-                i       = date_idx.index(exp_date)
-                settle  = rows[i][3]
-                header  = (
-                            ul_conid,
-                            exp[2],
-                            exp[0],
-                            settle   
-                        )
+                exp_dt      = exp[0]                    # re-assign, no need for original
+                exp_date    = exp_dt.split("T")[0]
+                i           = date_idx.index(exp_date)
+                settle      = rows[i][3]
+                header      = (
+                                ul_conid,
+                                exp[2],
+                                exp[0],
+                                settle   
+                            )
+                exp_ts      = Timestamp(exp_dt)
+                min_dt      = (exp_ts - Timedelta(minutes = max_index)).strftime(DT_FMT)
                 
-                index[header] = index_bars(header, ul_bars, max_index)
+                i = bisect_left(ul_dts, min_dt)
+                j = bisect_right(ul_dts, exp_dt)
+
+                x   = ul_dts[i:j]
+                idx = [ int(Timedelta(exp_ts - Timestamp(dt)).total_seconds() / 60) for dt in x ]
+                y   = ul_last[i:j]
+
+                if inc_stl:
+
+                    # append settlement at 0 index
+
+                    x.append(exp_dt)
+                    idx.append(0)
+                    y.append(settle)
+
+                index[header] = {
+                                    "x":    x,
+                                    "idx":  idx,
+                                    "y":    y
+                                }
 
             except ValueError:
 
                 # no settlement for opt expiration, skip
 
                 continue
-
-        
 
     return index
