@@ -686,7 +686,7 @@ def get_indexed_opt_series(
 
             except ValueError:
 
-                # no settlement for opt expiration, skip
+                # no settlement found for this expiration, skip
 
                 continue
 
