@@ -750,19 +750,23 @@ def get_indexed_opt_series(
 
     if ":" in symbol:
 
+        # index -- provided in frd folder
+
         ul_type         = "IND"
         raw_sym         = symbol.split(":")
         settlements     = { raw_sym: get_bars(f"{raw_sym}:daily", start_date, end_date) }
 
     elif "-NQTV" in symbol:
 
+        # stock -- provided by sierra chart; need to download daily barData files
+         
         ul_type         = "STK"
         raw_sym         = symbol.split("-")[0]
-        settlements     = { raw_sym: get_bars(f"{raw_sym}:daily", start_date, end_date) } # need to automate
+        settlements     = { raw_sym: get_bars(f"{symbol}.dly", start_date, end_date) }
 
     else:
     
-        # future
+        # future -- provided by futures_db_v3
 
         ul_type     = "FUT"
         settlements = get_records_by_contract(symbol, start_date, end_date, trim)

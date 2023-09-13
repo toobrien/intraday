@@ -80,13 +80,14 @@ def get_sc_bars(
     end:            str = None
 ):
 
-    fn      = f"{SC_ROOT}/data/{contract_id}.scid_BarData.txt"
-    df      = pl.read_csv(fn).with_columns(
-                [
-                    pl.col("Date").str.to_datetime("%Y/%m/%d").dt.strftime("%Y-%m-%d"),
-                    pl.col(" Time").str.replace_all(" ", "")
-                ]
-            ) # standardize date format and drop whitespace from time col
+    extension   = ".scid_BarData.txt" if ".dly" not in contract_id else ".dly_BarData.txt"
+    fn          = f"{SC_ROOT}/data/{contract_id}{extension}"
+    df          = pl.read_csv(fn).with_columns(
+                    [
+                        pl.col("Date").str.to_datetime("%Y/%m/%d").dt.strftime("%Y-%m-%d"),
+                        pl.col(" Time").str.replace_all(" ", "")
+                    ]
+                ) # standardize date format and drop whitespace from time col
 
     df = trim_range(df, start, end)
 

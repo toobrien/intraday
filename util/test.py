@@ -43,7 +43,7 @@ def get_expirations_test(
     pass
 
 
-# note: only futures implemented; TODO: indexes, stocks
+# note: only futures implemented; TODO: indexes,
 
 def check_expirations(
     start:      str,
