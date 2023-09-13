@@ -655,7 +655,7 @@ def get_idx_expirations(sym: str, recs: List[base_rec]):
         else:
 
             print("invalid stock or index expiration rule specified")
-            
+
             exit()
 
         if monthly_exp >= start_ts and monthly_exp <= end_ts:
@@ -758,7 +758,7 @@ def get_indexed_opt_series(
 
         ul_type         = "STK"
         raw_sym         = symbol.split("-")[0]
-        settlements     = { raw_sym: get_bars(symbol, start_date, end_date) }
+        settlements     = { raw_sym: get_bars(f"{raw_sym}:daily", start_date, end_date) } # need to automate
 
     else:
     
