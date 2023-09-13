@@ -348,6 +348,14 @@ OPT_DEFS    = {
             "Z": (-1, 0),
         },
         "m_sym_offset": 1
+    },
+    "SPX": {
+        "monthly_sym":      "SPX",
+        "weekly_sym":       "SPXW",
+        "exp_rule":         "3FRI",
+        "days_of_week":     [ 0, 1, 2, 3, 4 ],
+        "wk_on_month":      False,
+        "exp_time":         "16:00:00"
     }
 
 }
@@ -384,7 +392,7 @@ class base_rec(IntEnum):
     dte     = 4 
 
 
-def get_expirations(
+def get_fut_expirations(
     sym:    str,
     recs:   List[base_rec]
 ):
@@ -618,6 +626,111 @@ def get_records_by_contract(
     return res
 
 
+def get_idx_expirations(sym: str, recs: List[base_rec]):
+
+    res         = []
+    start_ts    = Timestamp(recs[0][base_rec.date])
+    end_ts      = Timestamp(recs[-1][base_rec.date])
+    bom         = start_ts + MonthBegin(-1) if not start_ts.is_month_start  else start_ts
+    eom         = start_ts + MonthEnd(0)    if not start_ts.is_month_end    else start_ts
+
+    dfn         = OPT_DEFS[sym]
+    monthly_sym = dfn["monthly_sym"]
+    weekly_sym  = dfn["weekly_sym"]
+    exp_time    = dfn["exp_time"]
+    wk_on_month = dfn["wk_on_month"]
+    val_wkdys   = dfn["days_of_week"]
+
+    while bom <= end_ts:
+
+        # monthly expirations
+
+        monthly_exp = None
+
+        if dfn["exp_rule"] == "3FRI":
+
+            rng         = bdate_range(bom, eom, freq = "W-FRI")
+            monthly_exp = rng[2]
+
+        else:
+
+            print("invalid stock or index expiration rule specified")
+            
+            exit()
+
+        if monthly_exp >= start_ts and monthly_exp <= end_ts:
+        
+                res.append(
+                    (
+                        f'{monthly_exp.strftime(DATE_FMT)}T{exp_time}',
+                        "M",
+                        monthly_sym,
+                        sym
+                    )
+                )
+
+        # weekly expirations
+
+        i   = max(bom, start_ts)
+        j   = min(eom, end_ts)
+        rng = bdate_range(i, j)
+
+        for ts in rng:
+
+            if (ts != monthly_exp or wk_on_month) and ts.day_of_week in val_wkdys:
+
+                res.append(
+                    (
+                        f'{ts.strftime(DATE_FMT)}T{exp_time}',
+                        "W",
+                        weekly_sym,
+                        sym
+                    )
+                )
+        
+        bom += MonthBegin(1)
+        eom += MonthEnd(1)
+    
+    return res
+
+
+def get_stk_expirations(sym: str, recs: List[base_rec]):
+
+    # janky, PM settled approximation
+
+    OPT_DEFS[sym] = {
+        "monthly_sym":  sym,
+        "weekly_sym":   sym,
+        "exp_rule":     "3FRI",
+        "days_of_week": [ 4 ],
+        "wk_on_month":  False,
+        "exp_time":     "16:00:00"
+    }
+
+    res = get_idx_expirations(sym, recs)
+
+    return res
+
+
+def get_expirations(sym: str, type: str, recs: List[base_rec]):
+
+    exps = None
+
+    if type == "IDX":
+
+        exps = get_idx_expirations(sym, recs)
+
+    elif type == "STK":
+
+        exps = get_stk_expirations(sym, recs)
+
+    elif type == "FUT":
+
+        exps = get_fut_expirations(sym, recs)
+    
+    return exps
+
+
 def get_indexed_opt_series(
     symbol:     str,            # e.g. "ZC"
     cur_dt:     str,            # or start for window of interest ( YYYY-MM-DDTHH:MM:SS )
@@ -628,20 +741,40 @@ def get_indexed_opt_series(
     inc_stl:    bool = True     # appends the settlement on expiration day as 0 index. set "False" if not valuing until expiration.
 ):
 
-    max_index   = int(Timedelta(Timestamp(exp_dt) - Timestamp(cur_dt)).total_seconds() / 60)
-    index       = {}
+    ul_type         = None
+    get_expirations = None
+    max_index       = int(Timedelta(Timestamp(exp_dt) - Timestamp(cur_dt)).total_seconds() / 60)
+    index           = {}
 
     # obtain settlements from daily data
+
+    if ":" in symbol:
+
+        ul_type         = "IND"
+        raw_sym         = symbol.split(":")
+        settlements     = { raw_sym: get_bars(f"{raw_sym}:daily", start_date, end_date) }
+
+    elif "-NQTV" in symbol:
+
+        ul_type         = "STK"
+        raw_sym         = symbol.split("-")[0]
+        settlements     = { raw_sym: get_bars(symbol, start_date, end_date) }
+
+    else:
     
-    records_by_contract = get_records_by_contract(symbol, start_date, end_date, trim)
+        # future
+
+        ul_type     = "FUT"
+        settlements = get_records_by_contract(symbol, start_date, end_date, trim)
+
 
     # build index headers
 
-    for id, rows in records_by_contract.items():
+    for id, rows in settlements.items():
 
         date_idx    = [ row[0] for row in rows ]
-        ul_conid    = f"{symbol}{id[0]}{id[1]}_FUT_CME"
-        ul_bars     = get_bars(ul_conid)
+        ul_conid    = f"{symbol}{id[0]}{id[1]}_FUT_CME" if ul_type == "FUT" else id
+        ul_bars     = get_bars(ul_conid if ul_type != "IND" else symbol)
         ul_dts      = [ f"{bar[bar_rec.date]}T{bar[bar_rec.time]}" for bar in ul_bars ]
         ul_last     = [ bar[bar_rec.last] for bar in ul_bars ]
         exps        = get_expirations(symbol, rows)

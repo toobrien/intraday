@@ -6,7 +6,7 @@ from    time        import  time
 
 path.append(".")
 
-from    util.opts   import  get_expirations, get_records_by_contract, get_indexed_opt_series
+from    util.opts   import  get_fut_expirations, get_records_by_contract, get_indexed_opt_series
 from    util.cat_df import  cat_df
 
 
@@ -36,14 +36,14 @@ def get_expirations_test(
     
     for id, recs in res.items():
 
-        exps = get_expirations(recs, kind, rule)
+        exps = get_fut_expirations(recs, kind, rule)
 
         print(f"{id}: {' '.join(exps)}")
 
     pass
 
 
-# note: doesnt work for index options -- futures only
+# note: only futures implemented; TODO: indexes, stocks
 
 def check_expirations(
     start:      str,
@@ -74,7 +74,7 @@ def check_expirations(
 
     for _, recs in cons.items():
 
-        expirations = get_expirations(ul_symbol, recs)
+        expirations = get_fut_expirations(ul_symbol, recs)
 
         if opt_class:
 
