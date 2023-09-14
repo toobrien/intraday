@@ -83,9 +83,6 @@ if __name__ == "__main__":
     CONFIG["ul_sym"]      = get_ul_sym(argv[1])
 
     print(f"server ready:       {time() - t0:0.1f}s")
-    print(f"app root:           {APP.root_path}")
-    print(f"static_folder:      {APP.static_folder}")
-    print(f"static_url_path:    {APP.static_folder}")
 
     APP.run(
         host = CONFIG["host"],
