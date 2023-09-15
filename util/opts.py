@@ -806,22 +806,22 @@ def get_indexed_opt_series(
                 i = bisect_left(ul_dts, min_dt)
                 j = bisect_right(ul_dts, exp_dt)
 
-                x   = ul_dts[i:j]
-                idx = [ int(Timedelta(exp_ts - Timestamp(dt)).total_seconds() / 60) for dt in x ]
-                y   = ul_last[i:j]
+                x = ul_dts[i:j]
+                t = [ int(Timedelta(exp_ts - Timestamp(dt)).total_seconds() / 60) for dt in x ]
+                y = ul_last[i:j]
 
                 if inc_stl:
 
                     # append settlement at 0 index
 
                     x.append(exp_dt)
-                    idx.append(0)
+                    t.append(0)
                     y.append(settle)
 
                 index[header] = {
-                                    "x":    x,
-                                    "idx":  idx,
-                                    "y":    y
+                                    "t": t,
+                                    "x": x,
+                                    "y": y
                                 }
 
             except ValueError:
