@@ -1,3 +1,4 @@
+from numpy                  import arange, empty, float64
 from statistics             import mean, stdev
 from sys                    import argv, path
 from time                   import time
@@ -15,15 +16,43 @@ from util.rec_tools         import get_precision
 # python screens/md_strat/md_seq.py ZC fly FIN 2020-01-01:2024-01-01 2023-09-15T00:00:00,2023-09-22T11:20 -50:51 1 10
 
 
+def settle_matrix(idx: dict):
+
+    t1      = time()
+    x       = list(idx.keys())
+    x_dim   = len(x)
+    y_dim   = max(
+                [ 
+                    max(exp_data["x"])
+                    for exp_data in idx.values()
+                ]
+            ) + 1
+    A       = empty(shape = (x_dim, y_dim), dtype = float64)
+
+    for i in range(len(x)):
+
+        header = x[i]
+        x_      = idx[header]["x"]
+        y_      = idx[header]["y"]
+
+        for j in range(len(x_)):
+
+            A[i, x_[j]] = y_[j]
+
+    print(f"settle_matrix: {time() - t1:0.1f}")
+
+    return A
+
+
 def model(
     symbol:             dict,
     strategy:           str,
     mode:               str,
-    date_range:         List,
-    expiry_ranges:      List,
-    offset_range:       List,
+    date_range:         List[str],
+    expiry_ranges:      List[str],
+    offset_range:       List[float],
     strike_increment:   float,
-    params:             List
+    params:             List[float]
 
 ):
 
@@ -33,12 +62,15 @@ def model(
                     ( expiry_ranges[i], expiry_ranges[i + 1] ) 
                     for i in range(len(expiry_ranges) - 1)
                 ]
+    offsets     = arange(offset_range[0], offset_range[1], strike_increment)
+    expiry_data = []
     
     for rng in rngs:
 
         cur_dt  = rng[0]
         exp_dt  = rng[1]
         idx     = get_indexed_opt_series(symbol, cur_dt, exp_dt, start_date, end_date, True, True)
+        mat     = settle_matrix(idx)
 
         pass
 
@@ -51,9 +83,9 @@ if __name__ == "__main__":
     mode                = argv[3]
     date_range          = argv[4].split(":")
     expiry_ranges       = argv[5].split(",")
-    offset_range        = argv[6].split(":")
+    offset_range        = [ float(val) for val in argv[6].split(":") ]
     strike_increment    = float(argv[7])
-    params              = argv[8:]
+    params              = [ float(val) for val in argv[8:] ]
 
     model(
         symbol,

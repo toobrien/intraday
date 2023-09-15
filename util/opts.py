@@ -814,8 +814,8 @@ def get_indexed_opt_series(
 
                     # append settlement at 0 index
 
-                    x.append(exp_dt)
-                    t.append(0)
+                    t.append(exp_dt)
+                    x.append(0)
                     y.append(settle)
 
                 index[header] = {
