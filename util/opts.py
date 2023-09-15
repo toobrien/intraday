@@ -806,8 +806,8 @@ def get_indexed_opt_series(
                 i = bisect_left(ul_dts, min_dt)
                 j = bisect_right(ul_dts, exp_dt)
 
-                x = ul_dts[i:j]
-                t = [ int(Timedelta(exp_ts - Timestamp(dt)).total_seconds() / 60) for dt in x ]
+                t = ul_dts[i:j]
+                x = [ int(Timedelta(exp_ts - Timestamp(dt)).total_seconds() / 60) for dt in t ]
                 y = ul_last[i:j]
 
                 if inc_stl:
