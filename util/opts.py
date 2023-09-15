@@ -753,6 +753,7 @@ def get_indexed_opt_series(
         # index -- provided in frd folder
 
         ul_type         = "IND"
+        get_expirations = get_idx_expirations
         raw_sym         = symbol.split(":")
         settlements     = { raw_sym: get_bars(f"{raw_sym}:daily", start_date, end_date) }
 
@@ -761,6 +762,7 @@ def get_indexed_opt_series(
         # stock -- provided by sierra chart; need to download daily barData files
          
         ul_type         = "STK"
+        get_expirations = get_stk_expirations
         raw_sym         = symbol.split("-")[0]
         settlements     = { raw_sym: get_bars(f"{symbol}.dly", start_date, end_date) }
 
@@ -768,8 +770,9 @@ def get_indexed_opt_series(
     
         # future -- provided by futures_db_v3
 
-        ul_type     = "FUT"
-        settlements = get_records_by_contract(symbol, start_date, end_date, trim)
+        ul_type         = "FUT"
+        get_expirations = get_fut_expirations
+        settlements     = get_records_by_contract(symbol, start_date, end_date, trim)
 
 
     # build index headers
