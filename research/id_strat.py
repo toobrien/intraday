@@ -56,8 +56,8 @@ def price_strategy(
 
 
 def calc_fsigmas(
-    bars: List[bar_rec],
-    idx: dict,
+    bars:       List[bar_rec],
+    idx:        dict,
     expiration: str
 ):
 
