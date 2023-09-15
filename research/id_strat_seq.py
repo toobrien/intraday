@@ -2,7 +2,9 @@ from    numpy                   import  percentile
 import  plotly.graph_objects    as      go
 from    statistics              import  mean
 from    sys                     import  argv, path
+
 path.append(".")
+
 from    research.id_strat       import  calc_fsigmas, get_sessions, price_strategy_by_session
 from    time                    import  time
 from    util.bar_tools          import  bar_rec, get_bars
