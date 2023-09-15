@@ -50,7 +50,7 @@ if __name__ == "__main__":
     strategy            = argv[2]
     mode                = argv[3]
     date_range          = argv[4].split(":")
-    expiry_ranges       = [ argv[5].split(",") ]
+    expiry_ranges       = argv[5].split(",")
     offset_range        = argv[6].split(":")
     strike_increment    = float(argv[7])
     params              = argv[8:]
