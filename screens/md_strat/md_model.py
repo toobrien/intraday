@@ -1,4 +1,5 @@
 import  numpy                   as      np
+import  plotly.graph_objects    as      go
 from    statistics              import  mean, stdev
 from    sys                     import  argv, path
 from    time                    import  time
@@ -45,9 +46,29 @@ def price_matrix(idx: dict) -> np.ndarray:
 
 def sigma_index(price_m: np.ndarray) -> np.ndarray:
 
+    t2      = time()
+    settles = price_m[:, 0]
     T       = price_m.T
-    log_chg = np.where(np.isnan(T), np.nan, np.log(T, T[0])).T
-    sigmas  = np.nanmean(log_chg[0])
+    log_chg = np.where(np.isnan(T), np.nan, np.log(T / settles)).T
+    sigmas  = np.nanstd(log_chg, axis = 0)
+
+    print(f"sigma_index: {time() - t2:0.1f}")
+
+    ''' debug
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Bar(
+            {
+                "x":        [ i for i in range(len(sigmas)) ],
+                "y":        sigmas,
+                "marker":   { "color": "#0000FF" }
+            }
+        )
+    )
+
+    fig.show()
+    '''
 
     return sigmas
 
