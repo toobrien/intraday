@@ -54,22 +54,6 @@ def sigma_index(price_m: np.ndarray) -> np.ndarray:
 
     print(f"sigma_index: {time() - t2:0.1f}")
 
-    ''' debug
-    fig = go.Figure()
-
-    fig.add_trace(
-        go.Bar(
-            {
-                "x":        [ i for i in range(len(sigmas)) ],
-                "y":        sigmas,
-                "marker":   { "color": "#0000FF" }
-            }
-        )
-    )
-
-    fig.show()
-    '''
-
     return sigmas
 
 
