@@ -1,22 +1,22 @@
-from numpy                  import arange, empty, float64
-from statistics             import mean, stdev
-from sys                    import argv, path
-from time                   import time
-from typing                 import List
+import  numpy                   as      np
+from    statistics              import  mean, stdev
+from    sys                     import  argv, path
+from    time                    import  time
+from    typing                  import  List
 
 path.append(".")
 
-from util.bar_tools         import bar_rec
-from util.contract_settings import get_settings
-from util.opts              import get_indexed_opt_series
-from util.pricing           import call, call_vertical, fly, iron_fly, put, put_vertical, straddle
-from util.rec_tools         import get_precision
+from util.bar_tools             import  bar_rec
+from util.contract_settings     import  get_settings
+from util.opts                  import  get_indexed_opt_series
+from util.pricing               import  call, call_vertical, fly, iron_fly, put, put_vertical, straddle
+from util.rec_tools             import  get_precision
 
 
 # python screens/md_strat/md_seq.py ZC fly FIN 2020-01-01:2024-01-01 2023-09-15T00:00:00,2023-09-22T11:20 -50:51 1 10
 
 
-def settle_matrix(idx: dict):
+def price_matrix(idx: dict) -> np.ndarray:
 
     t1      = time()
     x       = list(idx.keys())
@@ -27,7 +27,7 @@ def settle_matrix(idx: dict):
                     for exp_data in idx.values()
                 ]
             ) + 1
-    A       = empty(shape = (x_dim, y_dim), dtype = float64)
+    A       = np.full(shape = (x_dim, y_dim), fill_value = np.nan, dtype = np.float64)
 
     for i in range(len(x)):
 
@@ -39,9 +39,17 @@ def settle_matrix(idx: dict):
 
             A[i, x_[j]] = y_[j]
 
-    print(f"settle_matrix: {time() - t1:0.1f}")
+    print(f"price_matrix: {time() - t1:0.1f}")
 
     return A
+
+def sigma_index(price_m: np.ndarray) -> np.ndarray:
+
+    T       = price_m.T
+    log_chg = np.where(np.isnan(T), np.nan, np.log(T, T[0])).T
+    sigmas  = np.nanmean(log_chg[0])
+
+    return sigmas
 
 
 def model(
@@ -62,7 +70,7 @@ def model(
                     ( expiry_ranges[i], expiry_ranges[i + 1] ) 
                     for i in range(len(expiry_ranges) - 1)
                 ]
-    offsets     = arange(offset_range[0], offset_range[1], strike_increment)
+    offsets     = np.arange(offset_range[0], offset_range[1], strike_increment)
     expiry_data = []
     
     for rng in rngs:
@@ -70,7 +78,8 @@ def model(
         cur_dt  = rng[0]
         exp_dt  = rng[1]
         idx     = get_indexed_opt_series(symbol, cur_dt, exp_dt, start_date, end_date, True, True)
-        mat     = settle_matrix(idx)
+        price_m = price_matrix(idx)
+        sigmas  = sigma_index(price_m)
 
         pass
 
