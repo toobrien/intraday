@@ -57,6 +57,11 @@ def sigma_index(price_m: np.ndarray) -> np.ndarray:
     return sigmas
 
 
+def get_pricer():
+
+    pass
+
+
 def model(
     symbol:             dict,
     strategy:           str,
@@ -71,20 +76,26 @@ def model(
 
     start_date  = date_range[0]
     end_date    = date_range[1]
-    rngs        = [ 
+    exp_rngs    = [ 
                     ( expiry_ranges[i], expiry_ranges[i + 1] ) 
                     for i in range(len(expiry_ranges) - 1)
                 ]
     offsets     = np.arange(offset_range[0], offset_range[1], strike_increment)
     expiry_data = []
     
-    for rng in rngs:
+    for exp_rng in exp_rngs:
 
-        cur_dt  = rng[0]
-        exp_dt  = rng[1]
+        cur_dt  = exp_rng[0]
+        exp_dt  = exp_rng[1]
         idx     = get_indexed_opt_series(symbol, cur_dt, exp_dt, start_date, end_date, True, True)
-        price_m = price_matrix(idx)
-        sigmas  = sigma_index(price_m)
+        prices  = price_matrix(idx)
+        sigmas  = sigma_index(prices)
+
+        for offset in offsets:
+
+            adj_prices = np.round(prices / strike_increment) * strike_increment + offset * strike_increment
+
+            pass
 
         pass
 
