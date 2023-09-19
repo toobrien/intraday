@@ -17,7 +17,7 @@ from util.rec_tools             import  get_precision
 # python screens/md_strat/md_seq.py ZC fly FIN 2020-01-01:2024-01-01 2023-09-15T00:00:00,2023-09-22T11:20 -50:51 1 10
 
 
-def price_matrix(idx: dict) -> np.ndarray:
+def price_matrix(idx: dict) -> np.array:
 
     t1      = time()
     x       = list(idx.keys())
@@ -44,7 +44,8 @@ def price_matrix(idx: dict) -> np.ndarray:
 
     return A
 
-def sigma_index(price_m: np.ndarray) -> np.ndarray:
+
+def sigma_index(price_m: np.array) -> np.array:
 
     t2      = time()
     settles = price_m[:, 0]
@@ -57,9 +58,56 @@ def sigma_index(price_m: np.ndarray) -> np.ndarray:
     return sigmas
 
 
-def get_pricer():
+def value(
+    prices:     np.array,
+    strikes:    np.array, 
+    sigmas:     np.array,
+    mode:       str, 
+    strategy:   str,
+    params:     List[float]
+):
 
-    pass
+    res = []
+
+    if "FIN" in mode:
+
+        # final settlement values are at the 0 index
+        # sigmas 
+
+        prices      = prices[:, 0]
+        sigmas    = np.zeros((len(prices)))
+
+    # call, call_vertical, fly, iron_fly, put, put_vertical, straddle
+
+    if strategy == "call":
+
+        res = call(prices, strikes, sigmas)
+
+    elif strategy == "call_vertical":
+
+        res = call_vertical(prices, strikes, params[0], sigmas)
+
+    elif strategy == "fly":
+
+        res = fly(prices, strikes, params[0], sigmas)
+    
+    elif strategy == "iron_fly":
+
+        res = iron_fly(prices, strikes, params[0], sigmas)
+    
+    elif strategy == "put":
+
+        res = put(prices, strikes, sigmas)
+
+    elif strategy == "put_vertical":
+
+        res = put_vertical(prices, strikes, params[0], sigmas)
+
+    elif strategy == "straddle":
+
+        res = straddle(prices, strikes, sigmas)
+
+    return res
 
 
 def model(
@@ -93,7 +141,8 @@ def model(
 
         for offset in offsets:
 
-            adj_prices = np.round(prices / strike_increment) * strike_increment + offset * strike_increment
+            strikes = np.round(prices / strike_increment) * strike_increment + offset * strike_increment
+            vals    = value(prices, strikes, sigmas, mode, strategy, params)
 
             pass
 

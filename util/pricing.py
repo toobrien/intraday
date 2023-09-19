@@ -28,7 +28,7 @@ def fly(
     
     else:
 
-        val     = sum([ max(0, width - abs((cur_price * e**(X[i] * f_sigma) - mid))) * Y[i] for i in range(len(X)) ]) * DEF_STEP
+        val = sum([ max(0, width - abs((cur_price * e**(X[i] * f_sigma) - mid))) * Y[i] for i in range(len(X)) ]) * DEF_STEP
 
     return val
 
