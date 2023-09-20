@@ -1,4 +1,5 @@
 import  numpy                   as      np
+from    pandas                  import  Timestamp, Timedelta, date_range
 import  plotly.graph_objects    as      go
 from    statistics              import  mean, stdev
 from    sys                     import  argv, path
@@ -10,11 +11,15 @@ path.append(".")
 from util.bar_tools             import  bar_rec
 from util.contract_settings     import  get_settings
 from util.opts                  import  get_indexed_opt_series
-from util.pricing               import  call, call_vertical, fly, iron_fly, put, put_vertical, straddle
+from util.v_pricing             import  call, call_vertical, fly, iron_fly, put, put_vertical, straddle
 from util.rec_tools             import  get_precision
 
 
 # python screens/md_strat/md_seq.py ZC fly FIN 2020-01-01:2024-01-01 2023-09-15T00:00:00,2023-09-22T11:20 -50:51 1 10
+
+
+DT_FMT      = "%Y-%m-%dT%H:%M:%S"
+FREQUENCY   = "1T"   # OHLC aggregation for your data... probably should be a parameter
 
 
 def price_matrix(idx: dict) -> np.array:
@@ -72,10 +77,10 @@ def value(
     if "FIN" in mode:
 
         # final settlement values are at the 0 index
-        # sigmas 
+        # sigmas are 0
 
-        prices      = prices[:, 0]
-        sigmas    = np.zeros((len(prices)))
+        prices  = prices[:, 0].reshape(-1, 1)
+        sigmas  = np.zeros((len(prices)))
 
     # call, call_vertical, fly, iron_fly, put, put_vertical, straddle
 
@@ -122,14 +127,17 @@ def model(
 
 ):
 
-    start_date  = date_range[0]
-    end_date    = date_range[1]
-    exp_rngs    = [ 
-                    ( expiry_ranges[i], expiry_ranges[i + 1] ) 
-                    for i in range(len(expiry_ranges) - 1)
-                ]
-    offsets     = np.arange(offset_range[0], offset_range[1], strike_increment)
-    expiry_data = []
+    start_date      = date_range[0]
+    end_date        = date_range[1]
+    exp_rngs        = [ 
+                        ( expiry_ranges[i], expiry_ranges[i + 1] ) 
+                        for i in range(len(expiry_ranges) - 1)
+                    ]
+    offsets         = np.arange(offset_range[0], offset_range[1], strike_increment)
+    expiry_data     = [] # for multi-expiry strategies... not yet implemented
+    _, tick_size    = get_settings(symbol)
+    precision       = get_precision(str(tick_size))
+    res             = []
     
     for exp_rng in exp_rngs:
 
@@ -143,10 +151,39 @@ def model(
 
             strikes = np.round(prices / strike_increment) * strike_increment + offset * strike_increment
             vals    = value(prices, strikes, sigmas, mode, strategy, params)
+            avgs    = np.mean(vals, axis = 0)
+            
+            res.append(avgs)
 
             pass
 
         pass
+
+    # transpose and flip model results such that:
+    #
+    #   - columns are indexed by strike offset
+    #   - row are indexed by minute (or other resolution)
+    #   - row 0 = max time to expiration
+
+    res = (np.array(res).T)[::-1, :]
+    
+    # for multi-expiry strategyies (not yet implemented), 
+    # the program will build the datetime index for the model result
+    # using the first expiry range supplied
+
+    start_dt    = Timestamp(exp_rngs[0][0])
+    end_dt      = start_dt + Timedelta(minutes = res.shape(0))
+    dt_idx      = np.array(date_range(start = start_dt, end = end_dt, freq = FREQUENCY))
+
+    # filter any rows with NaN and round values
+
+    nan_row = np.isnan(res).any(axis = 1)
+    res     = res[~nan_row]
+    res     = np.around(res, decimals = precision)
+    dt_idx  = dt_idx[~nan_row]
+    dt_idx  = [ dt.strftime(DT_FMT) for dt in dt_idx ]
+
+    return ( dt_idx, res )
 
 
 if __name__ == "__main__":
@@ -161,7 +198,7 @@ if __name__ == "__main__":
     strike_increment    = float(argv[7])
     params              = [ float(val) for val in argv[8:] ]
 
-    model(
+    res = model(
         symbol,
         strategy,
         mode,
