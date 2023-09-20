@@ -8,7 +8,6 @@ from    typing                  import  List
 
 path.append(".")
 
-from util.bar_tools             import  bar_rec
 from util.contract_settings     import  get_settings
 from util.opts                  import  get_indexed_opt_series
 from util.v_pricing             import  call, call_vertical, fly, iron_fly, put, put_vertical, straddle
