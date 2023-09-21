@@ -1,7 +1,5 @@
 import  numpy                   as      np
 from    pandas                  import  Timestamp, Timedelta, date_range as pd_date_range
-import  plotly.graph_objects    as      go
-from    statistics              import  mean, stdev
 from    sys                     import  argv, path
 from    time                    import  time
 from    typing                  import  List
