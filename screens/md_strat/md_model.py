@@ -1,5 +1,5 @@
 import  numpy                   as      np
-from    pandas                  import  Timestamp, Timedelta, date_range
+from    pandas                  import  Timestamp, Timedelta, date_range as pd_date_range
 import  plotly.graph_objects    as      go
 from    statistics              import  mean, stdev
 from    sys                     import  argv, path
@@ -154,8 +154,6 @@ def model(
 
             pass
 
-        pass
-
     # transpose and flip model results such that:
     #
     #   - columns are indexed by strike offset
@@ -169,8 +167,13 @@ def model(
     # using the first expiry range supplied
 
     start_dt    = Timestamp(exp_rngs[0][0])
-    end_dt      = start_dt + Timedelta(minutes = res.shape[0])
-    dt_idx      = np.array(date_range(start = start_dt, end = end_dt, freq = FREQUENCY))
+    end_dt      = start_dt + Timedelta(minutes = res.shape[0] - 1)
+    dt_idx      = np.array(
+                    [ 
+                        dt.strftime(DT_FMT)
+                        for dt in pd_date_range(start = start_dt, end = end_dt, freq = FREQUENCY)
+                    ]
+                )
 
     # filter any rows with NaN
 
@@ -178,7 +181,6 @@ def model(
     res     = res[~nan_row]
     #res     = np.around(res, decimals = precision)
     dt_idx  = dt_idx[~nan_row]
-    dt_idx  = [ dt.strftime(DT_FMT) for dt in dt_idx ]
 
     return ( dt_idx, res )
 
