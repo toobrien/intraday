@@ -22,7 +22,7 @@ def fly(
 
     vals = None
 
-    if f_sigma == 0:
+    if np.all(f_sigma == 0):
 
         # expiration
 
@@ -64,7 +64,7 @@ def call_vertical(
     
     vals = None
 
-    if f_sigma == 0:
+    if np.all(f_sigma == 0):
 
         vals = np.minimum(np.maximum(0, cur_price - lo_strike), width)
 
@@ -84,7 +84,7 @@ def put_vertical(
     
     vals = None
 
-    if f_sigma == 0:
+    if np.all(f_sigma == 0):
 
         vals = np.minimum(np.maximum(0, hi_strike - cur_price), width)
 
@@ -122,7 +122,7 @@ def put(
     
     vals = None
 
-    if f_sigma == 0:
+    if np.all(f_sigma == 0):
 
         vals = np.maximum(0, strike - cur_price)
 
@@ -141,7 +141,7 @@ def call(
     
     vals = None
 
-    if f_sigma == 0:
+    if np.all(f_sigma == 0):
 
         vals = np.maximum(0, cur_price - strike)
 

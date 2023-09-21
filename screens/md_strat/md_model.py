@@ -134,8 +134,6 @@ def model(
                     ]
     offsets         = np.arange(offset_range[0], offset_range[1], strike_increment)
     expiry_data     = [] # for multi-expiry strategies... not yet implemented
-    _, tick_size    = get_settings(symbol)
-    precision       = get_precision(str(tick_size))
     res             = []
     
     for exp_rng in exp_rngs:
@@ -174,11 +172,11 @@ def model(
     end_dt      = start_dt + Timedelta(minutes = res.shape(0))
     dt_idx      = np.array(date_range(start = start_dt, end = end_dt, freq = FREQUENCY))
 
-    # filter any rows with NaN and round values
+    # filter any rows with NaN
 
     nan_row = np.isnan(res).any(axis = 1)
     res     = res[~nan_row]
-    res     = np.around(res, decimals = precision)
+    #res     = np.around(res, decimals = precision)
     dt_idx  = dt_idx[~nan_row]
     dt_idx  = [ dt.strftime(DT_FMT) for dt in dt_idx ]
 
