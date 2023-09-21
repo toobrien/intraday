@@ -148,7 +148,7 @@ def model(
 
             strikes = np.round(prices / strike_increment) * strike_increment + offset * strike_increment
             vals    = value(prices, strikes, sigmas, mode, strategy, params)
-            avgs    = np.mean(vals, axis = 0)
+            avgs    = np.nanmean(vals, axis = 0)
             
             res.append(avgs)
 
@@ -169,7 +169,7 @@ def model(
     # using the first expiry range supplied
 
     start_dt    = Timestamp(exp_rngs[0][0])
-    end_dt      = start_dt + Timedelta(minutes = res.shape(0))
+    end_dt      = start_dt + Timedelta(minutes = res.shape[0])
     dt_idx      = np.array(date_range(start = start_dt, end = end_dt, freq = FREQUENCY))
 
     # filter any rows with NaN
