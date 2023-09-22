@@ -12,7 +12,7 @@ from util.v_pricing             import  call, call_vertical, fly, iron_fly, put,
 from util.rec_tools             import  get_precision
 
 
-# python screens/md_strat/md_seq.py ZC fly FIN 2020-01-01:2024-01-01 2023-09-15T00:00:00,2023-09-22T11:20 -50:51 1 10
+# python screens/md_strat/md_model.py ZC fly FIN 2020-01-01:2024-01-01 2023-09-15T00:00:00,2023-09-22T11:20 -50:51 1 10
 
 
 DT_FMT      = "%Y-%m-%dT%H:%M:%S"
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     strike_increment    = float(argv[7])
     params              = [ float(val) for val in argv[8:] ]
 
-    res = model(
+    dt_idx, vals = model(
         symbol,
         strategy,
         mode,
@@ -205,6 +205,10 @@ if __name__ == "__main__":
         strike_increment,
         params
     )
+
+    for i in range(len(dt_idx)):
+
+        print(f"{dt_idx[i]}:\t{'    '.join([ str(val) for val in np.around(vals[i], 2) ])}")
 
     print(f"md_model: {time() - t0:0.1f}")
 
