@@ -754,8 +754,19 @@ def get_indexed_opt_series(
 
         ul_type         = "IND"
         get_expirations = get_idx_expirations
-        raw_sym         = symbol.split(":")
-        settlements     = { raw_sym: get_bars(f"{raw_sym}:daily", start_date, end_date) }
+        raw_sym         = symbol.split(":")[0]
+        settlements     = { 
+                            raw_sym: [
+                                (
+                                    bar[bar_rec.date],
+                                    None,
+                                    None,
+                                    bar[bar_rec.last],
+                                    None
+                                )
+                                for bar in get_bars(f"{raw_sym}:daily", f"{start_date}T0", f"{end_date}T0")
+                            ]
+                        }
 
     elif "-NQTV" in symbol:
 
@@ -764,7 +775,18 @@ def get_indexed_opt_series(
         ul_type         = "STK"
         get_expirations = get_stk_expirations
         raw_sym         = symbol.split("-")[0]
-        settlements     = { raw_sym: get_bars(f"{symbol}.dly", start_date, end_date) }
+        settlements     = { 
+                            raw_sym: [
+                                (
+                                    bar[bar_rec.date],
+                                    None,
+                                    None,
+                                    bar[bar_rec.last],
+                                    None
+                                )
+                                for bar in get_bars(f"{symbol}.dly", start_date, end_date) 
+                            ]
+                        }
 
     else:
     
@@ -772,6 +794,7 @@ def get_indexed_opt_series(
 
         ul_type         = "FUT"
         get_expirations = get_fut_expirations
+        raw_sym         = symbol
         settlements     = get_records_by_contract(symbol, start_date, end_date, trim)
 
 
@@ -784,7 +807,7 @@ def get_indexed_opt_series(
         ul_bars     = get_bars(ul_conid if ul_type != "IND" else symbol)
         ul_dts      = [ f"{bar[bar_rec.date]}T{bar[bar_rec.time]}" for bar in ul_bars ]
         ul_last     = [ bar[bar_rec.last] for bar in ul_bars ]
-        exps        = get_expirations(symbol, rows)
+        exps        = get_expirations(raw_sym, rows)
 
         for exp in exps:
             
@@ -793,7 +816,7 @@ def get_indexed_opt_series(
                 exp_dt      = exp[0]                    # re-assign, no need for original
                 exp_date    = exp_dt.split("T")[0]
                 i           = date_idx.index(exp_date)
-                settle      = rows[i][3]
+                settle      = rows[i][base_rec.settle]
                 header      = (
                                 ul_conid,
                                 exp[2],
@@ -804,7 +827,7 @@ def get_indexed_opt_series(
                 min_dt      = (exp_ts - Timedelta(minutes = max_index)).strftime(DT_FMT)
                 
                 i = bisect_left(ul_dts, min_dt)
-                j = bisect_right(ul_dts, exp_dt)
+                j = bisect_left(ul_dts, exp_dt)
 
                 t = ul_dts[i:j]
                 x = [ int(Timedelta(exp_ts - Timestamp(dt)).total_seconds() / 60) for dt in t ]
