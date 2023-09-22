@@ -206,10 +206,12 @@ if __name__ == "__main__":
         params
     )
 
+    ''' debug
     for i in range(len(dt_idx)):
 
         print(f"{dt_idx[i]}:\t{'    '.join([ str(val) for val in np.around(vals[i], 2) ])}")
 
     print(f"md_model: {time() - t0:0.1f}")
+    '''
 
     pass
