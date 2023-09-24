@@ -7,16 +7,16 @@ from    typing                  import  List
 path.append(".")
 
 from util.contract_settings     import  get_settings
-from util.opts                  import  get_indexed_opt_series
+from util.opts                  import  get_indexed_opt_series, get_exp_time
 from util.v_pricing             import  call, call_vertical, fly, iron_fly, put, put_vertical, straddle
 from util.rec_tools             import  get_precision
 
 
-# python screens/md_strat/md_model.py ZC fly FIN 2020-01-01:2024-01-01 2023-09-15T00:00:00,2023-09-22T11:20 -50:51 1 10
+# python screens/md_strat/md_model.py ZC fly CUR 2020-01-01 2024-01-01 now,2023-09-22 -50:51 1 10
 
 
-DT_FMT      = "%Y-%m-%dT%H:%M:%S"
-FREQUENCY   = "1T"   # OHLC aggregation for your data... probably should be a parameter
+DT_FMT          = "%Y-%m-%dT%H:%M:%S"
+OHLC_RESOLUTION = "1T"   # OHLC aggregation for your data... probably should be a parameter
 
 
 def price_matrix(idx: dict) -> np.array:
@@ -112,33 +112,45 @@ def value(
     return res
 
 
+'''
+    dt_idx, vals = model(
+        symbol,
+        strategy,
+        mode,
+        hist_start,
+        hist_end,
+        time_idx_start,
+        time_idx_ends,
+        offset_range,
+        strike_increment,
+        params
+    )
+'''
+
+
 def model(
-    symbol:             dict,
+    symbol:             str,
     strategy:           str,
     mode:               str,
-    date_range:         List[str],
-    expiry_ranges:      List[str],
+    hist_start:         str,
+    hist_end:           str,
+    time_idx:           List[str],
     offset_range:       List[float],
     strike_increment:   float,
     params:             List[float]
 
 ):
 
-    start_date      = date_range[0]
-    end_date        = date_range[1]
-    exp_rngs        = [ 
-                        ( expiry_ranges[i], expiry_ranges[i + 1] ) 
-                        for i in range(len(expiry_ranges) - 1)
-                    ]
-    offsets         = np.arange(offset_range[0], offset_range[1], strike_increment)
-    expiry_data     = [] # for multi-expiry strategies... not yet implemented
-    res             = []
+    cur_dt      = time_idx[0] if time_idx[0] != "now" else Timestamp.now().floor(OHLC_RESOLUTION).strftime(DT_FMT)
+    exp_time    = get_exp_time(symbol)
+    offsets     = np.arange(offset_range[0], offset_range[1], strike_increment)
+    exp_vals    = [] # for multi-expiry strategies... not yet implemented
+    res         = []
     
-    for exp_rng in exp_rngs:
+    for exp in time_idx[1:]:
 
-        cur_dt  = exp_rng[0]
-        exp_dt  = exp_rng[1]
-        idx     = get_indexed_opt_series(symbol, cur_dt, exp_dt, start_date, end_date, True, True)
+        exp_dt  = f"{exp}T{exp_time}" if "T" not in exp else exp
+        idx     = get_indexed_opt_series(symbol, cur_dt, exp_dt, hist_start, hist_end, True, True)
         prices  = price_matrix(idx)
         sigmas  = sigma_index(prices)
 
@@ -150,7 +162,7 @@ def model(
             
             res.append(avgs)
 
-            pass
+        # exp_vals.append(avgs)
 
     # transpose and flip model results such that:
     #
@@ -164,12 +176,11 @@ def model(
     # the program will build the datetime index for the model result
     # using the first expiry range supplied
 
-    start_dt    = Timestamp(exp_rngs[0][0])
-    end_dt      = start_dt + Timedelta(minutes = res.shape[0] - 1)
+    end_dt      = cur_dt + Timedelta(minutes = res.shape[0] - 1)
     dt_idx      = np.array(
                     [ 
                         dt.strftime(DT_FMT)
-                        for dt in pd_date_range(start = start_dt, end = end_dt, freq = FREQUENCY)
+                        for dt in pd_date_range(start = cur_dt, end = end_dt, freq = OHLC_RESOLUTION)
                     ]
                 )
 
@@ -189,18 +200,20 @@ if __name__ == "__main__":
     symbol              = argv[1]
     strategy            = argv[2]
     mode                = argv[3]
-    date_range          = argv[4].split(":")
-    expiry_ranges       = argv[5].split(",")
-    offset_range        = [ float(val) for val in argv[6].split(":") ]
-    strike_increment    = float(argv[7])
-    params              = [ float(val) for val in argv[8:] ]
+    hist_start          = argv[4]
+    hist_end            = argv[5]
+    time_idx            = argv[6].split(",")
+    offset_range        = [ float(val) for val in argv[7].split(":") ]
+    strike_increment    = float(argv[8])
+    params              = [ float(val) for val in argv[9:] ]
 
     dt_idx, vals = model(
         symbol,
         strategy,
         mode,
-        date_range,
-        expiry_ranges,
+        hist_start,
+        hist_end,
+        time_idx,
         offset_range,
         strike_increment,
         params

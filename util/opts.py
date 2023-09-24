@@ -356,8 +356,16 @@ OPT_DEFS    = {
         "days_of_week":     [ 0, 1, 2, 3, 4 ],
         "wk_on_month":      False,
         "exp_time":         "16:00:00"
+    },
+    "STK": { 
+        # symbol for all stocks -- not fully implemented
+        "monthy_sym":       "",
+        "weekly_sym":       "",
+        "exp_rule":         "3FRI",
+        "days_of_week":     [ 4 ],
+        "wk_on_month":      False,
+        "exp_time":         "13:00:00" # ???
     }
-
 }
 MONTHS      = {
     1:  "F",
@@ -624,6 +632,13 @@ def get_records_by_contract(
         res = tmp
 
     return res
+
+
+def get_exp_time(sym: str):
+
+    sym = sym.split(":")[0] if ":" in sym else "STK" if "-NQTV" in sym else sym
+
+    return OPT_DEFS[sym]["exp_time"]
 
 
 def get_idx_expirations(sym: str, recs: List[base_rec]):
