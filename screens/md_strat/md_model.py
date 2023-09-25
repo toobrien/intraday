@@ -75,6 +75,7 @@ def value(
 
         # final settlement values are at the 0 index
         # sigmas are 0
+        # TODO: need refactor for multi-expiry strategies
 
         prices  = prices[:, 0].reshape(-1, 1)
         sigmas  = np.zeros((len(prices)))
@@ -110,22 +111,6 @@ def value(
         res = straddle(prices, strikes, sigmas)
 
     return res
-
-
-'''
-    dt_idx, vals = model(
-        symbol,
-        strategy,
-        mode,
-        hist_start,
-        hist_end,
-        time_idx_start,
-        time_idx_ends,
-        offset_range,
-        strike_increment,
-        params
-    )
-'''
 
 
 def model(
