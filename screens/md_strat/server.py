@@ -52,4 +52,3 @@ if __name__ == "__main__":
 
         model_sym = f"{ul_sym}-NQTV"
 
-    
