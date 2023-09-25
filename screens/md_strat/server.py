@@ -14,6 +14,7 @@ from md_model   import model
 # python screens/md_strat/server.py IND     SPX     1m  -        fly    FIN    2023-06-01 2023-10-01 now,2023-09-24 -25:26  1   5
 # python screens/md_strat/server.py STK     AAPL    1m  -        fly    FIN    2023-06-01 2024-01-01 now,2023-09-24 -3:3    0.1 2.5
 
+
 # type:             FUT, IND, or STK
 # sym:              underlying symbol
 # res:              ohlc resolution (only minutes supported--must match source data)
