@@ -61,7 +61,7 @@ def sigma_index(price_m: np.array) -> np.array:
 
 
 def value(
-    prices_arrs:    List[np.array],
+    price_arrs:     List[np.array],
     strike_arrs:    List[np.array], 
     sigma_arrs:     List[np.array],
     mode:           str, 
