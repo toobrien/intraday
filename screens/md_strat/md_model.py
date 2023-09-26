@@ -145,7 +145,7 @@ def model(
         sigmas  = sigma_index(prices)
 
         price_arrs.append(prices)
-        sigma_arrs.append[sigmas]
+        sigma_arrs.append(sigmas)
 
     for offset in offsets:
 
