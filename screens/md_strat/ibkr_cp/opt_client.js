@@ -14,6 +14,13 @@ class opt_client {
     } 
 
 
+    async get_defs_fut(ul_sym, ul_month, exp, lo_str, hi_str, right) {
+
+        
+
+    }
+
+
     async get_defs_ind(ul_sym, exp, lo_str, hi_str, right) {
 
         exp             = String(exp);
@@ -105,7 +112,6 @@ class opt_client {
 
 
     async get_defs_stock(ul_sym, exp, lo_str, hi_str, right) {}
-    async get_defs_fut(ul_sym, ul_month, exp, lo_str, hi_str, right) {}
 
 
     async set_ws_handlers(

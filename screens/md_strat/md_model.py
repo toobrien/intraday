@@ -8,7 +8,7 @@ path.append(".")
 
 from util.contract_settings     import  get_settings
 from util.opts                  import  get_indexed_opt_series, get_exp_time
-from util.v_pricing             import  call, call_vertical, fly, iron_fly, put, put_vertical, straddle
+from util.v_pricing             import  calendar, call, call_vertical, fly, iron_fly, put, put_vertical, straddle
 from util.rec_tools             import  get_precision
 
 
@@ -61,12 +61,12 @@ def sigma_index(price_m: np.array) -> np.array:
 
 
 def value(
-    prices:     np.array,
-    strikes:    np.array, 
-    sigmas:     np.array,
-    mode:       str, 
-    strategy:   str,
-    params:     List[float]
+    prices_arrs:    List[np.array],
+    strike_arrs:    List[np.array], 
+    sigma_arrs:     List[np.array],
+    mode:           str, 
+    strategy:       str,
+    params:         List[float]
 ):
 
     res = []
@@ -77,38 +77,42 @@ def value(
         # sigmas are 0
         # TODO: need refactor for multi-expiry strategies
 
-        prices  = prices[:, 0].reshape(-1, 1)
-        sigmas  = np.zeros((len(prices)))
+        price_arrs  = [ prices[:, 0].reshape(-1, 1) for prices in price_arrs ]
+        sigma_arrs  = [ np.zeros((len(price_arr))) for price_arr in price_arrs ]
 
     # call, call_vertical, fly, iron_fly, put, put_vertical, straddle
 
     if strategy == "call":
 
-        res = call(prices, strikes, sigmas)
+        res = call(price_arrs[0], strike_arrs[0], sigma_arrs[0])
 
     elif strategy == "call_vertical":
 
-        res = call_vertical(prices, strikes, params[0], sigmas)
+        res = call_vertical(price_arrs[0], strike_arrs[0], params[0], sigma_arrs[0])
 
     elif strategy == "fly":
 
-        res = fly(prices, strikes, params[0], sigmas)
+        res = fly(prices_arrs[0], strike_arrs[0], params[0], sigma_arrs[0])
     
     elif strategy == "iron_fly":
 
-        res = iron_fly(prices, strikes, params[0], sigmas)
+        res = iron_fly(price_arrs[0], strike_arrs[0], params[0], sigma_arrs[0])
     
     elif strategy == "put":
 
-        res = put(prices, strikes, sigmas)
+        res = put(price_arrs[0], strike_arrs[0], sigma_arrs[0])
 
     elif strategy == "put_vertical":
 
-        res = put_vertical(prices, strikes, params[0], sigmas)
+        res = put_vertical(price_arrs[0], strike_arrs[0], params[0], sigma_arrs[0])
 
     elif strategy == "straddle":
 
-        res = straddle(prices, strikes, sigmas)
+        res = straddle(price_arrs[0], strike_arrs[0], sigma_arrs[0])
+
+    elif strategy == "calendar":
+
+        res = calendar(price_arrs, strike_arrs, sigma_arrs)
 
     return res
 
@@ -129,7 +133,8 @@ def model(
     cur_dt      = time_idx[0] if time_idx[0] != "now" else Timestamp.now().floor(OHLC_RESOLUTION).strftime(DT_FMT)
     exp_time    = get_exp_time(symbol)
     offsets     = np.arange(offset_range[0], offset_range[1], strike_increment)
-    exp_vals    = [] # for multi-expiry strategies... not yet implemented
+    price_arrs  = []
+    sigma_arrs  = []
     res         = []
     
     for exp in time_idx[1:]:
@@ -139,13 +144,23 @@ def model(
         prices  = price_matrix(idx)
         sigmas  = sigma_index(prices)
 
-        for offset in offsets:
+        price_arrs.append[prices]
+        sigma_arrs.append[sigmas]
+
+    for offset in offsets:
+
+        strike_arrs = []
+        
+        for prices in price_arrs:
 
             strikes = np.round(prices / strike_increment) * strike_increment + offset * strike_increment
-            vals    = value(prices, strikes, sigmas, mode, strategy, params)
-            avgs    = np.nanmean(vals, axis = 0)
             
-            res.append(avgs)
+            strike_arrs.append(strikes)
+
+        vals    = value(price_arrs, strike_arrs, sigma_arrs, mode, strategy, params)
+        avgs    = np.nanmean(vals, axis = 0)
+        
+        res.append(avgs)
 
         # exp_vals.append(avgs)
 

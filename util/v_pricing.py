@@ -1,6 +1,7 @@
 from    math        import  e, log
 import  numpy       as      np
 from    scipy.stats import  norm
+from    typing      import  List
 
 
 SIG_BOUND   = 5                                             # max stdevs for pricing
@@ -149,4 +150,22 @@ def call(
 
         vals = np.sum([ np.maximum(0, cur_price * e**(X[i] * f_sigma) - strike) * Y[i] for i in range(len(X)) ], axis = 0) * DEF_STEP
 
+    return vals
+
+
+def calendar(
+    cur_price:  List[np.ndarray],
+    strike:     List[np.ndarray],
+    f_sigma:    List[np.ndarray]
+):
+
+    # assume call calendar... arbitrary
+    # arrays are length 2: 0 = first expiration, 1 = second expiration
+    # slice second expiration to align with first
+
+    exp_1   = call(cur_price[0], strike[0], f_sigma[0]) 
+    exp_2   = call(cur_price[1], strike[1], f_sigma[1])
+    exp_2   = exp_2[ :, exp_1.shape[1] : ]
+    vals    = exp_1 + exp_2
+    
     return vals
