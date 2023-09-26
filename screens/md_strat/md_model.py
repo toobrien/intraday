@@ -21,7 +21,6 @@ OHLC_RESOLUTION = "1T"   # OHLC aggregation for your data... probably should be 
 
 def price_matrix(idx: dict) -> np.array:
 
-    t1      = time()
     x       = list(idx.keys())
     x_dim   = len(x)
     y_dim   = max(
@@ -42,20 +41,15 @@ def price_matrix(idx: dict) -> np.array:
 
             A[i, x_[j]] = y_[j]
 
-    print(f"price_matrix: {time() - t1:0.1f}")
-
     return A
 
 
 def sigma_index(price_m: np.array) -> np.array:
 
-    t2      = time()
     settles = price_m[:, 0]
     T       = price_m.T
     log_chg = np.where(np.isnan(T), np.nan, np.log(T / settles)).T
     sigmas  = np.nanstd(log_chg, axis = 0)
-
-    print(f"sigma_index: {time() - t2:0.1f}")
 
     return sigmas
 
@@ -176,7 +170,7 @@ def model(
     # the program will build the datetime index for the model result
     # using the first expiry range supplied
 
-    end_dt      = cur_dt + Timedelta(minutes = res.shape[0] - 1)
+    end_dt      = Timestamp(cur_dt) + Timedelta(minutes = res.shape[0] - 1)
     dt_idx      = np.array(
                     [ 
                         dt.strftime(DT_FMT)
