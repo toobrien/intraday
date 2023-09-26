@@ -92,7 +92,7 @@ def value(
 
     elif strategy == "fly":
 
-        res = fly(prices_arrs[0], strike_arrs[0], params[0], sigma_arrs[0])
+        res = fly(price_arrs[0], strike_arrs[0], params[0], sigma_arrs[0])
     
     elif strategy == "iron_fly":
 
