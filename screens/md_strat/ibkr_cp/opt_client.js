@@ -14,69 +14,98 @@ class opt_client {
     } 
 
 
-    async get_defs_fut(ul_sym, ul_month, exp, lo_str, hi_str, right) {
+    async get_opt_defs(ul_conid, exp, exchange, lo_str, hi_str, right) {
 
-        
+        exp = String(exp);
+
+        let   exp_month     = exp.slice(0, -2);
+        let   opt_defs      = null;
+        let   res           = await this.base_client.secdef_info(ul_conid, "OPT", exp_month, exchange, "0", right);
+            
+        if (res) {
+
+            opt_defs = [];
+
+            for (let i = 0; i < res.length; i++) {
+
+                let opt_def = res[i];
+
+                if (
+                    opt_def.maturityDate    == exp      &&
+                    opt_def.strike          >= lo_str   &&
+                    opt_def.strike          <= hi_str
+                )
+
+                    opt_defs.push(
+                        {
+                            conid:  opt_def.conid,
+                            strike: opt_def.strike,
+                            right:  opt_def.right,
+                            class:  opt_def.tradingClass
+                        }
+                    );
+
+            }
+
+            opt_defs.sort((a, b) => a.strike - b.strike);
+
+        }
+
+        return opt_defs;
+
+    }
+
+
+    async get_defs_fut(ul_sym, ul_exp, opt_exp, lo_str, hi_str, right) {
+
+        let     res  = null;
+        const   futs = await this.base_client.futures(ul_sym);
+        const   fut  = futs[ul_sym].find(o => o.expirationDate == ul_exp);
+
+        if (fut) {
+
+            const ul_conid      = fut["conid"];
+            const opt_defs      = await this.get_opt_defs(ul_conid, opt_exp, "SMART", lo_str, hi_str, right);
+
+            if (opt_defs)
+
+                res = {
+                    "ul_conid": ul_conid,
+                    "opt_defs": opt_defs
+                }
+
+        }
+
+        return res;
 
     }
 
 
     async get_defs_ind(ul_sym, exp, lo_str, hi_str, right) {
 
-        exp             = String(exp);
-        let exp_month   = exp.slice(0, -2);
-        let ul_conid    = null;
-        let defs        = [];
-        let res         = await this.base_client.search(ul_sym, true, "IND");
+        const   inds      = await this.base_client.search(ul_sym, true, "IND");
+        let     res       = null;
 
-        if (!res)
-
-            defs = null;
+        if (inds) {
             
-        else {
-            
-            ul_conid    = res[0].conid;
-            res         = await this.base_client.secdef_info(ul_conid, "OPT", exp_month, "SMART", "0", right);
+            const ul_conid = inds[0].conid;
+            const opt_defs = await this.get_opt_defs(ul_conid, exp, "SMART", lo_str, hi_str, right);
 
-            if (!res)
+            if (opt_defs)
 
-                defs = null;
-            
-            else {
+                res = {
+                    "ul_conid": ul_conid,
+                    "defs":     defs
+                };
 
-                for (let i = 0; i < res.length; i++) {
-
-                    let opt_def = res[i];
-
-                    if (
-                            opt_def.maturityDate == exp &&
-                            opt_def.strike >= lo_str    && 
-                            opt_def.strike <= hi_str
-                        )
-
-                        defs.push(
-                            {
-                                conid:  opt_def.conid,
-                                strike: opt_def.strike,
-                                right:  opt_def.right,
-                                class:  opt_def.tradingClass
-                            }
-                        );
-
-                }
-
-                defs.sort((a, b) => a.strike - b.strike);
-
-            }
-        
         }
 
-        return {
-            "ul_conid": ul_conid,
-            "defs":     defs
-        };
+        return res
 
     }
+
+
+    async get_defs_stk(ul_sym, exp, lo_str, hi_str, right) {}
 
 
     // US options only
@@ -109,9 +138,6 @@ class opt_client {
         return defs;
 
     }
-
-
-    async get_defs_stock(ul_sym, exp, lo_str, hi_str, right) {}
 
 
     async set_ws_handlers(

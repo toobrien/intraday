@@ -138,6 +138,18 @@ class base_client {
     }
 
 
+    async futures(symbols) {
+
+        let url = `${this.rest_uri}/trsrv/futures/?symbols=${symbols.join(",")}`;
+        let res = await fetch(url);
+
+        res = res.status == 200 ? await res.json() : null;
+
+        return res
+
+    }
+
+
     async init_ws() {
 
         let res = await fetch(`${this.rest_uri}/tickle`);
