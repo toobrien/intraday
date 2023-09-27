@@ -56,40 +56,50 @@ class opt_client {
     }
 
 
-    async get_defs_fut(ul_sym, ul_exp, opt_exp, lo_str, hi_str, right) {
+    async get_defs(
+        type,           // "FUT", "IND", or "STK"
+        ul_sym,         // underlying symbol, e.g. "ZC" or "SPX"
+        ul_exp = null,  // futures only; integer: YYYYMMDD
+        opt_exp,        // integer: YYYYMMDD
+        lo_str,         // lowest strike in range
+        hi_str,         // highest strike in range
+        right           // "C" or "P"
+    ) {
 
-        let     res  = null;
-        const   futs = await this.base_client.futures(ul_sym);
-        const   fut  = futs[ul_sym].find(o => o.expirationDate == ul_exp);
+        let res         = null;
+        let ul_conid    = null;
 
-        if (fut) {
+        if (type == "FUT") {
 
-            const ul_conid      = fut["conid"];
-            const opt_defs      = await this.get_opt_defs(ul_conid, opt_exp, "SMART", lo_str, hi_str, right);
+            const futs = await this.base_client.futures(ul_sym);
 
-            if (opt_defs)
+            if (futs) {
+                
+                const fut = futs[ul_sym].find(o => o.expirationDate == ul_exp);
 
-                res = {
-                    "ul_conid": ul_conid,
-                    "opt_defs": opt_defs
-                }
+                if (fut)
+
+                    ul_conid = fut["conid"];
+
+            }
+
+        } else {
+
+            // type == "IND" or "STK"
+
+            const uls = await this.base_client.search(ul_sym, true, type);
+
+            if (uls)
+
+                // assumes first search result is a match... probably refactor
+
+                ul_conid = uls[0].conid
 
         }
+        
+        if (ul_conid) {
 
-        return res;
-
-    }
-
-
-    async get_defs_ind(ul_sym, exp, lo_str, hi_str, right) {
-
-        const   inds      = await this.base_client.search(ul_sym, true, "IND");
-        let     res       = null;
-
-        if (inds) {
-            
-            const ul_conid = inds[0].conid;
-            const opt_defs = await this.get_opt_defs(ul_conid, exp, "SMART", lo_str, hi_str, right);
+            const opt_defs = await this.get_opt_defs(ul_conid, opt_exp, "SMART", lo_str, hi_str, right);
 
             if (opt_defs)
 
@@ -103,9 +113,6 @@ class opt_client {
         return res
 
     }
-
-
-    async get_defs_stk(ul_sym, exp, lo_str, hi_str, right) {}
 
 
     // US options only
