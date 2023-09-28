@@ -1,4 +1,4 @@
-from    math        import  e, log
+from    math        import  e
 import  numpy       as      np
 from    scipy.stats import  norm
 from    typing      import  List

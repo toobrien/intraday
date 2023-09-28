@@ -114,16 +114,30 @@ class opt_client {
 
     }
 
+    async get_call_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side);
+    async get_call_vertical_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side, params);
+    async get_iron_fly_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side, params);
 
     // US options only
     // leg_defs: asc sorted opt defs from get_*_defs
     // side: "+" for long, "-" for short
     // width: distance, in strikes, between legs
 
-    get_butterfly_defs(leg_defs, side, width) {
+    async get_fly_defs(
+        ul_type,
+        ul_sym,
+        ul_exps,
+        opt_exps,
+        lo_str,
+        hi_str,
+        side,
+        params
+    ) {
 
-        let     defs    = [];
-        const   signs   = side == "-" ? [ "-", "", "-" ] : [ "", "-", "" ];
+        const   leg_defs    = await this.get_defs(ul_type, ul_sym, ul_exps[0], opt_exps[0], lo_str, hi_str, "C");
+        const   width       = params[0];
+        let     defs        = [];
+        const   signs       = side == "-" ? [ "-", "", "-" ] : [ "", "-", "" ];
 
         for (let i = 0; i < leg_defs.length - 2 * width; i++) {
 
@@ -145,6 +159,14 @@ class opt_client {
         return defs;
 
     }
+
+    
+    async get_put_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side);
+    async get_call_vertical_defs(ul_type, ul_syms, ul_exps, opt_exp, lo_str, hi_str, side, parmas);
+    async get_put_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side);
+    async get_put_vertical_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side, params);
+    async get_straddle_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side);
+    async get_calendar_defs(ul_type, ul_sym, ul_expss, opt_expss, lo_str, hi_str, side);
 
 
     async set_ws_handlers(

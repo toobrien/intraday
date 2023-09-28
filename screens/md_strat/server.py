@@ -60,7 +60,8 @@ if __name__ == "__main__":
     CONFIG["ul_sym"]      = argv[2]
     CONFIG["resolution"]  = argv[3]
     CONFIG["ul_exps"]     = argv[4].split(",")
-    CONFIG["strat"]       = argv[5]
+    CONFIG["strat"]       = argv[5][1:]
+    CONFIG["side"]        = argv[5][0]
     CONFIG["mode"]        = argv[6]
     CONFIG["hist_start"]  = argv[7]
     CONFIG["hist_end"]    = argv[8]
@@ -95,8 +96,9 @@ if __name__ == "__main__":
                     CONFIG["params"]
                 )
     
-    CONFIG["index"] = index
-    CONFIG["rows"]  = rows
+    CONFIG["opt_exps"]  = [ int(ts.split("T")[0]) for ts in CONFIG["time_idx"][1:] ]
+    CONFIG["index"]     = index
+    CONFIG["rows"]      = rows
 
     print(f"server ready: {time() - t0:0.1f}")
 

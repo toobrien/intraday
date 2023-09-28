@@ -1,4 +1,4 @@
-from math           import e, log
+from math           import e
 from numpy          import arange
 from scipy.stats    import norm
 
