@@ -100,12 +100,18 @@ def get_settings(fn: str):
             # VX single or ...?
 
             sym = fn.split("-")[0][0:-3]
-        
-        else:
+
+        elif len(fn) > 3:
 
             # ??? possibly like "HON23"
 
             sym = fn[0:-3]
+
+        else:
+
+            # unqualified future symbol -- not file name
+
+            sym = fn
 
     elif "FUT_SPREAD" in fn:
 

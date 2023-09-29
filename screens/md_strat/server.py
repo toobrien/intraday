@@ -6,7 +6,9 @@ from time       import time
 
 path.append(".")
 
-from md_model   import model
+from md_model               import model
+from util.contract_settings import get_settings
+from util.rec_tools         import get_precision
 
 
 #                                   type    sym     res exps     strat  mode   hist_start hist_end   time_idx       offsets inc params
@@ -56,19 +58,20 @@ if __name__ == "__main__":
 
     t0 = time()
 
-    CONFIG["ul_type"]     = argv[1]
-    CONFIG["ul_sym"]      = argv[2]
-    CONFIG["resolution"]  = argv[3]
-    CONFIG["ul_exps"]     = argv[4].split(",")
-    CONFIG["strat"]       = argv[5][1:]
-    CONFIG["side"]        = argv[5][0]
-    CONFIG["mode"]        = argv[6]
-    CONFIG["hist_start"]  = argv[7]
-    CONFIG["hist_end"]    = argv[8]
-    CONFIG["time_idx"]    = argv[9].split(",")
-    CONFIG["offsets"]     = [ float(val) for val in argv[10].split(":") ]
-    CONFIG["strike_inc"]  = float(argv[11])         
-    CONFIG["params"]      = [ float(val) for val in argv[12:] ]
+    CONFIG["ul_type"]       = argv[1]
+    CONFIG["ul_sym"]        = argv[2]
+    CONFIG["resolution"]    = argv[3]
+    CONFIG["ul_exps"]       = argv[4].split(",")
+    CONFIG["strat"]         = argv[5][1:]
+    CONFIG["side"]          = argv[5][0]
+    CONFIG["mode"]          = argv[6]
+    CONFIG["hist_start"]    = argv[7]
+    CONFIG["hist_end"]      = argv[8]
+    CONFIG["time_idx"]      = argv[9].split(",")
+    CONFIG["offsets"]       = [ float(val) for val in argv[10].split(":") ]
+    CONFIG["strike_inc"]    = float(argv[11])         
+    CONFIG["params"]        = [ float(val) for val in argv[12:] ]
+    CONFIG["precision"]     = get_precision(str(get_settings(CONFIG["ul_sym"])[1]))
 
     ul_sym      = CONFIG["ul_sym"]
     ul_type     = CONFIG["ul_type"]
@@ -93,7 +96,8 @@ if __name__ == "__main__":
                     CONFIG["time_idx"],
                     CONFIG["offsets"],
                     CONFIG["strike_inc"],
-                    CONFIG["params"]
+                    CONFIG["params"],
+                    CONFIG["precision"]
                 )
     
     CONFIG["opt_exps"]  = [ int(ts.split("T")[0]) for ts in CONFIG["time_idx"][1:] ]

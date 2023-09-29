@@ -120,8 +120,8 @@ def model(
     time_idx:           List[str],
     offset_range:       List[float],
     strike_increment:   float,
-    params:             List[float]
-
+    params:             List[float],
+    precision:          int
 ):
 
     cur_dt      = time_idx[0] if time_idx[0] != "now" else Timestamp.now().floor(OHLC_RESOLUTION).strftime(DT_FMT)
@@ -178,11 +178,11 @@ def model(
                     ]
                 )
 
-    # filter any rows with NaN
+    # filter any rows with NaN and round to tick precision
 
     nan_row = np.isnan(res).any(axis = 1)
     res     = res[~nan_row]
-    #res     = np.around(res, decimals = precision)
+    res     = np.around(res, decimals = precision)
     dt_idx  = dt_idx[~nan_row]
 
     return ( dt_idx, res )
@@ -200,6 +200,7 @@ if __name__ == "__main__":
     offset_range        = [ float(val) for val in argv[7].split(":") ]
     strike_increment    = float(argv[8])
     params              = [ float(val) for val in argv[9:] ]
+    precision           = get_precision(str(get_settings(symbol)[1]))
 
     dt_idx, vals = model(
         symbol,
@@ -210,7 +211,8 @@ if __name__ == "__main__":
         time_idx,
         offset_range,
         strike_increment,
-        params
+        params,
+        precision
     )
 
     # debug
