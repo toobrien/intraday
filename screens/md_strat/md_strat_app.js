@@ -4,6 +4,10 @@ const   PORT        = 8080;
 const   CONFIG      = await (await fetch(`http://${SERVER}:${PORT}/config`)).json();
 const   CLIENT      = new opt_client();
 
+const   STRAT       = null;
+const   STRAT_DEFS  = null;
+const   OFFSETS     = null;
+
 
 function get_strategy(strat) {
 
@@ -22,17 +26,22 @@ function get_strategy(strat) {
 
 async function init() {
 
-    const strat         = get_strategy(CONFIG["strat"]);
-    const strat_defs    = strat(
-                            CONFIG["ul_type"],
-                            CONFIG["ul_sym"],
-                            CONFIG["ul_exps"],
-                            CONFIG["opt_exps"],
-                            CONFIG["lo_str"],
-                            CONFIG["hi_str"],
-                            CONFIG["side"],
-                            CONFIG["params"]
-                        );
+    STRAT       = get_strategy(CONFIG["strat"]);
+    STRAT_DEFS  = STRAT(
+                            CONFIG.ul_type,
+                            CONFIG.ul_sym,
+                            CONFIG.ul_exps,
+                            CONFIG.opt_exps,
+                            CONFIG.lo_str,
+                            CONFIG.hi_str,
+                            CONFIG.side,
+                            CONFIG.params
+                );
+    OFFSETS     = Array.from(
+                    { length: (CONFIG.offsets[1] - CONFIG.offsets[2]) / CONFIG.strike_inc },
+                    (_, i) => CONFIG.offsets[0] + i * CONFIG.strike_inc
+                );
+    
 
 }
 
