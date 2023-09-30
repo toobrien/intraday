@@ -322,25 +322,24 @@ class opt_client {
     };
 
 
-    async get_calendar_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side) {
+    async get_calendar_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side, params) {
 
-        // assume call calendar
-
-        const leg_defs_0    = await this.get_defs(ul_type, ul_sym, ul_exps[0], opt_exps[0], lo_str, hi_str, "C");
-        const leg_defs_1    = await this.get_defs(ul_type, ul_sym, ul_exps[1], opt_exps[1], lo_str, hi_str, "C");
+        const right         = params[0];
+        const leg_defs_0    = await this.get_defs(ul_type, ul_sym, ul_exps[0], opt_exps[0], lo_str, hi_str, right);
+        const leg_defs_1    = await this.get_defs(ul_type, ul_sym, ul_exps[1], opt_exps[1], lo_str, hi_str, right);
         const signs         = side == "-" ? [ "", "-" ] : [ "-", "" ];
         const defs          = [];
 
         for (let i = 0; i < leg_defs_0.length; i++) {
 
-            let c_0 = leg_defs_0[i];
-            let c_1 = leg_defs_1[i];
+            let l_0 = leg_defs_0[i];
+            let l_1 = leg_defs_1[i];
 
             defs.push(
                 {
-                    conid:  `28812380;;;${c_0.conid}/${signs[0]}1,${c_1.conid}/${signs[1]}1`,
-                    str:    c_0.strike,
-                    repr:   c_0.strike
+                    conid:  `28812380;;;${l_0.conid}/${signs[0]}1,${l_1.conid}/${signs[1]}1`,
+                    str:    l_0.strike,
+                    repr:   l_0.strike
                 }
             );
 
