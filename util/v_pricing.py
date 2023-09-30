@@ -156,15 +156,17 @@ def call(
 def calendar(
     cur_price:  List[np.ndarray],
     strike:     List[np.ndarray],
-    f_sigma:    List[np.ndarray]
+    f_sigma:    List[np.ndarray],
+    right:      str
 ):
 
-    # assume long call calendar... arbitrary
     # arrays are length 2: 0 = first expiration, 1 = second expiration
     # slice second expiration to align with first
 
-    exp_1   = call(cur_price[0], strike[0], f_sigma[0]) 
-    exp_2   = call(cur_price[1], strike[1], f_sigma[1])
+    pricer = call if right == "C" else put
+        
+    exp_1   = pricer(cur_price[0], strike[0], f_sigma[0]) 
+    exp_2   = pricer(cur_price[1], strike[1], f_sigma[1])
     exp_2   = exp_2[ :, exp_1.shape[1] : ]
     vals    = exp_1 - exp_2
     
