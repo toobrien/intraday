@@ -9,6 +9,26 @@ const   STRAT       = null;
 const   STRAT_DEFS  = null;
 const   OFFSETS     = null;
 
+let Y               = null;
+let X_MODEL         = null;
+let X_STRAT         = null;
+
+let UL_CONIDS       = null;
+let UL_LASTS        = null;
+let UL_LBLS         = null;
+let UL_LAST_LBLS    = null
+
+let IDX_L_BTN       = null;
+let IDX_R_BTN       = null;
+let IDX_TXT         = null;
+let IDX_LBL         = null;
+let IDX_IT          = null;
+
+let     CHART_DIV   = null;
+const   TRACES      = [ null, null, null, null ];
+
+const INTERVAL      = 100;
+
 
 function get_strategy(strat) {
 
