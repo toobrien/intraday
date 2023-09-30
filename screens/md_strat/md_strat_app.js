@@ -25,7 +25,7 @@ function get_strategy(strat) {
 
     if (strat == "calendar")
 
-        res = CLIENT.get_calendar_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str);
+        res = CLIENT.get_calendar_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, params[0] ? "C" : "P");
 
     else if (strat == "call")
 
