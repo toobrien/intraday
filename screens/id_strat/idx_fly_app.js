@@ -52,8 +52,7 @@ async function set_ws_handlers(client) {
                 if (msg[mdf.last]) {
 
                     const last  = msg[mdf.last];
-                    UL_LAST     =   typeof last === "string" && last[0] == "C" ? 
-                                    parseFloat(last.substring(1)) : parseFloat(last);
+                    UL_LAST     = typeof last === "string" && last[0] == "C" ? parseFloat(last.substring(1)) : parseFloat(last);
                 
                 }
 
