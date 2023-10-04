@@ -89,7 +89,7 @@ if __name__ == "__main__":
         model_sym = f"{ul_sym}-NQTV"
 
 
-    index, rows = model(
+    idx, rows = model(
                     model_sym,
                     CONFIG["strat"][1:],
                     CONFIG["mode"],
@@ -101,9 +101,15 @@ if __name__ == "__main__":
                     CONFIG["params"],
                     CONFIG["precision"]
                 )
+
+    if CONFIG["side"] == "-":
+
+        # negative values for credit
+
+        rows = rows * -1
     
     CONFIG["opt_exps"]  = [ int(ts.split("T")[0]) for ts in CONFIG["time_idx"][1:] ]
-    CONFIG["index"]     = index
+    CONFIG["index"]     = idx
     CONFIG["rows"]      = rows
 
     print(f"server ready: {time() - t0:0.1f}")

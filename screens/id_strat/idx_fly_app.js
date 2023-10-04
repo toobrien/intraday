@@ -51,8 +51,9 @@ async function set_ws_handlers(client) {
 
                 if (msg[mdf.last]) {
 
-                    const last  = msg[mdf.last];
-                    UL_LAST     = typeof last === "string" && last[0] == "C" ? parseFloat(last.substring(1)) : parseFloat(last);
+                    const last = msg[mdf.last];
+
+                    UL_LAST = typeof last === "string" && last[0] == "C" ? parseFloat(last.substring(1)) : parseFloat(last);
                 
                 }
 
@@ -199,16 +200,16 @@ async function init_view(config) {
     L_BTN.innerHTML     = "<";
     L_BTN.id            = "l_btn";
     L_BTN.onclick       = (evt) => { 
-                            TIME_I = Math.max(0, TIME_I - 1); 
-                            TIME_LBL.innerHTML = `    ${TIME_IDX[TIME_I]}`; 
+                            TIME_I              = Math.max(0, TIME_I - 1); 
+                            TIME_LBL.innerHTML  = `    ${TIME_IDX[TIME_I]}`; 
                         };
 
     R_BTN               = document.createElement("button");
     R_BTN.innerHTML     = ">";
     R_BTN.id            = "r_btn";
     R_BTN.onclick       = (evt) => { 
-                            TIME_I = Math.min(TIME_IDX.length - 1, TIME_I + 1); 
-                            TIME_LBL.innerHTML = `    ${TIME_IDX[TIME_I]}`; 
+                            TIME_I              = Math.min(TIME_IDX.length - 1, TIME_I + 1); 
+                            TIME_LBL.innerHTML  = `    ${TIME_IDX[TIME_I]}`; 
                         };
 
     TIME_LBL            = document.createElement("text");
