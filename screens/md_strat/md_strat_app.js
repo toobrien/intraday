@@ -155,7 +155,7 @@ async function update() {
 
 async function init() {
 
-    // model, quotes
+    // model, strategy, quotes
 
     OFFSETS = Array.from(
         { length: (CONFIG.offsets[1] - CONFIG.offsets[2]) / CONFIG.strike_inc },
@@ -248,6 +248,27 @@ async function init() {
     IDX_TXT.id          = "idx_txt";
     IDX_TXT.type        = "text";
     IDX_TXT.length      = 30;
+    IDX_TXT.value       = INDEX[0];                        
+
+    IDX_TXT.addEventListener(
+        "keydown",
+        (evt) => {
+
+            if (evt.key === "Enter") {
+
+                let i = INDEX.indexOf(IDX_TXT.value);
+
+                if (i != -1) {
+
+                    IDX_IT              = i;
+                    IDX_LBL.innerHTML   = INDEX[IDX_IT];
+
+                }
+
+            }
+
+        }
+    );
 
     view.appendChild(IDX_TXT);
     view.appendChild(L_BTN);
