@@ -270,6 +270,11 @@ async function init() {
         }
     );
 
+    // underlying label (only front ul for multi-expiry, as all representation strikes are based on the front leg)
+
+    UL_LBL              = document.createElement("text");
+    UL_LBL.innerHTML    = `    ${UL_LAST}`;
+
     view.appendChild(IDX_TXT);
     view.appendChild(L_BTN);
     view.appendChild(R_BTN);

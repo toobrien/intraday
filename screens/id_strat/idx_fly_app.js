@@ -214,18 +214,15 @@ async function init_view(config) {
 
     TIME_LBL            = document.createElement("text");
     TIME_LBL.innerHTML  = `${TIME_IDX[TIME_I]}`;
-    
+
+    // ul price label
+
+    UL_LBL              = document.createElement("text");
+    UL_LBL.innerHTML    = `    ${UL_LAST}`;
 
     view.appendChild(L_BTN);
     view.appendChild(R_BTN);
     view.appendChild(TIME_LBL);
-
-    // ul price label
-
-    UL_LBL = document.createElement("text");
-
-    UL_LBL.innerHTML = `    ${UL_LAST}`;
-
     view.appendChild(UL_LBL);
 
 }
