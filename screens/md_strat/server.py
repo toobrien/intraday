@@ -11,7 +11,7 @@ from util.contract_settings import get_settings
 from util.rec_tools         import get_precision
 
 
-#                                   type    sym     res exps     strat  mode   hist_start hist_end   time_idx       offsets model_inc true_inc  params
+#                                   type    sym     res ul_exps  strat  mode   hist_start hist_end   time_idx       offsets model_inc true_inc  params
 # python screens/md_strat/server.py FUT     ZC      1m  20231214 -fly   FIN    2018-01-01 2024-01-01 now,2023-09-28 -50:51  2         10        10
 # python screens/md_strat/server.py IND     SPX     1m  -        -fly   FIN    2023-06-01 2023-10-01 now,2023-09-24 -25:26  1         5         5
 # python screens/md_strat/server.py STK     AAPL    1m  -        -fly   FIN    2023-06-01 2024-01-01 now,2023-09-24 -3:3    0.1       2.5       2.5
@@ -20,7 +20,7 @@ from util.rec_tools         import get_precision
 # type:             FUT, IND, or STK
 # sym:              underlying symbol
 # res:              ohlc resolution (only minutes supported--must match source data)
-# exps:             underlying expiration date (futs only)
+# ul_exps:          underlying expiration date (futs only)
 # strat:            see options in util.v_pricing
 # hist_start/end:   date range for model inputs
 # time_idx:         "now" or YYYY-MM-DD, or YYYY-MM-DDTHH:MM:SS. modelling will start
