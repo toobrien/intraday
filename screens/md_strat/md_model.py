@@ -76,7 +76,11 @@ def value(
 
     # call, call_vertical, fly, iron_fly, put, put_vertical, straddle
 
-    if strategy == "call":
+    if strategy == "calendar":
+
+        res = calendar(price_arrs, strike_arrs, sigma_arrs)
+
+    elif strategy == "call":
 
         res = call(price_arrs[0], strike_arrs[0], sigma_arrs[0])
 
@@ -103,10 +107,6 @@ def value(
     elif strategy == "straddle":
 
         res = straddle(price_arrs[0], strike_arrs[0], sigma_arrs[0])
-
-    elif strategy == "calendar":
-
-        res = calendar(price_arrs, strike_arrs, sigma_arrs)
 
     return res
 

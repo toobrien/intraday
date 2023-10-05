@@ -108,6 +108,39 @@ class opt_client {
     // width: distance, in strikes, between legs
 
 
+    async get_calendar_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side, right) {
+
+        const ul_0_conid    = await this.get_ul_conid(ul_type, ul_sym, ul_exps[0]);
+        const ul_1_conid    = await this.get_ul_conid(ul_type, ul_sym, ul_exps[1]);
+        const leg_defs_0    = await this.get_opt_defs(ul_0_conid, opt_exps[0], "SMART", lo_str, hi_str, right);
+        const leg_defs_1    = await this.get_opt_defs(ul_1_conid, opt_exps[1], "SMART", lo_str, hi_str, right);
+        const signs         = side == "-" ? [ "", "-" ] : [ "-", "" ];
+        const res_defs      = [];
+
+        for (let i = 0; i < leg_defs_0.length; i++) {
+
+            let l_0 = leg_defs_0[i];
+            let l_1 = leg_defs_1[i];
+
+            res_defs.push(
+                {
+                    conid:  `28812380;;;${l_0.conid}/${signs[0]}1,${l_1.conid}/${signs[1]}1`,
+                    str:    l_0.strike,
+                    repr:   l_0.strike
+                }
+            );
+
+        }
+
+        return {
+            "ul_conid":     ul_0_conid,
+            "ul_1_conid":   ul_1_conid,
+            "defs":         res_defs
+        }
+
+    };
+
+
     async get_call_defs(ul_type, ul_sym, ul_exp, opt_exp, lo_str, hi_str) {
 
         const   ul_conid    = await get_ul_conid(ul_type, ul_sym, ul_exp);
@@ -319,39 +352,6 @@ class opt_client {
             "ul_conid": ul_conid,
             "defs":     res_defs
         };
-
-    };
-
-
-    async get_calendar_defs(ul_type, ul_sym, ul_exps, opt_exps, lo_str, hi_str, side, right) {
-
-        const ul_0_conid    = await this.get_ul_conid(ul_type, ul_sym, ul_exps[0]);
-        const ul_1_conid    = await this.get_ul_conid(ul_type, ul_sym, ul_exps[1]);
-        const leg_defs_0    = await this.get_opt_defs(ul_0_conid, opt_exps[0], "SMART", lo_str, hi_str, right);
-        const leg_defs_1    = await this.get_opt_defs(ul_1_conid, opt_exps[1], "SMART", lo_str, hi_str, right);
-        const signs         = side == "-" ? [ "", "-" ] : [ "-", "" ];
-        const res_defs      = [];
-
-        for (let i = 0; i < leg_defs_0.length; i++) {
-
-            let l_0 = leg_defs_0[i];
-            let l_1 = leg_defs_1[i];
-
-            res_defs.push(
-                {
-                    conid:  `28812380;;;${l_0.conid}/${signs[0]}1,${l_1.conid}/${signs[1]}1`,
-                    str:    l_0.strike,
-                    repr:   l_0.strike
-                }
-            );
-
-        }
-
-        return {
-            "ul_conid":     ul_0_conid,
-            "ul_1_conid":   ul_1_conid,
-            "defs":         res_defs
-        }
 
     };
 
