@@ -9,9 +9,8 @@ path.append(".")
 from research.id_strat_txt import run
 
 
-# python trading/id_strat/server.py SPX:1m fly 15:30:00 15:59:00 15:59:00 1 2023-06-01 2023-10-01 EWMA_FIN 0 -10:11 1.0 5.0 20230905 4065 5035
-# 
-# same as research/id_strat_txt.py, except with expiry and strike range as the last three args
+#                                   sym    start_t  end_t    exp_t    date_start date_end   mode offsets model_inc width def_inc expiry   lo_str hi_str
+# python trading/id_strat/server.py SPX:1m 15:30:00 15:59:00 15:59:00 2023-06-01 2023-10-01 FIN  -10:11  1.0       5.0   1       20230905 4065   5035
 
 
 APP                         = Flask(
@@ -34,7 +33,8 @@ CONFIG = {
     "ul_sym":       None,
     "hi_strike":    None,
     "lo_strike":    None,
-    "width":        None
+    "width":        None,
+    "def_inc":      None
 }
 
 
@@ -63,13 +63,31 @@ if __name__ == "__main__":
 
     t0 = time()
 
-    CONFIG["expiry"]    = argv[-3]
-    CONFIG["increment"] = float(argv[12])
-    CONFIG["hi_strike"] = int(argv[-1])
-    CONFIG["lo_strike"] = int(argv[-2])
-    CONFIG["offsets"]   = [ int(i) for i in argv[11].split(":") ]
-    CONFIG["rows"]      = run(argv[0:-3])
-    CONFIG["width"]     = float(argv[-4])
+    CONFIG["offsets"]   = [ int(i) for i in argv[8].split(":") ]
+    CONFIG["model_inc"] = float(argv[9])
+    CONFIG["width"]     = float(argv[10])
+    CONFIG["def_inc"]   = int(argv[11])
+    CONFIG["expiry"]    = argv[12]
+    CONFIG["lo_strike"] = int(argv[13])
+    CONFIG["hi_strike"] = int(argv[14])
+    CONFIG["rows"]      = run(
+                            [
+                                None,       # program
+                                argv[1],    # sym
+                                "fly",      # strat
+                                argv[2],    # session_start
+                                argv[3],    # session_end
+                                argv[4],    # expiration
+                                1,          # session inc
+                                argv[5],    # date_start
+                                argv[6],    # date_end
+                                argv[7],    # mode
+                                0,          # plot
+                                argv[8],    # offset_rng
+                                argv[9],    # strike_inc 
+                                argv[10]    # width
+                            ]
+                        )
 
     print(f"id_strat_txt: {time() - t0:0.1f}s")
 

@@ -234,13 +234,13 @@ async function init() {
     const client    = new opt_client();
     const opt_defs  = await client.get_defs_ind(config.ul_sym, config.expiry, config.lo_strike, config.hi_strike, "C");
     const ul_conid  = opt_defs.ul_conid; 
-    const fly_defs  = client.get_butterfly_defs(opt_defs.defs, "-", 1);
+    const fly_defs  = client.get_butterfly_defs(opt_defs.defs, "-", config.def_inc);
     const conids    = fly_defs.map(def => def.conid);
 
-    MODEL_INC       = config.increment;
+    MODEL_INC       = config.model_inc;
     OFFSETS         = Array.from(
-                        { length: (config.offsets[1] - config.offsets[0]) / config.increment }, 
-                        (_, i) => config.offsets[0] + i * config.increment
+                        { length: (config.offsets[1] - config.offsets[0]) / config.model_inc }, 
+                        (_, i) => config.offsets[0] + i * config.model_inc
                     );
     MODEL_DATA      = config.rows;
     
