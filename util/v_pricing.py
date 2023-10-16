@@ -106,7 +106,7 @@ def iron_fly(
     
     vals = None
 
-    if f_sigma == 0:
+    if np.all(f_sigma == 0):
 
         vals = np.minimum(width, abs(cur_price - mid))
 
@@ -164,7 +164,7 @@ def straddle(
     
     vals = None
 
-    if f_sigma == 0:
+    if np.all(f_sigma == 0):
 
         vals = abs(cur_price - mid_strike)
     
