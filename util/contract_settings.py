@@ -10,6 +10,7 @@ CONTRACT_SETTINGS = {
 
             # multiplier    # tick size
 
+    "ALI":  ( 0.01,         0.25,           ),
     "CL":   ( 0.01,         0.01,           ),
     "LO":   ( 0.01,         0.01,           ),
     "LO1":  ( 0.01,         0.01,           ),
