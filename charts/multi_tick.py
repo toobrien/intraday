@@ -124,7 +124,6 @@ if __name__ == "__main__":
         horizontal_spacing  = 0.03,
         vertical_spacing    = 0.03,
         row_heights         = row_heights,
-        shared_xaxes        = True,
         shared_yaxes        = True,
         subplot_titles      = tuple(titles)
     )
@@ -198,6 +197,13 @@ if __name__ == "__main__":
 
             row += 1
 
-    fig.show()
+    x_rng = [ -0.01 * tick, tick * 1.01 ]
 
-    pass
+    fig.update_xaxes(range = x_rng, row = 1, col = 2)
+
+    for i in range(1, len(contract_ids)):
+
+        fig.update_xaxes(range = x_rng, row = 2 * i, col = 2)
+        fig.update_xaxes(range = x_rng, row = 2 * i + 1, col = 2)
+
+    fig.show()
