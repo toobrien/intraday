@@ -124,9 +124,11 @@ if __name__ == "__main__":
         vertical_spacing    = 0.025,
         row_heights         = row_heights,
         shared_xaxes        = True,
-        shared_y_axes       = True,
+        shared_yaxes        = True,
         subplot_titles      = tuple(titles)
     )
+
+    size_norm = 2. * max([ rec[tas_rec.qty] for rec in recs[0] ]) / (40.**2)
 
     for i in range(len(contract_ids)):
 
@@ -145,10 +147,11 @@ if __name__ == "__main__":
                     "y":            [ rec[tas_rec.price] for rec in trace_recs ],
                     "text":         text,
                     "marker_size":  size,
+                    "mode":         "markers",
                     "marker":       {
                                         "color":    color,
                                         "sizemode": "area",
-                                        "sizeref":  2. * max(size) / (40.**2),
+                                        "sizeref":  size_norm,
                                         "sizemin":  4 
                                     }
                 }
@@ -156,6 +159,22 @@ if __name__ == "__main__":
             row = row,
             col = 2
         )
+
+        vbp_y = vbp(trace_recs, precision)
+
+        fig.add_trace(
+            go.Histogram(
+                {
+                    "y":            vbp_y,
+                    "nbinsy":       int((max(vbp_y) - min(vbp_y)) / tick_size) + 1, 
+                    "name":         contract_ids[i],
+                    "opacity":      0.5,
+                    "marker_color": "#0000FF"
+                }
+            ),
+            row = row,
+            col = 1
+        ) 
 
         row += 1
 
@@ -171,7 +190,9 @@ if __name__ == "__main__":
                         "mode":     "markers",
                         "marker":   { "color": "#0000FF" }
                     }
-                )
+                ),
+                row = row,
+                col = 2
             )
 
             row += 1
