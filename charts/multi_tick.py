@@ -64,8 +64,8 @@ if __name__ == "__main__":
     for next_rec in recs[1:]:
 
         if  next_rec[tas_rec.price] == prev_rec[tas_rec.price]  and \
-            next_rec[tas_rec.side]  == prev_rec[tas_rec.side]    and \
-            next_rec[-1]            == prev_rec[-2]:
+            next_rec[tas_rec.side]  == prev_rec[tas_rec.side]   and \
+            next_rec[-1]            == prev_rec[-2]:            # contract_id
 
             prev_rec[tas_rec.qty]   += next_rec[tas_rec.qty]
         
