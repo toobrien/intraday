@@ -105,7 +105,7 @@ if __name__ == "__main__":
     sub_row_height          = primary_row_height * 0.25
     secondary_row_height    = primary_row_height - sub_row_height
     row_heights             = [ primary_row_height ]
-    titles                  = [ contract_ids[0] ]
+    titles                  = [ "", contract_ids[0] ]
     row                     = 1
 
     for contract_id in contract_ids[1:]:
@@ -113,6 +113,7 @@ if __name__ == "__main__":
         row_heights.append(secondary_row_height)
         row_heights.append(sub_row_height)
 
+        titles.append("")
         titles.append(contract_id)
         titles.append("")
 
@@ -120,8 +121,8 @@ if __name__ == "__main__":
         rows                = 2 * len(contract_ids) - 1,
         cols                = 2,
         column_widths       = [ 0.1, 0.9 ],
-        horizontal_spacing  = 0.025,
-        vertical_spacing    = 0.025,
+        horizontal_spacing  = 0.03,
+        vertical_spacing    = 0.03,
         row_heights         = row_heights,
         shared_xaxes        = True,
         shared_yaxes        = True,
