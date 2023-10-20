@@ -7,8 +7,7 @@ path.append(".")
 
 from    util.contract_settings  import  get_settings
 from    util.parsers            import  tas_rec
-from    util.plotting           import  get_title
-from    util.aggregations       import  tick_series, vbp
+from    util.aggregations       import  vbp
 from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
