@@ -80,8 +80,6 @@ if __name__ == "__main__":
         tick            += next_rec[tas_rec.qty]
         prev_rec[-1]    =  tick
 
-    prev_rec[-1] = tick
-
     agg_recs.append(prev_rec)
 
     for rec in agg_recs:
