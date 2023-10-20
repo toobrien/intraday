@@ -16,6 +16,9 @@ from    util.sc_dt              import  ts_to_ds
 # python charts/multi_tick.py HOZ23_FUT_CME:HOZ24_FUT_CME 2023-10-19
 
 
+FMT = "%Y-%m-%dT%H:%M:%S.%f"
+
+
 if __name__ == "__main__":
 
     contract_ids            = argv[1].split(":")
@@ -100,5 +103,82 @@ if __name__ == "__main__":
         ]
         for contract_id in contract_ids
     ]
+
+    primary_row_height      = 1 / len(contract_ids)
+    sub_row_height          = primary_row_height * 0.25
+    secondary_row_height    = primary_row_height - sub_row_height
+    row_heights             = [ primary_row_height ]
+    titles                  = [ contract_ids[0] ]
+    row                     = 1
+
+    for contract_id in contract_ids[1:]:
+
+        row_heights.append(secondary_row_height)
+        row_heights.append(sub_row_height)
+
+        titles.append(contract_id)
+        titles.append("")
+
+    fig = make_subplots(
+        rows                = 2 * len(contract_ids) - 1,
+        cols                = 2,
+        column_widths       = [ 0.1, 0.9 ],
+        horizontal_spacing  = 0.025,
+        vertical_spacing    = 0.025,
+        row_heights         = row_heights,
+        shared_xaxes        = True,
+        shared_y_axes       = True,
+        subplot_titles      = tuple(titles)
+    )
+
+    for i in range(len(contract_ids)):
+
+        trace_recs  = recs[i]
+        tick_idx    = -1 if i == 0 else -2
+        x           = [ rec[tick_idx] for rec in trace_recs ]
+        size        = [ rec[tas_rec.qty] for rec in trace_recs ]
+        color       = [ "#FF0000" if rec[tas_rec.side] == 0 else "#0000FF" for rec in trace_recs ]
+        text        = [ ts_to_ds(rec[tas_rec.timestamp], FMT) for rec in trace_recs ]
+
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "name":         contract_ids[i],
+                    "x":            x,
+                    "y":            [ rec[tas_rec.price] for rec in trace_recs ],
+                    "text":         text,
+                    "marker_size":  size,
+                    "marker":       {
+                                        "color":    color,
+                                        "sizemode": "area",
+                                        "sizeref":  2. * max(size) / (40.**2),
+                                        "sizemin":  4 
+                                    }
+                }
+            ),
+            row = row,
+            col = 2
+        )
+
+        row += 1
+
+        if i != 0:
+
+            fig.add_trace(
+                go.Scattergl(
+                    {
+                        "name":     f"{contract_ids[i]} log",
+                        "x":        [ rec[tick_idx] for rec in trace_recs ],
+                        "y":        [ rec[-1] for rec in trace_recs ],
+                        "text":     text,
+                        "mode":     "markers",
+                        "marker":   { "color": "#0000FF" }
+                    }
+                )
+            )
+
+            row += 1
+
+    fig.show()
 
     pass
