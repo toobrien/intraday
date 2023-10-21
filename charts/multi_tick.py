@@ -121,12 +121,14 @@ if __name__ == "__main__":
         rows                = 2 * len(contract_ids) - 1,
         cols                = 2,
         column_widths       = [ 0.1, 0.9 ],
-        horizontal_spacing  = 0.03,
-        vertical_spacing    = 0.03,
+        horizontal_spacing  = 0.05,
+        vertical_spacing    = 0.05,
         row_heights         = row_heights,
         shared_yaxes        = True,
         subplot_titles      = tuple(titles)
     )
+
+    fig.update_layout(height = 500 * len(contract_ids))
 
     size_norm = 2. * max([ rec[tas_rec.qty] for rec in recs[0] ]) / (40.**2)
 
@@ -193,6 +195,28 @@ if __name__ == "__main__":
                 ),
                 row = row,
                 col = 2
+            )
+
+            vbp_y = vbp(
+                        [ 
+                            [ None, rec[-1], rec[tas_rec.qty] ]
+                            for rec in trace_recs
+                        ],
+                        3
+                    )
+
+            fig.add_trace(
+                go.Histogram(
+                    {
+                        "y":            vbp_y,
+                        "nbinsy":       int((max(vbp_y) - min(vbp_y)) / tick_size) + 1, 
+                        "name":         f"{contract_ids[i]} log hist",
+                        "opacity":      0.5,
+                        "marker_color": "#0000FF"
+                    }
+                ),
+                row = row,
+                col = 1
             )
 
             row += 1
