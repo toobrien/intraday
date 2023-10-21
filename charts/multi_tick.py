@@ -139,7 +139,7 @@ if __name__ == "__main__":
         x           = [ rec[tick_idx] for rec in trace_recs ]
         size        = [ rec[tas_rec.qty] for rec in trace_recs ]
         color       = [ "#FF0000" if rec[tas_rec.side] == 0 else "#0000FF" for rec in trace_recs ]
-        text        = [ ts_to_ds(rec[tas_rec.timestamp], FMT) for rec in trace_recs ]
+        text        = [ f"{ts_to_ds(rec[tas_rec.timestamp], FMT)}<br>{rec[tas_rec.qty]}" for rec in trace_recs ]
 
         fig.add_trace(
             go.Scattergl(
