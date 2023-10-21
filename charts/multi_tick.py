@@ -221,13 +221,11 @@ if __name__ == "__main__":
 
             row += 1
 
-    x_rng = [ -0.01 * tick, tick * 1.01 ]
-
-    fig.update_xaxes(range = x_rng, row = 1, col = 2)
+    fig.update_xaxes(matches = "x2", row = 1, col = 2)
 
     for i in range(1, len(contract_ids)):
 
-        fig.update_xaxes(range = x_rng, row = 2 * i, col = 2)
-        fig.update_xaxes(range = x_rng, row = 2 * i + 1, col = 2)
+        fig.update_xaxes(matches = "x2", row = 2 * i, col = 2)
+        fig.update_xaxes(matches = "x2", row = 2 * i + 1, col = 2)
 
     fig.show()
