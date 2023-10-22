@@ -1,10 +1,10 @@
-from    math                    import  log
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv, path
 
 path.append(".")
 
+from    util.aggregations       import  multi_tick_series
 from    util.contract_settings  import  get_settings
 from    util.parsers            import  tas_rec
 from    util.aggregations       import  vbp
@@ -32,74 +32,7 @@ if __name__ == "__main__":
             for contract_id in contract_ids
         ]
     
-    recs = [
-        [ list(rec) for rec in recs[i] ]
-        for i in range(len(recs))
-    ]
-
-    for i in range(len(recs)):
-
-        series      = recs[i]
-        contract_id = contract_ids[i]
-
-        for j in range(len(series)):
-
-            series[j].append(contract_id)
-
-    recs = [
-        rec
-        for series in recs
-        for rec in series
-    ]
-
-    prev_m1 = recs[0][tas_rec.price]
-
-    recs = sorted(recs, key = lambda r: r[tas_rec.timestamp])
-
-    agg_recs = []
-    tick     = recs[0][tas_rec.qty]
-    prev_rec = [ val for val in recs[0] ]
-    prev_rec.append(tick)
-
-    for next_rec in recs[1:]:
-
-        if  next_rec[tas_rec.price] == prev_rec[tas_rec.price]  and \
-            next_rec[tas_rec.side]  == prev_rec[tas_rec.side]   and \
-            next_rec[-1]            == prev_rec[-2]:            # contract_id
-
-            prev_rec[tas_rec.qty]   += next_rec[tas_rec.qty]
-        
-        else:
-
-            agg_recs.append(prev_rec)
-
-            prev_rec = [ val for val in next_rec ]
-            
-            prev_rec.append(tick)
-            
-        tick            += next_rec[tas_rec.qty]
-        prev_rec[-1]    =  tick
-
-    agg_recs.append(prev_rec)
-
-    for rec in agg_recs:
-    
-        if rec[-2] == contract_ids[0]:
-
-            prev_m1 = rec[tas_rec.price]
-
-        else:
-
-            rec.append(log(rec[tas_rec.price] / prev_m1))
-
-    recs = [
-        [ 
-            rec
-            for rec in agg_recs
-            if contract_id in rec
-        ]
-        for contract_id in contract_ids
-    ]
+    recs = multi_tick_series(recs, contract_ids)
 
     primary_row_height      = 1 / len(contract_ids)
     sub_row_height          = primary_row_height * 0.25
@@ -130,28 +63,24 @@ if __name__ == "__main__":
 
     fig.update_layout(height = 500 * len(contract_ids))
 
-    size_norm = 2. * max([ rec[tas_rec.qty] for rec in recs[0] ]) / (40.**2)
+    size_norm = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
 
     for i in range(len(contract_ids)):
 
-        trace_recs  = recs[i]
-        tick_idx    = -1 if i == 0 else -2
-        x           = [ rec[tick_idx] for rec in trace_recs ]
-        size        = [ rec[tas_rec.qty] for rec in trace_recs ]
-        color       = [ "#FF0000" if rec[tas_rec.side] == 0 else "#0000FF" for rec in trace_recs ]
-        text        = [ f"{ts_to_ds(rec[tas_rec.timestamp], FMT)}<br>{rec[tas_rec.qty]}" for rec in trace_recs ]
+        trace_recs = recs[contract_ids[i]]
+        text       = [ f"{ts_to_ds(trace_recs['t'][i], FMT)}<br>{trace_recs['z'][i]}" for i in range(len(trace_recs["t"])) ]
 
         fig.add_trace(
             go.Scattergl(
                 {
                     "name":         contract_ids[i],
-                    "x":            x,
-                    "y":            [ rec[tas_rec.price] for rec in trace_recs ],
+                    "x":            trace_recs["x"],
+                    "y":            trace_recs["y"],
                     "text":         text,
-                    "marker_size":  size,
+                    "marker_size":  trace_recs["z"],
                     "mode":         "markers",
                     "marker":       {
-                                        "color":    color,
+                                        "color":    trace_recs["c"],
                                         "sizemode": "area",
                                         "sizeref":  size_norm,
                                         "sizemin":  4 
@@ -162,7 +91,9 @@ if __name__ == "__main__":
             col = 2
         )
 
-        vbp_y = vbp(trace_recs, precision)
+        hist = zip([ None for rec in trace_recs["y"] ], trace_recs["y"], trace_recs["z"])
+
+        vbp_y = vbp(hist, precision)
 
         fig.add_trace(
             go.Histogram(
@@ -186,8 +117,8 @@ if __name__ == "__main__":
                 go.Scattergl(
                     {
                         "name":     f"{contract_ids[i]} log",
-                        "x":        [ rec[tick_idx] for rec in trace_recs ],
-                        "y":        [ rec[-1] for rec in trace_recs ],
+                        "x":        trace_recs["x"],
+                        "y":        trace_recs["log"],
                         "text":     text,
                         "mode":     "markers",
                         "marker":   { "color": "#0000FF" }
@@ -197,13 +128,7 @@ if __name__ == "__main__":
                 col = 2
             )
 
-            vbp_y = vbp(
-                        [ 
-                            [ None, rec[-1], rec[tas_rec.qty] ]
-                            for rec in trace_recs
-                        ],
-                        3
-                    )
+            vbp_y = vbp(zip([ None for rec in trace_recs["y"] ], trace_recs["log"], trace_recs["z"]), 3)
 
             fig.add_trace(
                 go.Histogram(

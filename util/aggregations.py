@@ -1,5 +1,6 @@
 from bisect         import bisect_left
 from enum           import IntEnum
+from math           import log
 from typing         import List
 from util.parsers   import tas_rec
 from util.rec_tools import date_index
@@ -76,6 +77,91 @@ def tick_series(recs: List):
     c.append("#0000FF" if prev_side else "#FF0000")  
 
     return ( x, y, z, t, c )
+
+
+def multi_tick_series(recs: List[List], contract_ids: List):
+
+    recs = [
+        [ list(rec) for rec in recs[i] ]
+        for i in range(len(recs))
+    ]
+
+    for i in range(len(recs)):
+
+        series      = recs[i]
+        contract_id = contract_ids[i]
+
+        for j in range(len(series)):
+
+            series[j].append(contract_id)
+
+    recs = [
+        rec
+        for series in recs
+        for rec in series
+    ]
+
+    prev_m1 = recs[0][tas_rec.price]
+
+    recs = sorted(recs, key = lambda r: r[tas_rec.timestamp])
+
+    agg_recs = []
+    tick     = recs[0][tas_rec.qty]
+    prev_rec = [ val for val in recs[0] ]
+
+    prev_rec.append(tick)
+
+    for next_rec in recs[1:]:
+
+        if  next_rec[tas_rec.price] == prev_rec[tas_rec.price]  and \
+            next_rec[tas_rec.side]  == prev_rec[tas_rec.side]   and \
+            next_rec[-1]            == prev_rec[-2]:            # contract_id
+
+            prev_rec[tas_rec.qty]   += next_rec[tas_rec.qty]
+        
+        else:
+
+            agg_recs.append(prev_rec)
+
+            prev_rec = [ val for val in next_rec ]
+            
+            prev_rec.append(tick)
+            
+        tick            += next_rec[tas_rec.qty]
+        prev_rec[-1]    =  tick
+
+    agg_recs.append(prev_rec)
+
+    for rec in agg_recs:
+    
+        if rec[-2] == contract_ids[0]:
+
+            prev_m1 = rec[tas_rec.price]
+
+        rec.append(log(rec[tas_rec.price] / prev_m1))
+
+    recs = [
+        [ 
+            rec
+            for rec in agg_recs
+            if contract_id in rec
+        ]
+        for contract_id in contract_ids
+    ]
+
+    recs = {
+        contract_ids[i]: {
+            "x": [ rec[-2] for rec in recs[i] ],
+            "y": [ rec[tas_rec.price] for rec in recs[i] ],
+            "t": [ rec[tas_rec.timestamp] for rec in recs[i] ],
+            "z": [ rec[tas_rec.qty] for rec in recs[i] ],
+            "c": [ "#0000FF" if rec[tas_rec.side] else "#FF0000" for rec in recs[i] ],
+            "log": [ rec[-1] for rec in recs[i] ]
+        }
+        for i in range(len(contract_ids))
+    }
+
+    return recs
 
 
 # aggregates trades by rounding to the given increment
