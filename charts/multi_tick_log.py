@@ -12,7 +12,7 @@ from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
 
-# python charts/multi_tick_log.py HOZ23_FUT_CME:HOM24_FUT_CME:HOZ24_FUT_CME 2023-10-20
+# python charts/multi_tick_log.py HOZ23_FUT_CME:HOH24_FUT_CME:HOM24_FUT_CME:HOU24_FUT_CME:HOZ24_FUT_CME 2023-10-20
 
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
