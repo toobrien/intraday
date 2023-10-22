@@ -25,7 +25,7 @@ if __name__ == "__main__":
     precision               = get_precision(str(tick_size))
     start                   = argv[2] if len(argv) > 2 else None
     end                     = argv[3] if len(argv) > 3 else None
-    title                   = f"{'    '.join(contract_ids)}    {start} - {end}"
+    title                   = f"{contract_ids[0]}    {start} - {end}"
     
     recs = [ 
             get_tas(contract_id, multiplier, None, start, end)
@@ -36,9 +36,16 @@ if __name__ == "__main__":
 
     size_norm = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
 
-    fig = go.Figure()
+    fig = make_subplots(
+            rows                = 2,
+            cols                = 1,
+            vertical_spacing    = 0.05,
+            shared_xaxes        = True
+        )
+    
+    fig.update_layout(title_text = title)
 
-    for contract_id in contract_ids[1:]:
+    for contract_id in contract_ids:
 
         x, y, z, t, c, log = itemgetter("x", "y", "z", "t", "c", "log")(recs[contract_id])
 
@@ -64,7 +71,9 @@ if __name__ == "__main__":
                                     },
                     "name":         contract_id
                 }
-            )
+            ),
+            row = 2 if contract_id != contract_ids[0] else 1,
+            col = 1
         )
 
     fig.show()

@@ -101,7 +101,8 @@ def multi_tick_series(recs: List[List], contract_ids: List):
         for rec in series
     ]
 
-    prev_m1 = recs[0][tas_rec.price]
+    init_m1 = recs[0][tas_rec.price]
+    prev_m1 = init_m1
 
     recs = sorted(recs, key = lambda r: r[tas_rec.timestamp])
 
@@ -138,7 +139,11 @@ def multi_tick_series(recs: List[List], contract_ids: List):
 
             prev_m1 = rec[tas_rec.price]
 
-        rec.append(log(rec[tas_rec.price] / prev_m1))
+            rec.append(log(rec[tas_rec.price] / init_m1))
+
+        else:
+            
+            rec.append(log(rec[tas_rec.price] / prev_m1))
 
     recs = [
         [ 
