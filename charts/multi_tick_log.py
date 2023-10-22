@@ -45,7 +45,7 @@ if __name__ == "__main__":
         diff = [ log[i] - log[0] for i in range(len(log)) ]
 
         text = [
-            f"{ts_to_ds(t[i], FMT)}<br>{log[i]}<br>{z[i]}"
+            f"{ts_to_ds(t[i], FMT)}<br>{log[i]:0.4f}<br>{y[i]:0.{precision}f}<br>{z[i]}"
             for i in range(len(t))
         ]
 
