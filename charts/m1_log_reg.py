@@ -36,7 +36,7 @@ if __name__ == "__main__":
     size_norm = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
 
     m1_id   = contract_ids[0]
-    m1_0    = recs[m1_id]["y"][-1]
+    m1_0    = recs[m1_id]["y"][0]
 
     fig = go.Figure()
 
