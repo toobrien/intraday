@@ -1,6 +1,8 @@
 from    operator                import  itemgetter
 from    math                    import  e, log
+from    numpy                   import  arange, array
 import  plotly.graph_objects    as      go
+from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv, path
 
 path.append(".")
@@ -35,12 +37,22 @@ if __name__ == "__main__":
 
     size_norm = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
 
+
     m1_id   = contract_ids[0]
     m1_0    = recs[m1_id]["y"][0]
+    m1_logs = [ log(m1_i / m1_0) for m1_i in recs[m1_id]["y"] ]
+    x_min   = min(m1_logs)
+    x_max   = max(m1_logs)
+    X       = arange(x_min, x_max, step = 0.001)
+    X_      = X.reshape(-1, 1)
 
     fig = go.Figure()
 
     fig.update_layout(title_text = title)
+
+    model = LinearRegression()
+
+    print("contract_id\ta\tb\tr^2")
 
     for contract_id in contract_ids[1:]:
 
@@ -67,5 +79,26 @@ if __name__ == "__main__":
                 }
             )
         )
+
+        model.fit(array(x_).reshape(-1, 1), y_)
+
+        Y       = model.predict(X_)
+        R2      = model.score(X_, Y)
+        
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "x":            X,
+                    "y":            Y,
+                    "name":         f"{contract_id} model",
+                    "mode":         "lines",
+                    "line":         { "width": 0.5 },
+                    "line_color":   "#FF00FF",
+                    "opacity":      0.75
+                }
+            )
+        )
+
+        print(f"{contract_id}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}")
 
     fig.show()
