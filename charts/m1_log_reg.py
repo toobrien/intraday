@@ -2,6 +2,7 @@ from    operator                import  itemgetter
 from    math                    import  e, log
 from    numpy                   import  arange, array
 import  plotly.graph_objects    as      go
+from    plotly.subplots         import  make_subplots
 from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv, path
 
@@ -46,7 +47,11 @@ if __name__ == "__main__":
     X       = arange(x_min, x_max, step = 0.001)
     X_      = X.reshape(-1, 1)
 
-    fig = go.Figure()
+    fig = make_subplots(
+            rows            = 1,
+            cols            = 2,
+            column_widths   = [ 0.8, 0.2 ]
+        )
 
     fig.update_layout(title_text = title)
 
@@ -58,9 +63,9 @@ if __name__ == "__main__":
 
         y, z, t, c, logs    = itemgetter("y", "z", "t", "c", "log")(recs[contract_id])
         text                = [ f"{ts_to_ds(t[i], FMT)}<br>{y[i]:0.{precision}f}" for i in range(len(t)) ]
-        y_                  = [ log(y_ / m1_0) for y_ in y ]
+        y_                  = array([ log(y_ / m1_0) for y_ in y ])
         m1_y                = [ y[i] / e**logs[i] for i in range(len(logs)) ]
-        x_                  = [ log(m1_i / m1_0) for m1_i in m1_y ]
+        x_                  = array([ log(m1_i / m1_0) for m1_i in m1_y ])
 
         fig.add_trace(
             go.Scattergl(
@@ -77,7 +82,9 @@ if __name__ == "__main__":
                                     },
                     "name":         contract_id
                 }
-            )
+            ),
+            row = 1,
+            col = 1
         )
 
         model.fit(array(x_).reshape(-1, 1), y_)
@@ -96,7 +103,23 @@ if __name__ == "__main__":
                     "line_color":   "#FF00FF",
                     "opacity":      0.75
                 }
-            )
+            ),
+            row = 1,
+            col = 1
+        )
+
+        residuals = y_ - model.predict(x_.reshape(-1, 1))
+
+        fig.add_trace(
+            go.Histogram(
+                {
+                    "x":        residuals,
+                    "name":     f"{contract_id} residuals",
+                    "opacity":  0.5
+                }
+            ),
+            row = 1,
+            col = 2
         )
 
         print(f"{contract_id}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}")
