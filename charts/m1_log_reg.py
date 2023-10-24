@@ -10,6 +10,7 @@ path.append(".")
 
 from    util.aggregations       import  multi_tick_series
 from    util.contract_settings  import  get_settings
+from    util.plotting           import  get_title
 from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
@@ -27,17 +28,14 @@ if __name__ == "__main__":
     precision               = get_precision(str(tick_size))
     start                   = argv[2] if len(argv) > 2 else None
     end                     = argv[3] if len(argv) > 3 else None
-    title                   = f"{contract_ids[0]}    {start} - {end}"
     
     recs = [ 
             get_tas(contract_id, multiplier, None, start, end)
             for contract_id in contract_ids
         ]
     
-    recs = multi_tick_series(recs, contract_ids)
-
-    size_norm = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
-
+    contract_ids    = [ get_title(contract_id) for contract_id in contract_ids ]
+    recs            = multi_tick_series(recs, contract_ids)
 
     m1_id   = contract_ids[0]
     m1_0    = recs[m1_id]["y"][0]
@@ -53,6 +51,9 @@ if __name__ == "__main__":
             column_widths   = [ 0.8, 0.2 ]
         )
 
+    size_norm   = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
+    title       = f"{contract_ids[0]}    {start} - {end}"
+    
     fig.update_layout(title_text = title)
 
     model = LinearRegression()
