@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     model = LinearRegression()
 
-    print("contract_id\t\ta\tb\tr^2")
+    print("contract\ta\tb\tr^2")
 
     for contract_id in contract_ids[1:]:
 
@@ -123,6 +123,6 @@ if __name__ == "__main__":
             col = 2
         )
 
-        print(f"{contract_id}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}")
+        print(f"{contract_id}\t\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}")
 
     fig.show()
