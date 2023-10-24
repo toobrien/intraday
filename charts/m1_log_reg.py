@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     size_norm   = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
     title       = f"{contract_ids[0]}    {start} - {end}"
-    
+
     fig.update_layout(title_text = title)
 
     model = LinearRegression()
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
         y, z, t, c, logs    = itemgetter("y", "z", "t", "c", "log")(recs[contract_id])
         text                = [ f"{ts_to_ds(t[i], FMT)}<br>{y[i]:0.{precision}f}" for i in range(len(t)) ]
-        y_                  = array([ log(y_ / m1_0) for y_ in y ])
+        y_                  = array([ log(y_ / y[0]) for y_ in y ])
         m1_y                = [ y[i] / e**logs[i] for i in range(len(logs)) ]
         x_                  = array([ log(m1_i / m1_0) for m1_i in m1_y ])
 
