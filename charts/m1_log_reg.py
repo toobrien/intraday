@@ -40,6 +40,8 @@ if __name__ == "__main__":
 
     fig = go.Figure()
 
+    fig.update_layout(title_text = title)
+
     for contract_id in contract_ids[1:]:
 
         y, z, t, c, logs    = itemgetter("y", "z", "t", "c", "log")(recs[contract_id])
