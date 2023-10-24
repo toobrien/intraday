@@ -58,15 +58,15 @@ if __name__ == "__main__":
 
     model = LinearRegression()
 
-    print("contract_id\ta\tb\tr^2")
+    print("contract_id\t\ta\tb\tr^2")
 
     for contract_id in contract_ids[1:]:
 
         y, z, t, c, logs    = itemgetter("y", "z", "t", "c", "log")(recs[contract_id])
-        text                = [ f"{ts_to_ds(t[i], FMT)}<br>{y[i]:0.{precision}f}" for i in range(len(t)) ]
         y_                  = array([ log(y_ / y[0]) for y_ in y ])
         m1_y                = [ y[i] / e**logs[i] for i in range(len(logs)) ]
         x_                  = array([ log(m1_i / m1_0) for m1_i in m1_y ])
+        text                = [ f"{ts_to_ds(t[i], FMT)}<br>m1: {m1_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}" for i in range(len(t)) ]
 
         fig.add_trace(
             go.Scattergl(
