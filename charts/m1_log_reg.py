@@ -49,7 +49,7 @@ if __name__ == "__main__":
             rows                = 2,
             cols                = 2,
             column_widths       = [ 0.8, 0.2 ],
-            row_widths          = [ 0.8, 0.2 ],
+            row_heights         = [ 0.8, 0.2 ],
             vertical_spacing    = 0.025,
             horizontal_spacing  = 0.025 
         )
