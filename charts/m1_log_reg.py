@@ -46,9 +46,12 @@ if __name__ == "__main__":
     X_      = X.reshape(-1, 1)
 
     fig = make_subplots(
-            rows            = 1,
-            cols            = 2,
-            column_widths   = [ 0.8, 0.2 ]
+            rows                = 2,
+            cols                = 2,
+            column_widths       = [ 0.8, 0.2 ],
+            row_widths          = [ 0.8, 0.2 ],
+            vertical_spacing    = 0.025,
+            horizontal_spacing  = 0.025 
         )
 
     size_norm   = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
@@ -58,7 +61,7 @@ if __name__ == "__main__":
 
     model = LinearRegression()
 
-    print("contract\ta\tb\tr^2")
+    print("contract\tm1_0\tm_i0\tb\ta\tr^2")
 
     for contract_id in contract_ids[1:]:
 
@@ -115,14 +118,32 @@ if __name__ == "__main__":
             go.Histogram(
                 {
                     "x":        residuals,
+                    "opacity":  0.5,
                     "name":     f"{contract_id} residuals",
-                    "opacity":  0.5
                 }
             ),
             row = 1,
             col = 2
         )
 
-        print(f"{contract_id}\t\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}")
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "x":        x_,
+                    "y":        residuals,
+                    "mode":     "markers",
+                    "marker":   {
+                                    "sizemode": "area",
+                                    "sizeref":  size_norm,
+                                    "sizemin":  4
+                                },
+                    "name":     f"{contract_id} residuals",
+                }
+            ),
+            row = 2,
+            col = 1
+        )
+
+        print(f"{contract_id}\t\t{m1_0:0.{precision}f}\t{y[0]:0.{precision}f}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}")
 
     fig.show()
