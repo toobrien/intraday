@@ -12,7 +12,7 @@ from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
 
-# python charts/multi_tick_log.py HOZ23_FUT_CME:HOH24_FUT_CME:HOM24_FUT_CME:HOU24_FUT_CME:HOZ24_FUT_CME 2023-10-20
+# python charts/multi_tick_log.py HO###_FUT_CME:Z23:H24:M24:U24:Z24 2023-10-25
 
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
@@ -21,6 +21,7 @@ FMT = "%Y-%m-%dT%H:%M:%S.%f"
 if __name__ == "__main__":
 
     contract_ids            = argv[1].split(":")
+    contract_ids            = [ contract_ids[0].replace("###", MYY) for MYY in contract_ids[1:] ]
     multiplier, tick_size   = get_settings(contract_ids[0])
     precision               = get_precision(str(tick_size))
     start                   = argv[2] if len(argv) > 2 else None

@@ -15,15 +15,16 @@ from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
 
-# python charts/m1_log_reg.py HOZ23_FUT_CME:HOH24_FUT_CME:HOM24_FUT_CME:HOU24_FUT_CME:HOZ24_FUT_CME 2023-10-23
+# python charts/m1_log_reg.py HO###_FUT_CME:Z23:H24:M24:U24:Z24 2023-10-25
 
-
-FMT = "%Y-%m-%dT%H:%M:%S.%f"
+MODE    = "CHG"
+FMT     = "%Y-%m-%dT%H:%M:%S.%f"
 
 
 if __name__ == "__main__":
 
     contract_ids            = argv[1].split(":")
+    contract_ids            = [ contract_ids[0].replace("###", MYY) for MYY in contract_ids[1:] ]
     multiplier, tick_size   = get_settings(contract_ids[0])
     precision               = get_precision(str(tick_size))
     start                   = argv[2] if len(argv) > 2 else None
@@ -65,8 +66,9 @@ if __name__ == "__main__":
 
     for contract_id in contract_ids[1:]:
 
-        y, z, t, c, logs    = itemgetter("y", "z", "t", "c", "log")(recs[contract_id])
-        y_                  = array([ log(y_ / y[0]) for y_ in y ])
+        x, y, z, t, c, logs = itemgetter("x", "y", "z", "t", "c", "log")(recs[contract_id])
+        div                 = y[0] if MODE == "CHG" else m1_0
+        y_                  = array([ log(y_ / div) for y_ in y ])
         m1_y                = [ y[i] / e**logs[i] for i in range(len(logs)) ]
         x_                  = array([ log(m1_i / m1_0) for m1_i in m1_y ])
         text                = [ f"{ts_to_ds(t[i], FMT)}<br>m1: {m1_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}" for i in range(len(t)) ]
@@ -129,8 +131,9 @@ if __name__ == "__main__":
         fig.add_trace(
             go.Scattergl(
                 {
-                    "x":        x_,
+                    "x":        x,
                     "y":        residuals,
+                    "text":     text,
                     "mode":     "markers",
                     "marker":   {
                                     "sizemode": "area",
