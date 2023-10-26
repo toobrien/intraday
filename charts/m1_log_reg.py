@@ -121,7 +121,7 @@ if __name__ == "__main__":
                 {
                     "x":        residuals,
                     "opacity":  0.5,
-                    "name":     f"{contract_id} residuals",
+                    "name":     f"{contract_id} res hist",
                 }
             ),
             row = 1,
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                                     "sizeref":  size_norm,
                                     "sizemin":  4
                                 },
-                    "name":     f"{contract_id} residuals",
+                    "name":     f"{contract_id} res plot",
                 }
             ),
             row = 2,
