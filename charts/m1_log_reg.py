@@ -97,6 +97,9 @@ if __name__ == "__main__":
 
         Y       = model.predict(X_)
         R2      = model.score(X_, Y)
+        LAST_X  = m1_logs[-1]
+        LAST_Y  = model.predict([ [ LAST_X ] ])
+
         
         fig.add_trace(
             go.Scattergl(
@@ -108,6 +111,19 @@ if __name__ == "__main__":
                     "line":         { "width": 0.5 },
                     "line_color":   "#FF00FF",
                     "opacity":      0.75
+                }
+            ),
+            row = 1,
+            col = 1
+        )
+
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "x":        [ LAST_X ],
+                    "y":        LAST_Y,
+                    "name":     f"{contract_id} m_last",
+                    "marker":   { "color": "#FF0000" }
                 }
             ),
             row = 1,
