@@ -106,6 +106,7 @@ if __name__ == "__main__":
                 {
                     "x":            X,
                     "y":            Y,
+                    "text":         [ f"{m1_0 * e**X[i]:0.{precision}f}<br>{div * e**Y[i]:0.{precision}f}" for i in range(len(X)) ],
                     "name":         f"{contract_id} model",
                     "mode":         "lines",
                     "line":         { "width": 0.5 },

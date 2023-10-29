@@ -73,11 +73,13 @@ if __name__ == "__main__":
     x       = [ x_cur + i for i in arange(-0.01, 0.01, 0.001) ]
     y_fair  = [ x_ * beta + alpha for x_ in x ]
     ys      = {
+                "+3s": [ y_ + mu + 3 * sigma for y_ in y_fair ],
                 "+2s": [ y_ + mu + 2 * sigma for y_ in y_fair ],
                 "+1s": [ y_ + mu + sigma for y_ in y_fair ],
                 "  0": y_fair,
                 "-1s": [ y_ + mu - sigma for y_ in y_fair ],
-                "-2s": [ y_ + mu - 2 * sigma for y_ in y_fair ]
+                "-2s": [ y_ + mu - 2 * sigma for y_ in y_fair ],
+                "-3s": [ y_ + mu - 3 * sigma for y_ in y_fair ]
             }
     
     '''
