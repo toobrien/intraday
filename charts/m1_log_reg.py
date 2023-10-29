@@ -71,7 +71,18 @@ if __name__ == "__main__":
         y_                  = array([ log(y_ / div) for y_ in y ])
         m1_y                = [ y[i] / e**logs[i] for i in range(len(logs)) ]
         x_                  = array([ log(m1_i / m1_0) for m1_i in m1_y ])
-        text                = [ f"{ts_to_ds(t[i], FMT)}<br>m1: {m1_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}" for i in range(len(t)) ]
+
+        model.fit(array(x_).reshape(-1, 1), y_)
+
+        Y                   = model.predict(X_)
+        R2                  = model.score(X_, Y)
+        LAST_X              = m1_logs[-1]
+        LAST_Y              = model.predict([ [ LAST_X ] ])
+        residuals           = y_ - model.predict(x_.reshape(-1, 1))
+        text                = [ 
+                                f"{ts_to_ds(t[i], FMT)}<br>m1: {m1_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}<br>{residuals[i]:0.3f}"
+                                for i in range(len(t)) 
+                            ]
 
         fig.add_trace(
             go.Scattergl(
@@ -93,20 +104,14 @@ if __name__ == "__main__":
             col = 1
         )
 
-        model.fit(array(x_).reshape(-1, 1), y_)
-
-        Y       = model.predict(X_)
-        R2      = model.score(X_, Y)
-        LAST_X  = m1_logs[-1]
-        LAST_Y  = model.predict([ [ LAST_X ] ])
-
-        
         fig.add_trace(
             go.Scattergl(
                 {
                     "x":            X,
                     "y":            Y,
-                    "text":         [ f"{m1_0 * e**X[i]:0.{precision}f}<br>{div * e**Y[i]:0.{precision}f}" for i in range(len(X)) ],
+                    "text":         [   f"{m1_0 * e**X[i]:0.{precision}f}<br>{div * e**Y[i]:0.{precision}f}" 
+                                        for i in range(len(X)) 
+                                    ],
                     "name":         f"{contract_id} model",
                     "mode":         "lines",
                     "line":         { "width": 0.5 },
@@ -130,8 +135,6 @@ if __name__ == "__main__":
             row = 1,
             col = 1
         )
-
-        residuals = y_ - model.predict(x_.reshape(-1, 1))
 
         fig.add_trace(
             go.Histogram(
