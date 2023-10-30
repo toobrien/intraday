@@ -23,8 +23,12 @@ C_MAX   = 0.02
 
 if __name__ == "__main__":
 
-    contract_ids            = argv[1].split(":")
-    contract_ids            = [ contract_ids[0].replace("###", MYY) for MYY in contract_ids[1:] ]
+    contract_ids = argv[1].split(":")
+    
+    if "#" in contract_ids[0]:
+
+        contract_ids = [ contract_ids[0].replace("###", MYY) for MYY in contract_ids[1:] ]
+    
     multiplier, tick_size   = get_settings(contract_ids[0])
     precision               = get_precision(str(tick_size))
     legs                    = argv[2].split(",")
