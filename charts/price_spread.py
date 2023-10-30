@@ -16,7 +16,9 @@ from    util.rec_tools          import  get_tas, get_precision
 # python charts/price_spread.py HO###_FUT_CME:Z23:Z24 1:2.9790,-2:2.6940 2023-10-26
 
 
-FMT = "%Y-%m-%dT%H:%M:%S.%f"
+FMT     = "%Y-%m-%dT%H:%M:%S.%f"
+C_MIN   = -0.02
+C_MAX   = 0.02
 
 
 if __name__ == "__main__":
@@ -69,8 +71,9 @@ if __name__ == "__main__":
 
     x_cur = log(m1_entry / m1_0)
     y_cur = log(m2_entry / m2_0)
+    c_rng = arange(C_MIN, C_MAX, 0.001)
 
-    x       = [ x_cur + i for i in arange(-0.01, 0.01, 0.001) ]
+    x       = [ x_cur + i for i in c_rng ]
     y_fair  = [ x_ * beta + alpha for x_ in x ]
     ys      = {
                 "+3s": [ y_ + mu + 3 * sigma for y_ in y_fair ],
@@ -97,7 +100,7 @@ if __name__ == "__main__":
     )
     '''
 
-    print("m1_chg\t" + "\t".join([ f"{x_:0.3f}" for x_ in arange(-0.01, 0.01, 0.001) ]) + "\n")
+    print("m1_chg\t" + "\t".join([ f"{x_:0.3f}" for x_ in c_rng ]) + "\n")
 
     for series, y in ys.items():
 
