@@ -1,6 +1,6 @@
 from    operator                import  itemgetter
 from    math                    import  e, log
-from    numpy                   import  arange, array
+from    numpy                   import  arange, array, std
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sklearn.linear_model    import  LinearRegression
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     model = LinearRegression()
 
-    print("contract\tm1_0\tm_i0\tb\ta\tr^2")
+    print("contract\tm1_0\tm_i0\tb\ta\tr^2\tsigma\tsigma_t")
 
     for contract_id in contract_ids[1:]:
 
@@ -83,6 +83,8 @@ if __name__ == "__main__":
         LAST_X              = m1_logs[-1]
         LAST_Y              = model.predict([ [ LAST_X ] ])
         residuals           = y_ - model.predict(x_.reshape(-1, 1))
+        sigma               = std(residuals)
+        sigma_t             = y[0] * e**sigma - y[0]
         text                = [ 
                                 f"{ts_to_ds(t[i], FMT)}<br>m1: {m1_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}<br>{residuals[i]:0.3f}"
                                 for i in range(len(t)) 
@@ -171,6 +173,6 @@ if __name__ == "__main__":
             col = 1
         )
 
-        print(f"{contract_id}\t\t{m1_0:0.{precision}f}\t{y[0]:0.{precision}f}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}")
+        print(f"{contract_id}\t\t{m1_0:0.{precision}f}\t{y[0]:0.{precision}f}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}\t{sigma:0.4f}\t{sigma_t:0.04f}")
 
     fig.show()
