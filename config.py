@@ -4,7 +4,7 @@ CONFIG = {
                         "futs": ( "~/trading/daily/data/futs", "name"               ),
                         "opts": ( "~/trading/daily/data/opts", "underlying_symbol"  ) 
                     },
-    "sc_root":      "/Volumes/[C] Windows 10/SierraChart",
+    "sc_root":      "/Volumes/[C] Windows 11/SierraChart",
     "frd_root":     "~/trading/index_data",
     "sleep_int":    0.01,
     "utc_offset":   -7
