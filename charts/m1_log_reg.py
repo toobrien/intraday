@@ -115,7 +115,8 @@ if __name__ == "__main__":
                 {
                     "x":            X,
                     "y":            Y,
-                    "text":         [   f"{m1_0 * e**X[i]:0.{precision}f}<br>{div * e**Y[i]:0.{precision}f}" 
+                    "text":         [   
+                                        f"{m1_0 * e**X[i]:0.{precision}f}<br>{div * e**Y[i]:0.{precision}f}" 
                                         for i in range(len(X)) 
                                     ],
                     "name":         f"{contract_id} model",
@@ -135,6 +136,7 @@ if __name__ == "__main__":
                     "x":        [ LAST_X ],
                     "y":        LAST_Y,
                     "name":     f"{contract_id} m_last",
+                    "text":     [ f"{m1_0 * e**LAST_X:0.{precision}f}<br>{y[0] * e**LAST_Y[0]:0.{precision}f}" ],
                     "marker":   { "color": "#FF0000" }
                 }
             ),
