@@ -17,8 +17,12 @@ from    util.rec_tools          import  get_tas, get_precision
 
 
 FMT     = "%Y-%m-%dT%H:%M:%S.%f"
-C_MIN   = -0.02
-C_MAX   = 0.02
+R_MIN   = -0.005
+R_MAX   = 0.005
+R_STEP  = 0.001
+X_MIN   = -0.02
+X_MAX   = 0.02
+X_STEP  = 0.001
 
 
 if __name__ == "__main__":
@@ -75,20 +79,16 @@ if __name__ == "__main__":
 
     x_cur = log(m1_entry / m1_0)
     y_cur = log(m2_entry / m2_0)
-    c_rng = arange(C_MIN, C_MAX, 0.001)
+    x_rng = arange(X_MIN, X_MAX, X_STEP)
 
-    x       = [ x_cur + i for i in c_rng ]
+    x       = [ x_cur + i for i in x_rng ]
     y_fair  = [ x_ * beta + alpha for x_ in x ]
+    r_rng   = arange(R_MAX, R_MIN, -R_STEP)
     ys      = {
-                "+3s": [ y_ + mu + 3 * sigma for y_ in y_fair ],
-                "+2s": [ y_ + mu + 2 * sigma for y_ in y_fair ],
-                "+1s": [ y_ + mu + sigma for y_ in y_fair ],
-                "  0": y_fair,
-                "-1s": [ y_ + mu - sigma for y_ in y_fair ],
-                "-2s": [ y_ + mu - 2 * sigma for y_ in y_fair ],
-                "-3s": [ y_ + mu - 3 * sigma for y_ in y_fair ]
+                f"{r_:0.3f}": [ y_ + r_ for y_ in y_fair ]
+                for r_ in r_rng
             }
-    
+
     '''
     fig = go.Figure()
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     )
     '''
 
-    print("m1_chg\t" + "\t".join([ f"{x_:0.3f}" for x_ in c_rng ]) + "\n")
+    print("m1_chg\t" + "\t".join([ f"{x_:0.3f}" for x_ in x_rng ]) + "\n")
 
     for series, y in ys.items():
 

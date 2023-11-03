@@ -14,7 +14,7 @@ from    util.pricing            import  fly, iron_fly
 from    util.rec_tools          import  get_precision
 
 
-# python research/id_strat_txt.py SPX:1m fly 15:00:00 15:59:00 15:59:00 1 2023-05-01 2023-09-01 EWMA_FIN 1 -1:1 5.0 5.0
+# python research/id_strat_txt.py SPX:1m fly 15:00:00 15:59:00 15:59:00 1 2023-09-01 2023-12-01 FIN 1 -1:1 1.0 5.0
 
 
 EWMA_WIN = 5
