@@ -143,7 +143,7 @@ def date_index(instrument_id: str, recs: List) -> dict:
     start   = recs[0][tas_rec.timestamp].split("T")[0]
     end     = recs[-1][tas_rec.timestamp].split("T")[0]
 
-    # instrument should be in INDEXES since you already called get_recs
+    # instrument should be in INDEXES since you already called get_tas
 
     indexes     = []
     idx         = INDEXES[instrument_id]
