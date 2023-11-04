@@ -13,7 +13,7 @@ from    util.contract_settings  import get_settings
 from    util.rec_tools          import date_index, get_tas, get_precision
 
 
-# python charts/session_lin_reg.py HO###_FUT_CME:Z23:Z24 2023-10-01
+# python charts/daily_m0_reg.py HO###_FUT_CME:Z23:Z24 2023-10-01
 
 
 FMT = "%Y-%m-%dT%H:%M:%S"
