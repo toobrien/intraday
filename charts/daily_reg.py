@@ -65,12 +65,12 @@ if __name__ == "__main__":
         recs = [ m0_recs[i0[0]:i0[1]], m1_recs[i1[0]:i1[1]]]
         recs = multi_tick_series(recs, contract_ids)
 
-        m0_recs = recs[m0_id]
-        m1_recs = recs[m1_id]
+        m0_recs_ = recs[m0_id]
+        m1_recs_ = recs[m1_id]
 
-        m1_log  = m1_recs["log"]
-        m1_x    = list(range(len(m1_recs["x"])))
-        m1_y    = m1_recs["y"]
+        m1_log  = m1_recs_["log"]
+        m1_x    = list(range(len(m1_recs_["x"])))
+        m1_y    = m1_recs_["y"]
         m0_0    = m1_y[0]
         m0_y    = [ m1_y[i] / e**m1_log[i] for i in range(len(m1_log)) ]
         m0_log  = [ log(m0_i / m0_0) for m0_i in m0_y ]
@@ -103,7 +103,9 @@ if __name__ == "__main__":
                     "opacity":  0.5,
                     "name":     f"{date} hist"
                 }
-            )
+            ),
+            row = 1,
+            col = 2
         )
 
         pass
