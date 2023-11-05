@@ -1,7 +1,7 @@
 from    math                    import  e, log
 import  numpy                   as      np
 from    operator                import  itemgetter
-import  plotly.subplots         as      make_subplots
+from    plotly.subplots         import  make_subplots
 import  plotly.graph_objects    as      go
 from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv, path
@@ -13,7 +13,7 @@ from    util.contract_settings  import get_settings
 from    util.rec_tools          import date_index, get_tas, get_precision
 
 
-# python charts/daily_m0_reg.py HO###_FUT_CME:Z23:Z24 2023-10-01
+# python charts/daily_reg.py HO###_FUT_CME:Z23:Z24 2023-10-01
 
 
 FMT = "%Y-%m-%dT%H:%M:%S"
@@ -48,6 +48,15 @@ if __name__ == "__main__":
 
     model   = LinearRegression()
 
+    fig = make_subplots(
+            rows                = 1,
+            cols                = 2,
+            column_widths       = [ 0.8, 0.2 ],
+            horizontal_spacing  = 0.025
+        )
+    
+    fig.update_layout(title_text = title)
+
     for date in dates:
 
         i0 = m0_idx[date]
@@ -74,6 +83,31 @@ if __name__ == "__main__":
         Y_          = model.predict(X)
         residuals   = Y - Y_
 
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "x":    m1_x,
+                    "y":    residuals,
+                    "name": date,
+                    "mode": "markers"
+                }
+            ),
+            row = 1,
+            col = 1
+        )
+
+        fig.add_trace(
+            go.Histogram(
+                {
+                    "x":        residuals,
+                    "opacity":  0.5,
+                    "name":     f"{date} hist"
+                }
+            )
+        )
+
         pass
+
+    fig.show()
 
     pass
