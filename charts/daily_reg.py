@@ -1,3 +1,4 @@
+from    bisect                  import  bisect_left, bisect_right
 from    math                    import  e, log
 import  numpy                   as      np
 from    operator                import  itemgetter
@@ -13,7 +14,10 @@ from    util.contract_settings  import get_settings
 from    util.rec_tools          import date_index, get_tas, get_precision
 
 
-# python charts/daily_reg.py HO###_FUT_CME:Z23:Z24 2023-10-01
+# python charts/daily_reg.py HO###_FUT_CME:Z23:Z24 1,00:00:00,23:59:59 2023-10-01
+
+# argv[2] defines the in-sample window: lag (days) , first day cutoff, last day cutoff
+# the remainder of the last day is out-of-sample
 
 
 FMT = "%Y-%m-%dT%H:%M:%S"
@@ -28,21 +32,23 @@ if __name__ == "__main__":
 
         contract_ids = [ contract_ids[0].replace("###", MYY) for MYY in contract_ids[1:] ]
 
-    multiplier, tick_size   = get_settings(contract_ids[0])
-    precision               = get_precision(str(tick_size))
-    start                   = argv[2] if len(argv) > 2 else None
-    end                     = argv[3] if len(argv) > 3 else None
-    title                   = f"{contract_ids[0]}    {start} - {end}"
+    multiplier, tick_size       = get_settings(contract_ids[0])
+    precision                   = get_precision(str(tick_size))
+    day_offset, start_t, end_t  = argv[2].split(",")
+    day_offset                  = int(day_offset)
+    start                       = argv[3] if len(argv) > 3 else None
+    end                         = argv[4] if len(argv) > 4 else None
+    title                       = f"{contract_ids[0]}    {start} - {end}"
     
-    m0_id   = contract_ids[0]
-    m0_recs = get_tas(m0_id, multiplier, FMT, start, end)
-    m0_idx  = date_index(m0_id, m0_recs)
-    m0_recs = get_tas(m0_id, multiplier, None, start, end)
+    m0_id       = contract_ids[0]
+    m0_recs_dt  = get_tas(m0_id, multiplier, FMT, start, end)
+    m0_idx      = date_index(m0_id, m0_recs_dt)
+    m0_recs_ts  = get_tas(m0_id, multiplier, None, start, end)
 
-    m1_id   = contract_ids[1]
-    m1_recs = get_tas(m1_id, multiplier, FMT, start, end)
-    m1_idx  = date_index(m1_id, m1_recs)
-    m1_recs = get_tas(m1_id, multiplier, None, start, end)
+    m1_id       = contract_ids[1]
+    m1_recs_dt  = get_tas(m1_id, multiplier, FMT, start, end)
+    m1_idx      = date_index(m1_id, m1_recs_dt)
+    m1_recs_ts  = get_tas(m1_id, multiplier, None, start, end)
     
     dates   = sorted(list(set(m0_idx.keys()).intersection(set(m1_idx.keys()))))
 
@@ -57,38 +63,48 @@ if __name__ == "__main__":
     
     fig.update_layout(title_text = title)
 
-    for date in dates:
+    for i in range(day_offset, len(dates)) in dates:
 
-        i0 = m0_idx[date]
-        i1 = m1_idx[date]
+        start_date  = dates[i - day_offset]
+        end_date    = dates[i]
 
-        recs = [ m0_recs[i0[0]:i0[1]], m1_recs[i1[0]:i1[1]]]
-        recs = multi_tick_series(recs, contract_ids)
+        m0_i = m0_recs_dt[m0_idx[start_date][0]:bisect_left(m0_recs_dt, f"{start_date}T{start_t}", key = lambda r: r[0])]
+        m0_k = m0_recs_dt[m0_idx[end_date][1]]
+        m0_j = m0_recs_dt[bisect_right(m0_recs_dt, f"{end_date}T{end_t}", key = lambda r: r[0])] - m0_i
+        
+        m1_i = m1_idx[start_date[0]:bisect_left(m1_recs_dt, f"{start_date}T{start_t}", key = lambda r: r[0])]
+        m1_k = m1_idx[end_date][1]
+        m1_j = m1_recs_dt[bisect_right(m1_recs_dt, f"{end_date}T{end_t}", key = lambda r: r[0])] - m1_i
 
-        m0_recs_ = recs[m0_id]
-        m1_recs_ = recs[m1_id]
+        recs = multi_tick_series([ m0_recs_ts[m0_i:m0_k], m1_recs_ts[m1_i:m1_k] ] , contract_ids)
 
-        m1_log  = m1_recs_["log"]
-        m1_x    = list(range(len(m1_recs_["x"])))
-        m1_y    = m1_recs_["y"]
+        m0_recs = recs[m0_id]
+        m1_recs = recs[m1_id]
+
+        m1_log  = m1_recs["log"]
+        m1_y    = m1_recs["y"]
         m0_0    = m1_y[0]
         m0_y    = [ m1_y[i] / e**m1_log[i] for i in range(len(m1_log)) ]
         m0_log  = [ log(m0_i / m0_0) for m0_i in m0_y ]
 
-        X       = np.array(m0_log).reshape(-1, 1)
-        Y       = np.array(m1_log)
+        X_in    = np.array(m0_log[:m0_j]).reshape(-1, 1)
+        X_out   = np.array(m0_log[m0_j:]).reshape(-1, 1)
+        Y_in    = np.array(m1_log[:m1_j])
+        Y_out   = np.array(m1_log[m1_j:])
 
-        model.fit(X, Y)
+        m1_x    = list(range(len(X_out)))
 
-        Y_          = model.predict(X)
-        residuals   = Y - Y_
+        model.fit(X_in, Y_in)
+
+        pred        = model.predict(X_out)
+        residuals   = pred - Y_out
 
         fig.add_trace(
             go.Scattergl(
                 {
                     "x":    m1_x,
                     "y":    residuals,
-                    "name": date,
+                    "name": dates[i],
                     "mode": "markers"
                 }
             ),
@@ -101,14 +117,20 @@ if __name__ == "__main__":
                 {
                     "x":        residuals,
                     "opacity":  0.5,
-                    "name":     f"{date} hist"
+                    "name":     f"{dates[i]} hist"
                 }
             ),
             row = 1,
             col = 2
         )
 
-        pass
+    fig.add_hline(
+        y               = 0,
+        line_color      = "#FF0000",
+        opacity         = 0.5,
+        row             = 1,
+        col             = 1
+    )
 
     fig.show()
 
