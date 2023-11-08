@@ -1,16 +1,13 @@
 from    math                    import  log
-import  pandas                  as      pd
 import  plotly.graph_objects    as      go
 from    sys                     import  argv, path
 
 path.append(".")
 
 from    util.bar_tools         import   bar_rec, get_bars
-from    util.contract_settings import   get_settings
-from    util.rec_tools         import   get_precision
 
 
-# python charts/bar_chg.py HOZ23_FUT_CME:RBZ23_FUT_CME:CLZ23_FUT_CME 2023-10-08T0
+# python charts/bar_chg.py HOZ23_FUT_CME:RBZ23_FUT_CME:CLZ23_FUT_CME 2023-11-08T0
 
 
 if __name__ == "__main__":
