@@ -28,7 +28,7 @@ if __name__ == "__main__":
         bars    = recs[contract_id]
         p0      = log(bars[0][bar_rec.last])
         y       = [ log(bar[bar_rec.last]) - p0 for bar in bars ]
-        x       = [ i for i in range(len(bars)) ]
+        x       = [ f"{bar[bar_rec.date]}T{bar[bar_rec.time]}" for bar in bars ]
 
         fig.add_trace(
             go.Scattergl(
