@@ -9,11 +9,11 @@ from    util.features           import  delta
 from    util.plotting           import  gaussian_vscatter, get_title
 from    util.aggregations       import  tick_series, vbp
 from    util.modelling          import  gaussian_estimates, vbp_gmm, vbp_kde
-from    util.rec_tools          import  get_tas, get_precision
+from    util.rec_tools          import  get_tas, get_precision, tas_rec
 from    util.sc_dt              import  ts_to_ds
 
 
-# python charts/tick_chart.py CLN23_FUT_CME 2023-05-21 2023-05-22
+# python charts/tick_chart.py CLN23_FUT_CME 10 2023-05-21 2023-05-22
 
 
 BANDWIDTH   = 0.15
@@ -33,10 +33,12 @@ if __name__ == "__main__":
     title                   = get_title(contract_id)
     multiplier, tick_size   = get_settings(contract_id)
     precision               = get_precision(str(tick_size))
-    start                   = argv[2] if len(argv) > 2 else None
-    end                     = argv[3] if len(argv) > 3 else None
+    filter                  = int(argv[2])
+    start                   = argv[3] if len(argv) > 3 else None
+    end                     = argv[4] if len(argv) > 4 else None
     title                   = f"{title} {start} - {end}"
     recs                    = get_tas(contract_id, multiplier, None, start, end)
+    recs                    = [ rec for rec in recs if rec[tas_rec.qty] >= filter ]
 
     if not recs:
 
