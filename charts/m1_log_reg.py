@@ -15,7 +15,7 @@ from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
 
-# python charts/m1_log_reg.py HO###_FUT_CME:Z23:H24:M24:U24:Z24 2023-10-25
+# python charts/m1_log_reg.py HO###_FUT_CME:Z23:H24:M24:U24:Z24 1 2023-10-25
 
 MODE    = "CHG"
 FMT     = "%Y-%m-%dT%H:%M:%S.%f"
@@ -31,8 +31,9 @@ if __name__ == "__main__":
     
     multiplier, tick_size   = get_settings(contract_ids[0])
     precision               = get_precision(str(tick_size))
-    start                   = argv[2] if len(argv) > 2 else None
-    end                     = argv[3] if len(argv) > 3 else None
+    show_chart              = int(argv[2])
+    start                   = argv[3] if len(argv) > 3 else None
+    end                     = argv[4] if len(argv) > 4 else None
     
     recs = [ 
             get_tas(contract_id, multiplier, None, start, end)
@@ -177,4 +178,6 @@ if __name__ == "__main__":
 
         print(f"{contract_id}\t\t{m1_0:0.{precision}f}\t{y[0]:0.{precision}f}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}\t{sigma:0.4f}\t{ten_bp_t:0.04f}")
 
-    fig.show()
+    if show_chart:
+    
+        fig.show()
