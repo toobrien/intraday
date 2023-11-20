@@ -1,3 +1,4 @@
+from    math                    import  log
 from    operator                import  itemgetter
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
@@ -41,23 +42,19 @@ if __name__ == "__main__":
 
     size_norm = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
 
-    fig = make_subplots(
-            rows                = 2,
-            cols                = 1,
-            vertical_spacing    = 0.05,
-            shared_xaxes        = True
-        )
+    fig = go.Figure()
     
     fig.update_layout(title_text = title)
 
     for contract_id in contract_ids:
 
-        x, y, z, t, c, log = itemgetter("x", "y", "z", "t", "c", "log")(recs[contract_id])
+        x, y, z, t, c   = itemgetter("x", "y", "z", "t", "c")(recs[contract_id])
+        y_0             = log(y[0])
 
-        diff = [ log[i] - log[0] for i in range(len(log)) ]
+        diff = [ log(y[i]) - y_0 for i in range(len(y)) ]
 
         text = [
-            f"{ts_to_ds(t[i], FMT)}<br>{log[i]:0.4f}<br>{y[i]:0.{precision}f}<br>{z[i]}"
+            f"{ts_to_ds(t[i], FMT)}<br>{diff[i]:0.4f}<br>{y[i]:0.{precision}f}<br>{z[i]}"
             for i in range(len(t))
         ]
 
@@ -76,9 +73,7 @@ if __name__ == "__main__":
                                     },
                     "name":         contract_id
                 }
-            ),
-            row = 2 if contract_id != contract_ids[0] else 1,
-            col = 1
+            )
         )
 
     fig.show()
