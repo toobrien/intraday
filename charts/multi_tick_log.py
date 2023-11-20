@@ -32,17 +32,19 @@ if __name__ == "__main__":
     start                   = argv[2] if len(argv) > 2 else None
     end                     = argv[3] if len(argv) > 3 else None
     title                   = f"{contract_ids[0]}    {start} - {end}"
-    
-    recs = [ 
-            get_tas(contract_id, multiplier, None, start, end)
-            for contract_id in contract_ids
-        ]
-    
-    recs = multi_tick_series(recs, contract_ids)
-
-    size_norm = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
-
-    fig = go.Figure()
+    recs                    = [ 
+                                get_tas(contract_id, multiplier, None, start, end)
+                                for contract_id in contract_ids
+                            ]
+    recs                    = multi_tick_series(recs, contract_ids)
+    m0_0                    = log(recs[contract_ids[0]]["y"][0])
+    fig                     = make_subplots(
+                                rows                = 2,
+                                cols                = 1,
+                                row_heights         = [ 0.8, 0.2 ],
+                                vertical_spacing    = 0.025
+                            )
+    size_norm               = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
     
     fig.update_layout(title_text = title)
 
@@ -58,22 +60,35 @@ if __name__ == "__main__":
             for i in range(len(t))
         ]
 
+        args = {
+            "x":            x,
+            "y":            diff,
+            "text":         text,
+            "mode":         "markers",
+            "marker_size":  z,
+            "marker":       {
+                                "sizemode": "area",
+                                "sizeref":  size_norm,
+                                "sizemin":  4
+                            },
+            "name":         contract_id
+        }
+
         fig.add_trace(
-            go.Scattergl(
-                {
-                    "x":            x,
-                    "y":            diff,
-                    "text":         text,
-                    "mode":         "markers",
-                    "marker_size":  z,
-                    "marker":       {
-                                        "sizemode": "area",
-                                        "sizeref":  size_norm,
-                                        "sizemin":  4
-                                    },
-                    "name":         contract_id
-                }
-            )
+            go.Scattergl(args),
+            row = 1,
+            col = 1
         )
+
+        if contract_id != contract_ids[0]:
+
+            args["y"]       = [ log(y[i]) - m0_0 for i in range(len(y)) ]
+            args["name"]    = f"{contract_id} diff"
+            
+            fig.add_trace(
+                go.Scattergl(args),
+                row = 2,
+                col = 1
+            )
 
     fig.show()
