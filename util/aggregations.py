@@ -101,8 +101,8 @@ def multi_tick_series(recs: List[List], contract_ids: List):
         for rec in series
     ]
 
-    init_m1 = recs[0][tas_rec.price]
-    prev_m1 = init_m1
+    init_m0 = recs[0][tas_rec.price]
+    prev_m0 = init_m0
 
     recs = sorted(recs, key = lambda r: r[tas_rec.timestamp])
 
@@ -134,16 +134,8 @@ def multi_tick_series(recs: List[List], contract_ids: List):
     agg_recs.append(prev_rec)
 
     for rec in agg_recs:
-    
-        if rec[-2] == contract_ids[0]:
 
-            prev_m1 = rec[tas_rec.price]
-
-            rec.append(log(rec[tas_rec.price] / init_m1))
-
-        else:
-            
-            rec.append(log(rec[tas_rec.price] / prev_m1))
+        rec.append(prev_m0)
 
     recs = [
         [ 
@@ -156,12 +148,12 @@ def multi_tick_series(recs: List[List], contract_ids: List):
 
     recs = {
         contract_ids[i]: {
-            "x": [ rec[-2] for rec in recs[i] ],
-            "y": [ rec[tas_rec.price] for rec in recs[i] ],
-            "t": [ rec[tas_rec.timestamp] for rec in recs[i] ],
-            "z": [ rec[tas_rec.qty] for rec in recs[i] ],
-            "c": [ "#0000FF" if rec[tas_rec.side] else "#FF0000" for rec in recs[i] ],
-            "log": [ rec[-1] for rec in recs[i] ]
+            "x":        [ rec[-2] for rec in recs[i] ],
+            "y":        [ rec[tas_rec.price] for rec in recs[i] ],
+            "t":        [ rec[tas_rec.timestamp] for rec in recs[i] ],
+            "z":        [ rec[tas_rec.qty] for rec in recs[i] ],
+            "c":        [ "#0000FF" if rec[tas_rec.side] else "#FF0000" for rec in recs[i] ],
+            "prev_m0":  [ rec[-1] for rec in recs[i] ]
         }
         for i in range(len(contract_ids))
     }

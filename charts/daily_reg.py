@@ -45,12 +45,12 @@ if __name__ == "__main__":
     m0_idx      = date_index(m0_id, m0_recs_dt)
     m0_recs_ts  = get_tas(m0_id, multiplier, None, start, end)
 
-    m1_id       = contract_ids[1]
-    m1_recs_dt  = get_tas(m1_id, multiplier, FMT, start, end)
-    m1_idx      = date_index(m1_id, m1_recs_dt)
-    m1_recs_ts  = get_tas(m1_id, multiplier, None, start, end)
+    mi_id       = contract_ids[1]
+    mi_recs_dt  = get_tas(mi_id, multiplier, FMT, start, end)
+    mi_idx      = date_index(mi_id, mi_recs_dt)
+    mi_recs_ts  = get_tas(mi_id, multiplier, None, start, end)
     
-    dates   = sorted(list(set(m0_idx.keys()).intersection(set(m1_idx.keys()))))
+    dates   = sorted(list(set(m0_idx.keys()).intersection(set(mi_idx.keys()))))
 
     model   = LinearRegression()
 
@@ -72,27 +72,28 @@ if __name__ == "__main__":
         m0_k = m0_recs_dt[m0_idx[end_date][1]]
         m0_j = m0_recs_dt[bisect_right(m0_recs_dt, f"{end_date}T{end_t}", key = lambda r: r[0])] - m0_i
         
-        m1_i = m1_idx[start_date[0]:bisect_left(m1_recs_dt, f"{start_date}T{start_t}", key = lambda r: r[0])]
-        m1_k = m1_idx[end_date][1]
-        m1_j = m1_recs_dt[bisect_right(m1_recs_dt, f"{end_date}T{end_t}", key = lambda r: r[0])] - m1_i
+        mi_i = mi_idx[start_date[0]:bisect_left(mi_recs_dt, f"{start_date}T{start_t}", key = lambda r: r[0])]
+        mi_k = mi_idx[end_date][1]
+        mi_j = mi_recs_dt[bisect_right(mi_recs_dt, f"{end_date}T{end_t}", key = lambda r: r[0])] - mi_i
 
-        recs = multi_tick_series([ m0_recs_ts[m0_i:m0_k], m1_recs_ts[m1_i:m1_k] ] , contract_ids)
+        recs = multi_tick_series([ m0_recs_ts[m0_i:m0_k], mi_recs_ts[mi_i:mi_k] ] , contract_ids)
 
         m0_recs = recs[m0_id]
-        m1_recs = recs[m1_id]
+        mi_recs = recs[mi_id]
 
-        m1_log  = m1_recs["log"]
-        m1_y    = m1_recs["y"]
-        m0_0    = m1_y[0]
-        m0_y    = [ m1_y[i] / e**m1_log[i] for i in range(len(m1_log)) ]
+        mi_y    = mi_recs["y"]
+        mi_0    = mi_y[0]
+        m0_0    = mi_y[0]
+        m0_y    = mi_recs["prev_m0"]
         m0_log  = [ log(m0_i / m0_0) for m0_i in m0_y ]
+        mi_log  = [ log(mi_i / mi_0) for mi_i in mi_y ]
 
         X_in    = np.array(m0_log[:m0_j]).reshape(-1, 1)
         X_out   = np.array(m0_log[m0_j:]).reshape(-1, 1)
-        Y_in    = np.array(m1_log[:m1_j])
-        Y_out   = np.array(m1_log[m1_j:])
+        Y_in    = np.array(mi_log[:mi_j])
+        Y_out   = np.array(mi_log[mi_j:])
 
-        m1_x    = list(range(len(X_out)))
+        mi_x    = list(range(len(X_out)))
 
         model.fit(X_in, Y_in)
 
@@ -102,7 +103,7 @@ if __name__ == "__main__":
         fig.add_trace(
             go.Scattergl(
                 {
-                    "x":    m1_x,
+                    "x":    mi_x,
                     "y":    residuals,
                     "name": dates[i],
                     "mode": "markers"

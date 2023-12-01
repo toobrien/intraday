@@ -50,10 +50,11 @@ if __name__ == "__main__":
 
     for contract_id in contract_ids:
 
-        x, y, z, t, c   = itemgetter("x", "y", "z", "t", "c")(recs[contract_id])
-        y_0             = log(y[0])
+        x, y, z, t, c, prev_m0  = itemgetter("x", "y", "z", "t", "c", "prev_m0")(recs[contract_id])
+        m0_chg                  = [ log(y[i] / y[0]) for i in range(len(y)) ]
+        mi_chg                  = [ log(prev_m0[i] / m0_0) for i in range(len(y)) ]
 
-        diff = [ log(y[i]) - y_0 for i in range(len(y)) ]
+        diff = [ mi_chg[i] - m0_chg[i] for i in range(len(y)) ]
 
         text = [
             f"{ts_to_ds(t[i], FMT)}<br>{diff[i]:0.4f}<br>{y[i]:0.{precision}f}<br>{z[i]}"
@@ -85,6 +86,9 @@ if __name__ == "__main__":
             args["y"]       = [ log(y[i]) - m0_0 for i in range(len(y)) ]
             args["name"]    = f"{contract_id} diff"
             
+            del args["marker_size"]
+            del args["marker"]
+
             fig.add_trace(
                 go.Scattergl(args),
                 row = 2,

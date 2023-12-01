@@ -15,7 +15,7 @@ from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
 
-# python charts/m1_log_reg.py HO###_FUT_CME:Z23:H24:M24:U24:Z24 1 2023-10-25
+# python charts/m0_log_reg.py HO###_FUT_CME:Z23:H24:M24:U24:Z24 1 2023-10-25
 
 MODE    = "CHG"
 FMT     = "%Y-%m-%dT%H:%M:%S.%f"
@@ -43,11 +43,11 @@ if __name__ == "__main__":
     contract_ids    = [ get_title(contract_id) for contract_id in contract_ids ]
     recs            = multi_tick_series(recs, contract_ids)
 
-    m1_id   = contract_ids[0]
-    m1_0    = recs[m1_id]["y"][0]
-    m1_logs = [ log(m1_i / m1_0) for m1_i in recs[m1_id]["y"] ]
-    x_min   = min(m1_logs)
-    x_max   = max(m1_logs)
+    m0_id   = contract_ids[0]
+    m0_0    = recs[m0_id]["y"][0]
+    m0_logs = [ log(m0_i / m0_0) for m0_i in recs[m0_id]["y"] ]
+    x_min   = min(m0_logs)
+    x_max   = max(m0_logs)
     X       = arange(x_min, x_max, step = 0.001)
     X_      = X.reshape(-1, 1)
 
@@ -67,27 +67,26 @@ if __name__ == "__main__":
 
     model = LinearRegression()
 
-    print("contract\tm1_0\tm_i0\tb\ta\tr^2\tsigma\tten_bp_t")
+    print("contract\tm0_0\tm_i0\tb\ta\tr^2\tsigma\tten_bp_t")
 
     for contract_id in contract_ids[1:]:
 
-        x, y, z, t, c, logs = itemgetter("x", "y", "z", "t", "c", "log")(recs[contract_id])
-        div                 = y[0] if MODE == "CHG" else m1_0
+        x, y, z, t, c, m0_y = itemgetter("x", "y", "z", "t", "c", "log")(recs[contract_id])
+        div                 = y[0] if MODE == "CHG" else m0_0
         y_                  = array([ log(y_ / div) for y_ in y ])
-        m1_y                = [ y[i] / e**logs[i] for i in range(len(logs)) ]
-        x_                  = array([ log(m1_i / m1_0) for m1_i in m1_y ])
+        x_                  = array([ log(m0_i / m0_0) for m0_i in m0_y ])
 
         model.fit(array(x_).reshape(-1, 1), y_)
 
         Y                   = model.predict(X_)
         R2                  = model.score(X_, Y)
-        LAST_X              = m1_logs[-1]
+        LAST_X              = m0_logs[-1]
         LAST_Y              = model.predict([ [ LAST_X ] ])
         residuals           = y_ - model.predict(x_.reshape(-1, 1))
         sigma               = std(residuals)
         ten_bp_t            = y[0] * e**(0.001) - y[0]
         text                = [ 
-                                f"{ts_to_ds(t[i], FMT)}<br>m1: {m1_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}<br>{residuals[i]:0.4f}"
+                                f"{ts_to_ds(t[i], FMT)}<br>m0: {m0_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}<br>{residuals[i]:0.4f}"
                                 for i in range(len(t)) 
                             ]
 
@@ -117,7 +116,7 @@ if __name__ == "__main__":
                     "x":            X,
                     "y":            Y,
                     "text":         [   
-                                        f"{m1_0 * e**X[i]:0.{precision}f}<br>{div * e**Y[i]:0.{precision}f}" 
+                                        f"{m0_0 * e**X[i]:0.{precision}f}<br>{div * e**Y[i]:0.{precision}f}" 
                                         for i in range(len(X)) 
                                     ],
                     "name":         f"{contract_id} model",
@@ -137,7 +136,7 @@ if __name__ == "__main__":
                     "x":        [ LAST_X ],
                     "y":        LAST_Y,
                     "name":     f"{contract_id} m_last",
-                    "text":     [ f"{m1_0 * e**LAST_X:0.{precision}f}<br>{y[0] * e**LAST_Y[0]:0.{precision}f}" ],
+                    "text":     [ f"{m0_0 * e**LAST_X:0.{precision}f}<br>{y[0] * e**LAST_Y[0]:0.{precision}f}" ],
                     "marker":   { "color": "#FF0000" }
                 }
             ),
@@ -176,7 +175,7 @@ if __name__ == "__main__":
             col = 1
         )
 
-        print(f"{contract_id}\t\t{m1_0:0.{precision}f}\t{y[0]:0.{precision}f}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}\t{sigma:0.4f}\t{ten_bp_t:0.04f}")
+        print(f"{contract_id}\t\t{m0_0:0.{precision}f}\t{y[0]:0.{precision}f}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}\t{sigma:0.4f}\t{ten_bp_t:0.04f}")
 
     if show_chart:
     

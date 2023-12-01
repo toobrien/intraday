@@ -1,3 +1,4 @@
+from    math                    import  log
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    sys                     import  argv, path
@@ -112,12 +113,16 @@ if __name__ == "__main__":
 
         if i != 0:
 
+            mi  = trace_recs["y"]
+            m0  = trace_recs["prev_m0"]
+            chg = [ log(mi[i] / m0[i]) for i in range(len(mi)) ]
+
             fig.add_trace(
                 go.Scattergl(
                     {
                         "name":     f"{contract_ids[i]} log",
                         "x":        trace_recs["x"],
-                        "y":        trace_recs["log"],
+                        "y":        chg,
                         "text":     text,
                         "mode":     "markers",
                         "marker":   { "color": "#0000FF" }
@@ -127,7 +132,7 @@ if __name__ == "__main__":
                 col = 2
             )
 
-            vbp_y = vbp(zip([ None for rec in trace_recs["y"] ], trace_recs["log"], trace_recs["z"]), 3)
+            vbp_y = vbp(zip([ None for rec in trace_recs["y"] ], chg, trace_recs["z"]), 3)
 
             fig.add_trace(
                 go.Histogram(
