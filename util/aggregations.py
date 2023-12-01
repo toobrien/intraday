@@ -134,7 +134,11 @@ def multi_tick_series(recs: List[List], contract_ids: List):
     agg_recs.append(prev_rec)
 
     for rec in agg_recs:
+    
+        if rec[-2] == contract_ids[0]:
 
+            prev_m0 = rec[tas_rec.price]
+            
         rec.append(prev_m0)
 
     recs = [
