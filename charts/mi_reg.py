@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     for contract_id in contract_ids[1:]:
 
-        x, y, z, t, c, m0_y = itemgetter("x", "y", "z", "t", "c", "log")(recs[contract_id])
+        x, y, z, t, c, m0_y = itemgetter("x", "y", "z", "t", "c", "prev_m0")(recs[contract_id])
         div                 = y[0] if MODE == "CHG" else m0_0
         y_                  = array([ log(y_ / div) for y_ in y ])
         x_                  = array([ log(m0_i / m0_0) for m0_i in m0_y ])
