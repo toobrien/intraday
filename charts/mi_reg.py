@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     for contract_id in contract_ids[1:]:
 
-        x, y, z, t, c, m0_y = itemgetter("x", "y", "z", "t", "c", "prev_m0")(recs[contract_id])
+        x, y, z, t, m0_y    = itemgetter("x", "y", "z", "t", "prev_m0")(recs[contract_id])
         div                 = y[0] if MODE == "CHG" else m0_0
         y_                  = array([ log(y_ / div) for y_ in y ])
         x_                  = array([ log(m0_i / m0_0) for m0_i in m0_y ])
@@ -89,6 +89,8 @@ if __name__ == "__main__":
                                 f"{ts_to_ds(t[i], FMT)}<br>m0: {m0_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}<br>{residuals[i]:0.4f}"
                                 for i in range(len(t)) 
                             ]
+        latest              = text[-1].split("T")[0]
+        c                   = [ "#FF0000" if latest in text[i] else "#0000FF" for i in range(len(text)) ]
 
         fig.add_trace(
             go.Scattergl(
@@ -99,6 +101,7 @@ if __name__ == "__main__":
                     "mode":         "markers",
                     "marker_size":  z,
                     "marker":       {
+                                        "color":    c,
                                         "sizemode": "area",
                                         "sizeref":  size_norm,
                                         "sizemin":  4
