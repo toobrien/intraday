@@ -51,8 +51,9 @@ if __name__ == "__main__":
     for contract_id in contract_ids:
 
         x, y, z, t, c, prev_m0  = itemgetter("x", "y", "z", "t", "c", "prev_m0")(recs[contract_id])
-        m0_chg                  = [ log(y[i] / y[0]) for i in range(len(y)) ]
-        mi_chg                  = [ log(prev_m0[i] / m0_0) for i in range(len(y)) ]
+        y_0                     = log(y[0])
+        m0_chg                  = [ log(prev_m0[i]) - m0_0 for i in range(len(prev_m0)) ]
+        mi_chg                  = [ log(y[i]) - y_0 for i in range(len(y)) ]
 
         diff = [ mi_chg[i] - m0_chg[i] for i in range(len(y)) ]
 
@@ -63,7 +64,7 @@ if __name__ == "__main__":
 
         args = {
             "x":            x,
-            "y":            diff,
+            "y":            mi_chg,
             "text":         text,
             "mode":         "markers",
             "marker_size":  z,
@@ -83,7 +84,7 @@ if __name__ == "__main__":
 
         if contract_id != contract_ids[0]:
 
-            args["y"]       = [ log(y[i]) - m0_0 for i in range(len(y)) ]
+            args["y"]       = diff
             args["name"]    = f"{contract_id} diff"
             
             del args["marker_size"]
