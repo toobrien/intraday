@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     model = LinearRegression()
 
-    print("contract\tm0_0\tm_i0\tb\ta\tr^2\tsigma\tten_bp_t")
+    print("contract\tm0_0\tm_i0\tb\ta\tsigma\tten_bp_t\tratio")
 
     for contract_id in contract_ids[1:]:
 
@@ -79,9 +79,11 @@ if __name__ == "__main__":
         model.fit(array(x_).reshape(-1, 1), y_)
 
         Y                   = model.predict(X_)
-        R2                  = model.score(X_, Y)
         LAST_X              = m0_logs[-1]
         LAST_Y              = model.predict([ [ LAST_X ] ])
+        b                   = model.coef_[0]
+        a                   = model.intercept_
+        ratio               = y[-1] / m0_y[-1] * b
         residuals           = y_ - model.predict(x_.reshape(-1, 1))
         sigma               = std(residuals)
         ten_bp_t            = y[0] * e**(0.001) - y[0]
@@ -178,7 +180,7 @@ if __name__ == "__main__":
             col = 1
         )
 
-        print(f"{contract_id}\t\t{m0_0:0.{precision}f}\t{y[0]:0.{precision}f}\t{model.coef_[0]:0.4f}\t{model.intercept_:0.4f}\t{R2:0.4f}\t{sigma:0.4f}\t{ten_bp_t:0.04f}")
+        print(f"{contract_id}\t\t{m0_0:0.{precision}f}\t{y[0]:0.{precision}f}\t{b:0.4f}\t{a:0.4f}\t{sigma:0.4f}\t{ten_bp_t:0.04f}\t\t{ratio:0.4f}")
 
     if show_chart:
     
