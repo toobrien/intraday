@@ -15,7 +15,7 @@ from    util.rec_tools          import  get_tas, get_precision
 from    util.sc_dt              import  ts_to_ds
 
 
-# python charts/m0_log_reg.py HO###_FUT_CME:Z23:H24:M24:U24:Z24 1 2023-10-25
+# python charts/mi_reg.py HO###_FUT_CME:Z23:H24:M24:U24:Z24 1 2023-10-25
 
 MODE    = "CHG"
 FMT     = "%Y-%m-%dT%H:%M:%S.%f"
