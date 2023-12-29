@@ -9,7 +9,7 @@ from    time                    import  time
 from    typing                  import  List
 from    util.contract_settings  import  get_settings
 from    util.aggregations       import  ohlcv, ohlcv_rec
-from    util.rec_tools          import  ohlcv, get_tas, tas_rec
+from    util.rec_tools          import  get_tas, tas_rec
 
 
 FMT     = "%Y-%m-%dT%H:%M:%S.%f"
