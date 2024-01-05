@@ -54,10 +54,11 @@ if __name__ == "__main__":
     fig = make_subplots(
             rows                = 2,
             cols                = 2,
-            column_widths       = [ 0.8, 0.2 ],
-            row_heights         = [ 0.8, 0.2 ],
+            column_widths       = [ 0.7, 0.3 ],
+            row_heights         = [ 0.5, 0.5 ],
             vertical_spacing    = 0.025,
-            horizontal_spacing  = 0.025 
+            horizontal_spacing  = 0.025,
+            specs               = [ [ {}, {} ], [ { "colspan": 2 }, None ] ]
         )
 
     size_norm   = 2. * max(recs[contract_ids[0]]["z"]) / (40.**2)
