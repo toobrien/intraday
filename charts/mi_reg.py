@@ -55,7 +55,7 @@ if __name__ == "__main__":
             rows                = 2,
             cols                = 2,
             column_widths       = [ 0.7, 0.3 ],
-            row_heights         = [ 0.5, 0.5 ],
+            row_heights         = [ 0.6, 0.4 ],
             vertical_spacing    = 0.025,
             horizontal_spacing  = 0.025,
             specs               = [ [ {}, {} ], [ { "colspan": 2 }, None ] ]
