@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
         m0_chg  = [ log(prev_m0[i]) - m0_0 for i in range(len(prev_m0)) ]
         mi_chg  = [ log(y[i]) - y_0 for i in range(len(y)) ]
-        diff    = [ m0_chg[i] - mi_chg[i] for i in range(len(y)) ]
+        diff    = [ log(prev_m0[i] / log(y[i])) for i in range(len(y)) ]
         text    = [
                 f"{ts_to_ds(t[i], FMT)}<br>{diff[i]:0.4f}<br>{y[i]:0.{precision}f}<br>{z[i]}"
                 for i in range(len(t))
