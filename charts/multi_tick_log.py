@@ -72,13 +72,6 @@ if __name__ == "__main__":
             "x":            x,
             "y":            mi_chg,
             "text":         text,
-            "mode":         "markers",
-            "marker_size":  z,
-            "marker":       {
-                                "sizemode": "area",
-                                "sizeref":  size_norm,
-                                "sizemin":  4
-                            },
             "name":         contract_id
         }
 
@@ -92,9 +85,6 @@ if __name__ == "__main__":
 
             args["y"]       = diff
             args["name"]    = f"{contract_id} diff"
-            
-            del args["marker_size"]
-            del args["marker"]
 
             fig.add_trace(
                 go.Scattergl(args),
