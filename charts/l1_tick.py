@@ -6,11 +6,12 @@ from    sys                     import  argv, path
 path.append(".")
 
 from    config                  import  CONFIG
-from    util.parsers            import  depth_cmd, depth_rec, tas_rec
-from    util.rec_tools          import  intraday_tas_and_depth
 
 
 # python charts/l1_tick.py RBH4-HOH4 2024-02-19
+
+
+pl.Config.set_tbl_cols(18)
 
 
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     df              = pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv")
     start           = argv[2] if len(argv) > 2 else df["ts_event"][0]
     end             = argv[3] if len(argv) > 3 else df["ts_event"][-1]
-    df              = df.filter((df['ts_event'] >= start) & (df['ts_event'] <= end))
+    df              = df.filter((df['ts_event'] >= start) & (df['ts_event'] <= end)).with_row_index()
 
     if df.is_empty():
 
@@ -52,6 +53,12 @@ if __name__ == "__main__":
 
         exit()
 
-    print(df)
+    #print(df)
+
+    depth   = df.select(["index", "ts_event", "bid_px_00", "ask_px_00", "bid_sz_00", "ask_sz_00"])
+    trades  = df.filter(pl.col("action") == "T").select(["index", "ts_event", "side", "price"])
+
+    print(depth)
+    print(trades)
 
     pass
