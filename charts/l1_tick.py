@@ -114,10 +114,31 @@ def trade_trace(it):
     return x, y, z, c, t
 
 
+# hack garbage, fix ts serialization in dbn.get_csvs
+
+def adjust_ts(df):
+
+    df = df.with_columns(
+        pl.col(
+            "ts_event"
+        ).map_elements(
+            lambda dt: f"{dt[0:10]}T{dt[10:]}+0000" if " " in dt else dt
+        ).cast(
+            pl.Datetime, strict = False
+        ).dt.offset_by(
+            f"{UTC_OFFSET}h"
+        ).alias(
+            "ts"
+        )
+    )
+
+    return df
+
+
 if __name__ == "__main__":
 
     contract_id     = argv[1]
-    df              = pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv")
+    df              = adjust_ts(pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv"))
     bounds          = [ arg for arg in argv if search("\d{4}-\d{2}-\d{2}", arg) ]
     start           = bounds[0] if len(bounds) > 0 else df["ts_event"][0]
     end             = bounds[1] if len(bounds) > 1 else df["ts_event"][-1]
@@ -130,20 +151,6 @@ if __name__ == "__main__":
         print("no records matched")
 
         exit()
-
-    df = df.with_columns(
-        pl.col(
-            "ts_event"
-        ).map_elements(
-            lambda dt: f"{dt[0:10]}T{dt[10:]}+0000" if " " in dt else dt # hack, fix ts serialization in dbn.get_csvs
-        ).cast(
-            pl.Datetime, strict = False
-        ).dt.offset_by(
-            f"{UTC_OFFSET}h"
-        ).alias(
-            "ts"
-        )
-    )
 
     bids    = df.select([ "index", "ts", "bid_px_00", "bid_sz_00" ])
     asks    = df.select([ "index", "ts", "ask_px_00", "ask_sz_00" ])
