@@ -15,7 +15,8 @@ from    config                  import  CONFIG
 pl.Config.set_tbl_cols(18)
 
 
-FMT = "%Y-%m-%dT%H:%M:%S.%f"
+FMT         = "%Y-%m-%dT%H:%M:%S.%f"
+UTC_OFFSET  = -8
 
 
 '''
@@ -120,7 +121,7 @@ if __name__ == "__main__":
     bounds          = [ arg for arg in argv if search("\d{4}-\d{2}-\d{2}", arg) ]
     start           = bounds[0] if len(bounds) > 0 else df["ts_event"][0]
     end             = bounds[1] if len(bounds) > 1 else df["ts_event"][-1]
-    ts_x            = "ts" in argv
+    ts_x            = not "tick" in argv
     df              = df.filter((df['ts_event'] >= start) & (df['ts_event'] <= end)).with_row_index()
     fig             = go.Figure()
 
@@ -130,9 +131,21 @@ if __name__ == "__main__":
 
         exit()
 
-    bids    = df.select([ "index", "ts_event", "bid_px_00", "bid_sz_00" ])
-    asks    = df.select([ "index", "ts_event", "ask_px_00", "ask_sz_00" ])
-    trades  = df.filter(pl.col("action") == "T").select([ "index", "ts_event", "side", "price", "size" ])
+    df = df.with_columns(
+        pl.col("ts_event").map_elements(
+            lambda dt: f"{dt[0:10]}T{dt[10:]}+0000" if " " in dt else dt # hack, fix ts serialization in dbn.get_csvs
+        ).cast(
+            pl.Datetime, strict = False
+        ).dt.offset_by(
+            f"{UTC_OFFSET}h"
+        ).alias(
+            "ts"
+        )
+    )
+
+    bids    = df.select([ "index", "ts", "bid_px_00", "bid_sz_00" ])
+    asks    = df.select([ "index", "ts", "ask_px_00", "ask_sz_00" ])
+    trades  = df.filter(pl.col("action") == "T").select([ "index", "ts", "side", "price", "size" ])
 
     bid_x, bid_y, bid_t = bid_ask_trace(bids.iter_rows())
     ask_x, ask_y, ask_t = bid_ask_trace(asks.iter_rows())
