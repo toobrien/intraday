@@ -144,7 +144,7 @@ if __name__ == "__main__":
     end             = bounds[1] if len(bounds) > 1 else df["ts_event"][-1]
     ts_x            = not "tick" in argv
     df              = df.filter((df['ts_event'] >= start) & (df['ts_event'] <= end)).with_row_index()
-    fig             = go.Figure(layout = { "title": f"{contract_id} {start} - {end}" })
+    fig             = go.Figure(layout = { "title": f"{contract_id}<br>{start}<br>{end}" })
 
     if df.is_empty():
 
