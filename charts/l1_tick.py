@@ -132,7 +132,9 @@ if __name__ == "__main__":
         exit()
 
     df = df.with_columns(
-        pl.col("ts_event").map_elements(
+        pl.col(
+            "ts_event"
+        ).map_elements(
             lambda dt: f"{dt[0:10]}T{dt[10:]}+0000" if " " in dt else dt # hack, fix ts serialization in dbn.get_csvs
         ).cast(
             pl.Datetime, strict = False
