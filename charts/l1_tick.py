@@ -151,6 +151,7 @@ if __name__ == "__main__":
             "x":    trace[0],
             "y":    trace[1],
             "text": trace[2],
+            "name": trace[3],
             "mode": trace[4]
         }
 
