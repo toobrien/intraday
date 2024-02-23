@@ -61,9 +61,52 @@ def bid_ask_trace(it):
 
 def trade_trace(it):
 
+    x = []
+    y = []
+    z = []
+    c = []
+    t = []
+
+    r0          = next(it)
+    prev_idx    = r0[0]
+    prev_ts     = r0[1]
+    prev_side   = r0[2]
+    prev_price  = r0[3]
+    prev_qty    = r0[4]
+
     for row in it:
 
-        pass
+        idx     = row[0]
+        ts      = row[1]
+        side    = row[2]
+        price   = row[3]
+        qty     = row[4]
+
+        if price != prev_price or side != prev_side:
+
+            x.append(prev_idx)
+            y.append(prev_price)
+            z.append(qty)
+            c.append("#FF0000" if side == "B" else "#0000FF" if side == "A" else "#cccccc")
+            t.append(prev_ts)
+
+            qty = 0
+
+        prev_idx    = idx
+        prev_ts     = ts
+        prev_side   = side
+        prev_price  = price
+        prev_qty    += qty
+    
+    # add last trade
+        
+    x.append(prev_idx)
+    y.append(prev_price)
+    z.append(qty)
+    c.append("#FF0000" if side == "B" else "#0000FF" if side == "A" else "#cccccc")
+    t.append(prev_ts)
+
+    return x, y, z, c, t
 
 
 if __name__ == "__main__":
@@ -82,15 +125,9 @@ if __name__ == "__main__":
 
         exit()
 
-    #print(df)
-
     bids    = df.select([ "index", "ts_event", "bid_px_00", "bid_sz_00" ])
     asks    = df.select([ "index", "ts_event", "ask_px_00", "ask_sz_00" ])
     trades  = df.filter(pl.col("action") == "T").select([ "index", "ts_event", "side", "price", "size" ])
-
-    #print(bids)
-    #print(asks)
-    #print(trades)
 
     bid_x, bid_y, bid_t = bid_ask_trace(bids.iter_rows())
     ask_x, ask_y, ask_t = bid_ask_trace(asks.iter_rows())
