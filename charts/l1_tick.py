@@ -1,6 +1,7 @@
 import  polars                  as      pl
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
+from    re                      import  search
 from    sys                     import  argv, path
 
 path.append(".")
@@ -116,7 +117,7 @@ if __name__ == "__main__":
 
     contract_id     = argv[1]
     df              = pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv")
-    bounds          = [ arg for arg in argv if "-" in arg ]
+    bounds          = [ arg for arg in argv if search("\d{4}-\d{2}-\d{2}", arg) ]
     start           = bounds[0] if len(bounds) > 0 else df["ts_event"][0]
     end             = bounds[1] if len(bounds) > 1 else df["ts_event"][-1]
     ts_x            = "ts" in argv
@@ -160,5 +161,3 @@ if __name__ == "__main__":
         fig.add_trace(go.Scattergl(t))
 
     fig.show()
-
-    pass
