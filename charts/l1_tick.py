@@ -38,6 +38,7 @@ bid_ct_N 	    uint32_t 	The number of bid orders at level N (top level if N = 00
 ask_ct_N 	    uint32_t 	The number of ask orders at level N (top level if N = 00).
 '''
 
+
 def bid_ask_trace(it):
 
     prev = None
@@ -115,7 +116,7 @@ if __name__ == "__main__":
 
     contract_id     = argv[1]
     df              = pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv")
-    bounds          = [ arg for arg in argv if "-" in argv ]
+    bounds          = [ arg for arg in argv if "-" in arg ]
     start           = bounds[0] if len(bounds) > 0 else df["ts_event"][0]
     end             = bounds[1] if len(bounds) > 1 else df["ts_event"][-1]
     ts_x            = "ts" in argv
