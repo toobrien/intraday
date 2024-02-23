@@ -38,13 +38,42 @@ bid_ct_N 	    uint32_t 	The number of bid orders at level N (top level if N = 00
 ask_ct_N 	    uint32_t 	The number of ask orders at level N (top level if N = 00).
 '''
 
+def bid_ask_trace(it):
+
+    prev = None
+
+    x = []
+    y = []
+    t = []
+
+    for row in it:
+
+        if row[3] != prev:
+
+            x.append(row[0])
+            t.append(row[1])
+            y.append(row[3])
+
+            prev = row[3]
+    
+    return x, y, t
+
+
+def trade_trace(it):
+
+    for row in it:
+
+        pass
+
 
 if __name__ == "__main__":
 
     contract_id     = argv[1]
     df              = pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv")
-    start           = argv[2] if len(argv) > 2 else df["ts_event"][0]
-    end             = argv[3] if len(argv) > 3 else df["ts_event"][-1]
+    bounds          = [ arg for arg in argv if "-" in argv ]
+    start           = bounds[0] if len(bounds) > 0 else df["ts_event"][0]
+    end             = bounds[1] if len(bounds) > 1 else df["ts_event"][-1]
+    x_type          = "ts" if "ts" in argv else "tick"
     df              = df.filter((df['ts_event'] >= start) & (df['ts_event'] <= end)).with_row_index()
 
     if df.is_empty():
@@ -55,10 +84,17 @@ if __name__ == "__main__":
 
     #print(df)
 
-    depth   = df.select(["index", "ts_event", "bid_px_00", "ask_px_00", "bid_sz_00", "ask_sz_00"])
-    trades  = df.filter(pl.col("action") == "T").select(["index", "ts_event", "side", "price"])
+    bids    = df.select([ "index", "ts_event", "bid_px_00", "bid_sz_00" ])
+    asks    = df.select([ "index", "ts_event", "ask_px_00", "ask_sz_00" ])
+    trades  = df.filter(pl.col("action") == "T").select([ "index", "ts_event", "side", "price", "size" ])
 
-    print(depth)
-    print(trades)
+    #print(bids)
+    #print(asks)
+    #print(trades)
+
+    bid_x, bid_y, bid_t = bid_ask_trace(bids.iter_rows())
+    ask_x, ask_y, ask_t = bid_ask_trace(asks.iter_rows())
+    
+    trade_x, trade_y, trade_z, trade_c, trade_t = trade_trace(trades.iter_rows())
 
     pass
