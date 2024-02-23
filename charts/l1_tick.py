@@ -48,13 +48,15 @@ def bid_ask_trace(it):
 
     for row in it:
 
-        if row[3] != prev:
+        price = row[2]
+
+        if price != prev and price != None:
 
             x.append(row[0])
             t.append(row[1])
-            y.append(row[3])
+            y.append(price)
 
-            prev = row[3]
+            prev = price
     
     return x, y, t
 
