@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     traces = [
         ( bid_t if ts_x else bid_x, bid_y, bid_t, "bid", "lines", { "marker": { "color": "#0000FF" }, "line": { "shape": "hv" } } ),
-        ( ask_t if ts_x else ask_x, ask_y, ask_t, "ask", "lines", { "marker": { "color": "#0000FF" }, "line": { "shape": "hv" } } ),
+        ( ask_t if ts_x else ask_x, ask_y, ask_t, "ask", "lines", { "marker": { "color": "#FF0000" }, "line": { "shape": "hv" } } ),
         ( trade_x if ts_x else trade_t, trade_y, trade_z, "trades", "markers", { "marker_size": trade_z, "marker": { "color": trade_c, "sizemode": "area", "sizeref": 2. * max(trade_z) / (40.**2), "sizemin": 4 } } )
     ]
 
