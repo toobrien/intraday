@@ -86,7 +86,7 @@ def trade_trace(it):
 
             x.append(prev_idx)
             y.append(prev_price)
-            z.append(qty)
+            z.append(prev_qty)
             c.append("#FF0000" if side == "B" else "#0000FF" if side == "A" else "#cccccc")
             t.append(prev_ts)
 
