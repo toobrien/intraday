@@ -1,6 +1,6 @@
+from    datetime                import  datetime
 import  polars                  as      pl
 import  plotly.graph_objects    as      go
-from    plotly.subplots         import  make_subplots
 from    re                      import  search
 from    sys                     import  argv, path
 
@@ -124,9 +124,11 @@ def adjust_ts(df):
         ).map_elements(
             lambda dt: f"{dt[0:10]}T{dt[10:]}+0000" if " " in dt else dt
         ).cast(
-            pl.Datetime, strict = False
+            pl.Datetime
         ).dt.offset_by(
             f"{UTC_OFFSET}h"
+        ).dt.strftime(
+            FMT
         ).alias(
             "ts"
         )
@@ -143,7 +145,7 @@ if __name__ == "__main__":
     start           = bounds[0] if len(bounds) > 0 else df["ts"][0]
     end             = bounds[1] if len(bounds) > 1 else df["ts"][-1]
     ts_x            = not "tick" in argv
-    df              = df.filter((df['ts_event'] >= start) & (df['ts_event'] <= end)).with_row_index()
+    df              = df.filter((df['ts'] >= start) & (df['ts'] <= end)).with_row_index()
     fig             = go.Figure(layout = { "title": f"{contract_id}<br>{start}<br>{end}" })
 
     if df.is_empty():
