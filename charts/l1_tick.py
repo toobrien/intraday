@@ -95,7 +95,7 @@ def trade_trace(it):
             c.append("#FF0000" if side == "B" else "#0000FF" if side == "A" else "#cccccc")
             t.append(prev_ts)
 
-            qty = 0
+            prev_qty = 0
 
         prev_idx    = idx
         prev_ts     = ts
@@ -140,8 +140,8 @@ if __name__ == "__main__":
     contract_id     = argv[1]
     df              = adjust_ts(pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv"))
     bounds          = [ arg for arg in argv if search("\d{4}-\d{2}-\d{2}", arg) ]
-    start           = bounds[0] if len(bounds) > 0 else df["ts_event"][0]
-    end             = bounds[1] if len(bounds) > 1 else df["ts_event"][-1]
+    start           = bounds[0] if len(bounds) > 0 else df["ts"][0]
+    end             = bounds[1] if len(bounds) > 1 else df["ts"][-1]
     ts_x            = not "tick" in argv
     df              = df.filter((df['ts_event'] >= start) & (df['ts_event'] <= end)).with_row_index()
     fig             = go.Figure(layout = { "title": f"{contract_id}<br>{start}<br>{end}" })
