@@ -99,7 +99,7 @@ if __name__ == "__main__":
         go.Histogram(
             x               = hist,
             name            = "o_last",
-            marker_color    = "#0000FF"
+            marker_color    = "#7499ff"
         ),
         row = 1,
         col = 2
