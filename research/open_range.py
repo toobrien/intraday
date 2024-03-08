@@ -1,7 +1,10 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
+from    statistics              import  mean
 from    sys                     import  argv, path
+
 path.append(".")
+
 from    util.bar_tools          import  bar_rec, get_bars, get_sessions
 from    util.contract_settings  import  get_settings
 from    util.rec_tools          import  get_precision
@@ -38,6 +41,7 @@ if __name__ == "__main__":
     h_          = []
     l_          = []
     c_          = []
+    hist        = []
 
 
     for date in date_idx:
@@ -65,8 +69,14 @@ if __name__ == "__main__":
         h_.append(h - prev_close)
         l_.append(l - prev_close)
         c_.append(c - prev_close)
+        hist.append(c - prev_close)
 
-    fig = make_subplots(rows = 1, cols = 1)
+    fig = make_subplots(
+        rows                = 1,
+        cols                = 2,
+        column_widths       = [ 0.80, 0.20 ],
+        horizontal_spacing  = 0.05
+    )
 
     fig.add_trace(
         go.Ohlc(
@@ -76,7 +86,7 @@ if __name__ == "__main__":
                 "high":     h_,
                 "low":      l_,
                 "close":    c_,
-                "name":     "price",
+                "name":     "o_rng",
                 "increasing_line_color": "#86837e",
                 "decreasing_line_color": "#4a4845"
             }
@@ -85,8 +95,19 @@ if __name__ == "__main__":
         col = 1
     )
 
-    fig.add_hline(y = 0, line_color = "#FF00FF")
+    fig.add_trace(
+        go.Histogram(
+            x               = hist,
+            name            = "o_last",
+            marker_color    = "#0000FF"
+        ),
+        row = 1,
+        col = 2
+    )
 
+    print(f"avg_close: {mean(hist):0.4f}")
+
+    fig.add_hline(y = 0, line_color = "#FF00FF")
     fig.update_xaxes(rangeslider_visible = False)
     fig.update_layout(title_text = title)
 
