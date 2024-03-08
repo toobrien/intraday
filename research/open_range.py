@@ -1,6 +1,5 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
-from    statistics              import  mean
 from    sys                     import  argv, path
 path.append(".")
 from    util.bar_tools          import  bar_rec, get_bars, get_sessions
@@ -9,6 +8,7 @@ from    util.rec_tools          import  get_precision
 
 
 # python research/open_range.py ZCU23_FUT_CME 11:15.11:21 17:00.17:16 2023-03-01 2023-07-23
+# python research/open_range.py HOJ24_FUT_CME 13:55.14:01 15:00.15:06 2024-02-01 2023-04-01
 
 
 if __name__ == "__main__":
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     _, tick_size    = get_settings(contract_id)
     precision       = get_precision(str(tick_size))
     bars            = get_bars(contract_id, start, end)
-    title           = f"{contract_id} {open_range[0]} - {open_range[1]}"
+    title           = f"{contract_id}<br>{close_range[0]} - {close_range[1]}<br>{open_range[0]} - {open_range[1]}"
 
     if not bars:
 
@@ -68,14 +68,6 @@ if __name__ == "__main__":
 
     fig = make_subplots(rows = 1, cols = 1)
 
-    fig.update_layout(
-        { 
-            'xaxis': {
-                'rangeslider': { 'visible': False } 
-            }
-        }
-    )
-
     fig.add_trace(
         go.Ohlc(
             {
@@ -84,11 +76,18 @@ if __name__ == "__main__":
                 "high":     h_,
                 "low":      l_,
                 "close":    c_,
-                "name":     "price"
+                "name":     "price",
+                "increasing_line_color": "#86837e",
+                "decreasing_line_color": "#4a4845"
             }
         ),
         row = 1,
         col = 1
     )
+
+    fig.add_hline(y = 0, line_color = "#FF00FF")
+
+    fig.update_xaxes(rangeslider_visible = False)
+    fig.update_layout(title_text = title)
 
     fig.show()

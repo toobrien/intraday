@@ -79,15 +79,36 @@ def get_sc_bars(
     start:          str = None,
     end:            str = None
 ):
+    
+    from io import StringIO
 
     extension   = ".scid_BarData.txt" if ".dly" not in contract_id else ".dly_BarData.txt"
-    fn          = f"{SC_ROOT}/data/{contract_id}{extension}"
-    df          = pl.read_csv(fn).with_columns(
-                    [
-                        pl.col("Date").str.to_datetime("%Y/%m/%d").dt.strftime("%Y-%m-%d"),
-                        pl.col(" Time").str.replace_all(" ", "")
-                    ]
-                ) # standardize date format and drop whitespace from time col
+    fn          = f"{SC_ROOT}/Data/{contract_id}{extension}"
+    
+    # polars 0.20.10 has issues reading the file directly from my VM for ??? reason
+    # so, this...
+
+    io          = StringIO(open(fn, "r", encoding="utf-8").read())
+    df          = pl.read_csv(
+                        io,
+                        dtypes = [
+                            pl.Utf8,
+                            pl.Utf8,
+                            pl.Float64,
+                            pl.Float64,
+                            pl.Float64,
+                            pl.Float64,
+                            pl.Int32,
+                            pl.Int32,
+                            pl.Int32,
+                            pl.Int32
+                        ]
+                    ).with_columns(
+                        [
+                            pl.col("Date").str.to_datetime("%Y/%m/%d").dt.strftime("%Y-%m-%d"),
+                            pl.col(" Time").str.replace_all(" ", "")
+                        ]
+                    ) # standardize date format and drop whitespace from time col
 
     df = trim_range(df, start, end)
 

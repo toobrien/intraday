@@ -9,7 +9,7 @@ from    util.bar_tools          import  bar_rec, get_bars, get_sessions
 from    util.contract_settings  import  get_settings
 
 
-# charts/season.py ESU23_FUT_CME 12.13 2023-07-01
+# python charts/season.py ESH24_FUT_CME 12.13 2023-07-01
 
 
 # TICKS_PER_BIN = 4
