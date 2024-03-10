@@ -11,7 +11,7 @@ from    util.rec_tools          import  get_precision
 
 
 # python research/open_range.py ZCU23_FUT_CME 11:15.11:21 17:00.17:16 2023-03-01 2023-07-23
-# python research/open_range.py HOJ24_FUT_CME 13:55.14:01 15:00.15:06 2024-02-01 2024-04-01
+# python research/open_range.py HO.c.0 13:55.14:01 15:00.15:06 2024-01-01 2024-04-01
 
 
 if __name__ == "__main__":
