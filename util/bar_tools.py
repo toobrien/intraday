@@ -1,16 +1,20 @@
-from    bisect  import  bisect_left, bisect_right
-from    enum    import  IntEnum
-import  polars  as      pl
-from    sys     import  path
-from    typing  import  List
+from    bisect          import  bisect_left, bisect_right
+from    enum            import  IntEnum
+import  polars          as      pl
+from    sys             import  path
+from    typing          import  List
 
 path.append(".")
 
-from    config  import  CONFIG
+from    util.dbn_util   import  strptime
+from    config          import  CONFIG
 
 
 SC_ROOT     = CONFIG["sc_root"]
 FRD_ROOT    = CONFIG["frd_root"]
+DBN_ROOT    = CONFIG["dbn_root"]
+FMT         = "%Y-%m-%dT%H:%M:%S.%f"
+UTC_OFFSET  = CONFIG["utc_offset"]
 
 
 class bar_rec(IntEnum):
@@ -67,6 +71,10 @@ def get_bars(
 
         bars = get_frd_bars(contract_id, resolution, start, end)
 
+    elif ".c." in contract_id:
+
+        bars = get_dbn_bars(contract_id, start, end)
+
     else:
 
         bars = get_sc_bars(contract_id, start, end)
@@ -118,6 +126,7 @@ def get_sc_bars(
 # for ohlc from firstratedata
 # naming convention: <symbol>_<resolution>.csv
 
+
 def get_frd_bars(
     symbol:     str,
     resolution: str,
@@ -131,6 +140,57 @@ def get_frd_bars(
     df = df.with_columns(
         pl.col("datetime").str.slice(0, 10).alias("Date"),
         pl.col("datetime").str.slice(11).alias(" Time")
+    ).select(
+        pl.col("Date"),
+        pl.col(" Time"),
+        pl.col("open"),
+        pl.col("high"),
+        pl.col("low"),
+        pl.col("close")
+    )
+
+    df = trim_range(df, start, end)
+
+    return df.rows()
+
+
+# for ohlc from databento
+# naming convention: <symbol>.c.<month>.csv
+
+def get_dbn_bars(
+    symbol: str,
+    start:  str = None,
+    end:    str = None
+):
+    
+    fn = f"{DBN_ROOT}/csvs/{symbol}.csv"
+    df = pl.read_csv(
+            fn,
+            dtypes = [
+                pl.Datetime,
+                pl.Int16,
+                pl.Int16,
+                pl.Int32,
+                pl.Float64,
+                pl.Float64,
+                pl.Float64,
+                pl.Float64,
+                pl.Int64,
+                pl.Utf8
+            ]
+        )
+
+    df = strptime(
+            df,
+            from_col    = "ts_event",
+            to_col      = "ts", 
+            FMT         = FMT, 
+            utc_offset  = UTC_OFFSET
+        )
+    
+    df = df.with_columns(
+        pl.col("ts").str.slice(0, 10).alias("Date"),
+        pl.col("ts").str.slice(11, 19).alias(" Time")
     ).select(
         pl.col("Date"),
         pl.col(" Time"),
@@ -175,4 +235,3 @@ def get_sessions(
                 res[date] = session
     
     return res
-

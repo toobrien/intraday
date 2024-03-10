@@ -73,6 +73,12 @@ def get_settings(fn: str):
 
         sym = fn.split(":")[0]
 
+    elif ".c." in fn:
+
+        # dbn continuous contract
+
+        sym = fn.split(".")[0]
+        
     elif "NQTV" in fn:
 
         # stock

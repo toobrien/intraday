@@ -16,7 +16,7 @@ pl.Config.set_tbl_cols(18)
 
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
-UTC_OFFSET  = -8
+UTC_OFFSET  = CONFIG["uts_offset"]
 
 
 '''
