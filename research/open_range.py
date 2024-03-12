@@ -105,6 +105,7 @@ if __name__ == "__main__":
         col = 2
     )
 
+    print(f"n:      {len(hist)}")
     print(f"avg:    {mean(hist):0.{precision}f}")
     print(f"stdev:  {stdev(hist):0.{precision}f}")
 
