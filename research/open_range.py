@@ -1,6 +1,6 @@
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
-from    statistics              import  mean
+from    statistics              import  mean, stdev
 from    sys                     import  argv, path
 
 path.append(".")
@@ -105,7 +105,8 @@ if __name__ == "__main__":
         col = 2
     )
 
-    print(f"avg_close: {mean(hist):0.4f}")
+    print(f"avg:    {mean(hist):0.{precision}f}")
+    print(f"stdev:  {stdev(hist):0.{precision}f}")
 
     fig.add_hline(y = 0, line_color = "#FF00FF")
     fig.update_xaxes(rangeslider_visible = False)
