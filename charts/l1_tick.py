@@ -7,6 +7,7 @@ from    sys                     import  argv, path
 path.append(".")
 
 from    config                  import  CONFIG
+from    util.dbn_util           import  strptime
 
 
 # python charts/l1_tick.py RBH4-HOH4 2024-02-19
@@ -16,7 +17,7 @@ pl.Config.set_tbl_cols(18)
 
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
-UTC_OFFSET  = CONFIG["uts_offset"]
+TZ          = CONFIG["tz"]
 
 
 '''
@@ -114,33 +115,11 @@ def trade_trace(it):
     return x, y, z, c, t
 
 
-# hack garbage, fix ts serialization in dbn.get_csvs
-
-def adjust_ts(df):
-
-    df = df.with_columns(
-        pl.col(
-            "ts_event"
-        ).map_elements(
-            lambda dt: f"{dt[0:10]}T{dt[10:]}+0000" if " " in dt else dt
-        ).cast(
-            pl.Datetime
-        ).dt.offset_by(
-            f"{UTC_OFFSET}h"
-        ).dt.strftime(
-            FMT
-        ).alias(
-            "ts"
-        )
-    )
-
-    return df
-
-
 if __name__ == "__main__":
 
     contract_id     = argv[1]
-    df              = adjust_ts(pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv"))
+    df              = pl.read_csv(f"{CONFIG['dbn_root']}/csvs/{contract_id}.csv")
+    df              = strptime(df, "ts_event", "ts", FMT, TZ)
     bounds          = [ arg for arg in argv if search("\d{4}-\d{2}-\d{2}", arg) ]
     start           = bounds[0] if len(bounds) > 0 else df["ts"][0]
     end             = bounds[1] if len(bounds) > 1 else df["ts"][-1]

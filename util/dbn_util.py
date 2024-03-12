@@ -6,14 +6,18 @@ def strptime(
     from_col:   str,
     to_col:     str, 
     FMT:        str, 
-    utc_offset: int
+    tz:         str
 ) -> pl.DataFrame:
     
     df = df.with_columns(
         pl.col(
             from_col
-        ).dt.offset_by(
-            f"{utc_offset}h"
+        ).map_elements(
+            lambda dt: f"{dt[0:10]}T{dt[10:]}+0000" if " " in dt else dt # hack, fix serialization in dbn.get_csv
+        ).cast(
+            pl.Datetime
+        ).dt.convert_time_zone(
+            tz
         ).dt.strftime(
             FMT
         ).alias(

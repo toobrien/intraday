@@ -15,6 +15,7 @@ FRD_ROOT    = CONFIG["frd_root"]
 DBN_ROOT    = CONFIG["dbn_root"]
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 UTC_OFFSET  = CONFIG["utc_offset"]
+TZ          = CONFIG["tz"]
 
 
 class bar_rec(IntEnum):
@@ -185,7 +186,7 @@ def get_dbn_bars(
             from_col    = "ts_event",
             to_col      = "ts", 
             FMT         = FMT, 
-            utc_offset  = UTC_OFFSET
+            tz          = TZ
         )
     
     df = df.with_columns(
