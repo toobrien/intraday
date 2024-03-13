@@ -117,7 +117,7 @@ if __name__ == "__main__":
     print(f"n:      {len(hist)}")
     print(f"avg:    {mean(hist):0.{precision}f}")
     print(f"stdev:  {stdev(hist):0.{precision}f}")
-    print(f"cross:  {cross} ({cross / len(hist):0.2f}%)")
+    print(f"cross:  {cross} ({cross / len(hist):0.2f})")
 
     fig.add_hline(y = 0, line_color = "#FF00FF")
     fig.update_xaxes(rangeslider_visible = False)
