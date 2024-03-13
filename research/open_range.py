@@ -42,7 +42,7 @@ if __name__ == "__main__":
     l_          = []
     c_          = []
     hist        = []
-
+    cross       = 0
 
     for date in date_idx:
 
@@ -64,12 +64,21 @@ if __name__ == "__main__":
             h = max(bar[bar_rec.high], h)
             l = min(bar[bar_rec.low], l)
 
+        o__ = o - prev_close
+        h__ = h - prev_close
+        l__ = l - prev_close
+        c__ = c - prev_close
+
         x.append(date)
-        o_.append(o - prev_close)
-        h_.append(h - prev_close)
-        l_.append(l - prev_close)
-        c_.append(c - prev_close)
-        hist.append(c - prev_close)
+        o_.append(o__)
+        h_.append(h__)
+        l_.append(l__)
+        c_.append(c__)
+        hist.append(c__)
+
+        if h__ > 0 and l__ < 0:
+
+            cross += 1
 
     fig = make_subplots(
         rows                = 1,
@@ -108,6 +117,7 @@ if __name__ == "__main__":
     print(f"n:      {len(hist)}")
     print(f"avg:    {mean(hist):0.{precision}f}")
     print(f"stdev:  {stdev(hist):0.{precision}f}")
+    print(f"cross:  {cross} ({cross / len(hist):0.2f}%)")
 
     fig.add_hline(y = 0, line_color = "#FF00FF")
     fig.update_xaxes(rangeslider_visible = False)
