@@ -1,5 +1,4 @@
 import  plotly.graph_objects    as      go
-from    plotly.subplots         import  make_subplots
 from    statistics              import  mean, stdev
 from    sys                     import  argv, path
 
