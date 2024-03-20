@@ -198,7 +198,8 @@ def get_dbn_bars(
         pl.col("open"),
         pl.col("high"),
         pl.col("low"),
-        pl.col("close")
+        pl.col("close"),
+        pl.col("volume")
     )
 
     df = trim_range(df, start, end)
