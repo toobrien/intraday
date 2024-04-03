@@ -84,7 +84,7 @@ if __name__ == "__main__":
                 }
             )
 
-            print(ts_full, f"{min_price:10}", f"{max_price:10}", f"{int(ticks):10}", f"{qty:10}")
+            print(ts_full, f"{min_price:10.{precision}f}", f"{max_price:10.{precision}f}", f"{int(ticks):10}", f"{qty:10}")
 
     traces.append(
         {
