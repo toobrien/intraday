@@ -34,11 +34,15 @@ if __name__ == "__main__":
     traces                  = []
     xs                      = {}
     i                       = 0
+    prev_price              = recs[0][tas_rec.price]
+    prev_side               = recs[0][tas_rec.side]
     fig                     = go.Figure()
 
     for rec in recs:
 
-        ts = str(rec[tas_rec.timestamp])[:-3]
+        ts      = str(rec[tas_rec.timestamp])[:-3]
+        price   = rec[tas_rec.price]
+        side    = rec[tas_rec.side]
 
         if ts not in groups:
 
@@ -48,7 +52,13 @@ if __name__ == "__main__":
         groups[ts].append(rec)
         xs[ts].append(i)
 
-        i += 1
+        if price != prev_price or side != prev_side:
+
+            prev_price  = price
+            prev_side   = side
+        
+            i += 1
+
 
     for ts, group in groups.items():
 
@@ -87,8 +97,6 @@ if __name__ == "__main__":
             "mode": "lines"    
         }
     )
-
-    print(f"{len(traces)} traces, {time() - t0:0.1f}s")
 
     for trace in traces:
 
