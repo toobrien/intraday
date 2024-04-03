@@ -83,7 +83,7 @@ if __name__ == "__main__":
             "y":    y,
             "text": t,
             "name": contract_id,
-            "coor": "#0000FF",
+            "color": "#0000FF",
             "mode": "lines"    
         }
     )
