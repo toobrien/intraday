@@ -53,7 +53,7 @@ if __name__ == "__main__":
     for ts, group in groups.items():
 
         prices      = [ rec[tas_rec.price] for rec in group ]
-        text        = [ ts_to_ds(rec[tas_rec.timestamp]) for rec in group ]
+        text        = [ ts_to_ds(rec[tas_rec.timestamp], FMT) for rec in group ]
         qty         = sum([ rec[tas_rec.qty] for rec in group ])
         min_price   = min(prices)
         max_price   = max(prices)
