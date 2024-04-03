@@ -90,7 +90,7 @@ if __name__ == "__main__":
         {
             "x":    [ i for i in range(len(x)) ],
             "y":    y,
-            "text": t,
+            "text": [ ts_to_ds(ts[0], FMT) for ts in t ],
             "name": contract_id,
             "color": "#0000FF",
             "mode": "lines"    
