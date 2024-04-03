@@ -71,19 +71,18 @@ if __name__ == "__main__":
 
             text    = [ ts_to_ds(rec[tas_rec.timestamp], FMT) for rec in group ]
             qty     = sum([ rec[tas_rec.qty] for rec in group ])
+            ts_full = ts_to_ds(group[0][tas_rec.timestamp], FMT)
 
             traces.append(
                 {
                     "x":        xs[ts],
                     "y":        prices,
                     "text":     text,
-                    "name":     ts,
+                    "name":     ts_full,
                     "color":    "#FF00FF",
                     "mode":     "lines+markers"
                 }
             )
-
-            ts_full = ts_to_ds(group[0][tas_rec.timestamp], FMT)
 
             print(ts_full, f"{min_price:10}", f"{max_price:10}", f"{int(ticks):10}", f"{qty:10}")
 
