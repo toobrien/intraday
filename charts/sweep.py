@@ -90,7 +90,7 @@ if __name__ == "__main__":
     for trace in traces:
 
         fig.add_trace(
-            go.Scatter_gl(
+            go.Scattergl(
                 {
                     "x":        trace["x"],
                     "y":        trace["y"],
