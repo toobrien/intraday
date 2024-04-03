@@ -58,16 +58,6 @@ def tick_series(recs: List):
         
         cum_qty += qty
 
-        # add final trade
-
-        '''
-        x.append(cum_qty)
-        y.append(prev_price)
-        z.append(trade_qty)
-        t.append(( start, end ))
-        c.append("#0000FF" if prev_side else "#FF0000")
-        '''
-
     # add final trade
 
     x.append(cum_qty)

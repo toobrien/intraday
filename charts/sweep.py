@@ -4,6 +4,7 @@ from    time                    import  time
 
 path.append(".")
 
+from    util.aggregations       import  tick_series
 from    util.contract_settings  import  get_settings
 from    util.plotting           import  get_title
 from    util.rec_tools          import  get_tas, get_precision, tas_rec
@@ -29,6 +30,11 @@ if __name__ == "__main__":
     recs                    = get_tas(contract_id, multiplier, None, start, end)
     title                   = f"{title} {start} - {end}"
     groups                  = {}
+    x, y, z, t, _           = tick_series(recs)
+    traces                  = []
+    xs                      = {}
+    i                       = 0
+    fig                     = go.Figure()
 
     for rec in recs:
 
@@ -36,23 +42,71 @@ if __name__ == "__main__":
 
         if ts not in groups:
 
-            groups[ts] = []
+            groups[ts]  = []
+            xs[ts]      = []
 
         groups[ts].append(rec)
+        xs[ts].append(i)
+
+        i += 1
 
     for ts, group in groups.items():
 
         prices      = [ rec[tas_rec.price] for rec in group ]
+        text        = [ ts_to_ds(rec[tas_rec.timestamp]) for rec in group ]
         qty         = sum([ rec[tas_rec.qty] for rec in group ])
         min_price   = min(prices)
         max_price   = max(prices)
         ticks       = (max_price - min_price) / tick_size
     
+        traces.append(
+            {
+                "x":        xs[ts],
+                "y":        prices,
+                "text":     text,
+                "name":     ts,
+                "color":    "#FF00FF",
+                "mode":     "lines+markers"
+            }
+
+        )
+
         if ticks >= min_len:
 
-            ts = ts_to_ds(group[0][tas_rec.timestamp], FMT)
+            ts_full = ts_to_ds(group[0][tas_rec.timestamp], FMT)
 
-            print(ts, f"{min_price:10}", f"{max_price:10}", f"{int(ticks):10}", f"{qty:10}")
+            print(ts_full, f"{min_price:10}", f"{max_price:10}", f"{int(ticks):10}", f"{qty:10}")
+
+    traces.append(
+        {
+            "x":    [ i for i in range(len(x)) ],
+            "y":    y,
+            "text": t,
+            "coor": "#0000FF",
+            "mode": "lines"    
+        }
+    )
+
+    for trace in traces:
+
+        fig.add_trace(
+            go.Scatter_gl(
+                {
+                    "x":        trace["x"],
+                    "y":        trace["y"],
+                    "text":     trace["text"],
+                    "name":     trace["name"],
+                    "marker":   { "color": trace["color"] },
+                    "mode":     trace["mode"]
+                }
+            )
+        )
+
+    fig.add_trace()
+
+    fig.update_layout(title_text = title)
+
+    fig.show()
 
     print(f"{time() - t0:0.1f}s")
 
