@@ -53,25 +53,25 @@ if __name__ == "__main__":
     for ts, group in groups.items():
 
         prices      = [ rec[tas_rec.price] for rec in group ]
-        text        = [ ts_to_ds(rec[tas_rec.timestamp], FMT) for rec in group ]
-        qty         = sum([ rec[tas_rec.qty] for rec in group ])
         min_price   = min(prices)
         max_price   = max(prices)
         ticks       = (max_price - min_price) / tick_size
-    
-        traces.append(
-            {
-                "x":        xs[ts],
-                "y":        prices,
-                "text":     text,
-                "name":     ts,
-                "color":    "#FF00FF",
-                "mode":     "lines+markers"
-            }
-
-        )
 
         if ticks >= min_len:
+
+            text    = [ ts_to_ds(rec[tas_rec.timestamp], FMT) for rec in group ]
+            qty     = sum([ rec[tas_rec.qty] for rec in group ])
+
+            traces.append(
+                {
+                    "x":        xs[ts],
+                    "y":        prices,
+                    "text":     text,
+                    "name":     ts,
+                    "color":    "#FF00FF",
+                    "mode":     "lines+markers"
+                }
+            )
 
             ts_full = ts_to_ds(group[0][tas_rec.timestamp], FMT)
 
@@ -82,10 +82,13 @@ if __name__ == "__main__":
             "x":    [ i for i in range(len(x)) ],
             "y":    y,
             "text": t,
+            "name": contract_id,
             "coor": "#0000FF",
             "mode": "lines"    
         }
     )
+
+    print(f"{len(traces)} traces, {time() - t0:0.1f}s")
 
     for trace in traces:
 
@@ -101,8 +104,6 @@ if __name__ == "__main__":
                 }
             )
         )
-
-    fig.add_trace()
 
     fig.update_layout(title_text = title)
 
