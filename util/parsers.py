@@ -1,9 +1,9 @@
 from    enum        import  IntEnum
-from    numpy       import  datetime64
+from    numpy       import  array, datetime64
 from    os          import  fstat
 import  pyarrow     as      pa
 from    util.sc_dt  import  ts_to_ds
-from    struct      import  calcsize, Struct
+from    struct      import  calcsize, Struct, unpack_from
 from    sys         import  argv
 from    time        import  time
 from    typing      import  BinaryIO, List
@@ -120,9 +120,32 @@ def bulk_parse_tas(fd: BinaryIO, checkpoint: int) -> List:
     return tas_recs
 
 
+# quick, unformatted record slice
+
+def raw_tas_slice(fd: BinaryIO, start_rec: int = 0, end_rec: int = None) -> List:
+    
+    fd.seek(INTRADAY_HEADER_LEN + start_rec * INTRADAY_REC_LEN)
+    
+    if end_rec:
+
+        n_recs      = end_rec - start_rec
+        n_bytes     = INTRADAY_REC_LEN * n_recs
+        buf         = fd.read(n_bytes)
+    
+    else:
+
+        buf         = fd.read()
+        n_recs      = len(buf) // INTRADAY_REC_LEN
+        
+    arr         = unpack_from(INTRADAY_REC_FMT * n_recs, buf)
+    tas_recs    = array(arr).reshape((n_recs, -1))
+
+    return tas_recs
+
+
 def transform_tas(rs: List, price_adj: float, fmt: str = None):
 
-    # - truncate microsecond int64 to millisecond datestring (optional -- change schema to TEXT type)
+    # - truncate record-count suffixed int64 to millisecond datestring (optional -- change schema to TEXT type)
     # - adjust price using "real-time price multiplier"
 
     return [

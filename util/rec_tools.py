@@ -8,7 +8,7 @@ path.append(".")
 
 from config         import  CONFIG
 from util.parsers   import  bulk_parse_tas, depth_rec, parse_depth, parse_depth_header, \
-                            parse_tas_header, tas_rec, transform_depth, transform_tas
+                            parse_tas_header, tas_rec, raw_tas_slice, transform_depth, transform_tas
 from util.sc_dt     import  ds_to_ts
 
 
@@ -129,6 +129,23 @@ def get_tas(
         pass
         
     return recs
+
+
+# returns a slice of time and sales records without loading the entire file
+#
+# - start_rec and end_rec should be record, not byte, indices
+
+def quick_tas(
+    contract_id:    str,
+    start_rec:      int = 0,
+    end_rec:        int = None
+):
+
+    with open(f"{SC_ROOT}/Data/{contract_id}.scid", "rb") as fd:
+
+        tas_recs = raw_tas_slice(fd, start_rec, end_rec)
+
+    return tas_recs
 
 
 # returns a dict of dates to slice indices (for trades or quotes that occurred that day)
