@@ -1,5 +1,5 @@
 from    enum        import  IntEnum
-from    numpy       import  array, datetime64
+from    numpy       import  array, datetime64, int64
 from    os          import  fstat
 import  pyarrow     as      pa
 from    util.sc_dt  import  ts_to_ds
@@ -120,25 +120,44 @@ def bulk_parse_tas(fd: BinaryIO, checkpoint: int) -> List:
     return tas_recs
 
 
-# quick, unformatted record slice
+# use when record indices are known
 
-def raw_tas_slice(fd: BinaryIO, start_rec: int = 0, end_rec: int = None) -> List:
+def tas_slice(
+    fd:         BinaryIO,
+    multiplier: float,
+    ts_fmt:     str = None,
+    start_rec:  int = 0, 
+    end_rec:    int = None
+) -> List:
     
     fd.seek(INTRADAY_HEADER_LEN + start_rec * INTRADAY_REC_LEN)
     
     if end_rec:
 
-        n_recs      = end_rec - start_rec
-        n_bytes     = INTRADAY_REC_LEN * n_recs
-        buf         = fd.read(n_bytes)
+        buf = fd.read(INTRADAY_REC_LEN * (end_rec - start_rec))
     
     else:
 
-        buf         = fd.read()
-        n_recs      = len(buf) // INTRADAY_REC_LEN
-        
-    arr         = unpack_from(INTRADAY_REC_FMT * n_recs, buf)
-    tas_recs    = array(arr).reshape((n_recs, -1))
+        buf = fd.read()
+    
+    i           = 0
+    struct      = Struct(INTRADAY_REC_FMT)
+    tas_recs    = []
+
+    while i < len(buf):
+
+        ir = struct.unpack_from(buf, i)
+
+        tas_recs.append(
+            (
+                ir[intraday_rec.timestamp] if not ts_fmt else ts_to_ds(ir[intraday_rec.timestamp], ts_fmt),
+                ir[intraday_rec.close] * multiplier,
+                ir[intraday_rec.bid_vol] if ir[intraday_rec.bid_vol] else ir[intraday_rec.ask_vol],
+                0 if ir[intraday_rec.bid_vol] > 0 else 1
+            )
+        )
+    
+        i += INTRADAY_REC_LEN
 
     return tas_recs
 
