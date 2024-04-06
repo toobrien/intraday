@@ -59,13 +59,15 @@ if __name__ == "__main__":
         x, y, z, t, _   = tick_series(recs)
         y_0             = y[0]
         y               = [ y_ - y_0 for y_ in y ]
+        t_0             = str(t[0][0])[:-3]
+        color           = [ "#FF00FF" if str(t_[0])[:-3] == t_0 else "#0000FF" for t_ in t ]
 
         fig.add_trace(
             go.Scattergl(
                 {
                     "x":        x,
                     "y":        y,
-                    "marker":   { "color": [ "#FF00FF" if t_ == ts else "#0000FF" for t_ in t ] },
+                    "marker":   { "color": color },
                     "mode":     "lines",
                     "name":     ts_to_ds(ts, FMT)
                 }
