@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     for j in range(len(recs)):
 
-        rec     = recs[i]
+        rec     = recs[j]
         ts      = str(rec[tas_rec.timestamp])[:-3]
         price   = rec[tas_rec.price]
         side    = rec[tas_rec.side]
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     for ts, group in groups.items():
 
-        prices      = [ rec[tas_rec.price] for rec in group ]
+        prices      = [ rec[tas_rec.price + 1] for rec in group ]
         min_price   = min(prices)
         max_price   = max(prices)
         ticks       = int((max_price - min_price) / tick_size)
@@ -85,8 +85,8 @@ if __name__ == "__main__":
         if ticks >= min_len:
 
             side    = 0 if prices[0] > prices[-1] else 1
-            qty     = sum([ rec[tas_rec.qty] for rec in group ])
-            ts_full = ts_to_ds(group[0][tas_rec.timestamp], FMT)
+            qty     = sum([ rec[tas_rec.qty + 1] for rec in group ])
+            ts_full = ts_to_ds(group[0][tas_rec.timestamp + 1], FMT)
             i       = group[0][0]
             j       = group[-1][0]
 
