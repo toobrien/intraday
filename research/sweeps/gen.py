@@ -55,7 +55,7 @@ if __name__ == "__main__":
         with open(fn, "r") as fd:
 
             rows    = [ row for row in reader(fd) ]
-            i       = rows[-1][2]
+            i       = int(rows[-1][2])
 
     recs = quick_tas(contract_id, multiplier, None, i)
 
