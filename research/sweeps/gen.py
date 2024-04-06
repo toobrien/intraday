@@ -10,25 +10,17 @@ from util.rec_tools         import quick_tas, get_precision, tas_rec
 from util.sc_dt             import ts_to_ds
 
 
-# 0 ts            unabridged %Y-%m-%dT%H:%M:%S.%f
-# 1 idx i         first record (offset from start of file)
-# 2 idx j         last record
-# 3 ticks         
-# 4 min price
-# 5 max price
-# 6 qty
-# 7 side
-
 COLS = [
-    "timestamp",
-    "start_rec",
-    "end_rec",
+    "timestamp",    # unabridged %Y-%m-%dT%H:%M:%S.%f
+    "start_rec",    # first record (offset from start of file)
+    "end_rec",      # last record
     "ticks",
     "min_price",
     "max_price",
     "qty",
     "side"
 ]
+
 
 # python research/sweeps/gen.py ESM24_FUT_CME 5
 
