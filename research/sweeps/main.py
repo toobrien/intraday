@@ -37,7 +37,7 @@ class sweep_rec(IntEnum):
 
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
-SLICE_LEN   = 1000
+SLICE_LEN   = 50
 
 
 # python research/sweeps/main.py ESM24_FUT_CME
@@ -65,11 +65,11 @@ if __name__ == "__main__":
         fig.add_trace(
             go.Scattergl(
                 {
-                    "x":    x,
-                    "y":    y,
-                    "line": { "color": color },
-                    "mode": "lines",
-                    "name": ts_to_ds(ts, FMT)
+                    "x":        x,
+                    "y":        y,
+                    "marker":   { "color": color },
+                    "mode":     "markers",
+                    "name":     ts_to_ds(ts, FMT)
                 }
             )
         )
