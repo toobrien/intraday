@@ -1,13 +1,15 @@
-from    enum                import  IntEnum
-import  polars              as      pl
-from    sys                 import  argv, path
-from    time                import  time
+from    enum                    import  IntEnum
+import  plotly.graph_objects    as      go
+import  polars                  as      pl
+from    sys                     import  argv, path
+from    time                    import  time
 
 path.append(".")
 
-from util.contract_settings import get_settings
-from util.rec_tools         import quick_tas, get_precision, tas_rec
-from util.sc_dt             import ts_to_ds
+from util.aggregations          import tick_series
+from util.contract_settings     import get_settings
+from util.rec_tools             import quick_tas, get_precision, tas_rec
+from util.sc_dt                 import ts_to_ds
 
 
 COLS = [
@@ -34,7 +36,8 @@ class sweep_rec(IntEnum):
     side      = 7
 
 
-SLICE_LEN = 1000
+FMT         = "%Y-%m-%dT%H:%M:%S.%f"
+SLICE_LEN   = 1000
 
 
 # python research/sweeps/main.py ESM24_FUT_CME
@@ -47,13 +50,31 @@ if __name__ == "__main__":
     multiplier, tick_size   = get_settings(contract_id)
     precision               = get_precision(contract_id)
     df                      = pl.read_csv(f"./research/sweeps/store/{contract_id}.csv")
+    fig                     = go.Figure()
 
     for row in df.iter_rows():
 
-        recs = quick_tas(contract_id, multiplier, None, row[sweep_rec.start_rec], row[sweep_rec.end_rec] + SLICE_LEN)
+        recs            = quick_tas(contract_id, multiplier, None, row[sweep_rec.start_rec], row[sweep_rec.end_rec] + SLICE_LEN)
+        ts              = recs[0][tas_rec.timestamp]
+        x, y, z, t, _   = tick_series(recs)
+        y_0             = y[0]
+        y               = [ y_ - y_0 for y_ in y ]
+
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "x":        x,
+                    "y":        y,
+                    "marker":   { "color": [ "#FF00FF" if t_ == ts else "#0000FF" for t_ in t ] },
+                    "mode":     "lines",
+                    "name":     ts_to_ds(ts, FMT)
+                }
+            )
+        )
 
         pass
 
+    fig.show()
 
     print(f"{time() - t0:0.1f}s")
 

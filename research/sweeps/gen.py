@@ -21,11 +21,11 @@ COLS = [
     "side"
 ]
 
+FMT = "%Y-%m-%dT%H:%M:%S.%f"
+
 
 # python research/sweeps/gen.py ESM24_FUT_CME 5
 
-
-FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 if __name__ == "__main__":
 
