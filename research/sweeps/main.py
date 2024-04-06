@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 {
                     "x":        x,
                     "y":        y,
-                    "marker":   { "color": color },
+                    "lines":    { "color": color },
                     "mode":     "lines",
                     "name":     ts_to_ds(ts, FMT)
                 }
