@@ -65,11 +65,11 @@ if __name__ == "__main__":
         fig.add_trace(
             go.Scattergl(
                 {
-                    "x":        x,
-                    "y":        y,
-                    "lines":    { "color": color },
-                    "mode":     "lines",
-                    "name":     ts_to_ds(ts, FMT)
+                    "x":    x,
+                    "y":    y,
+                    "line": { "color": color },
+                    "mode": "lines",
+                    "name": ts_to_ds(ts, FMT)
                 }
             )
         )
