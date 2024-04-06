@@ -108,5 +108,3 @@ if __name__ == "__main__":
             writer_.writerow(row)
         
     print(f"{len(recs)} recs\t{time() - t0:0.1f}s")
-    
-    pass
