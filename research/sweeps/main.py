@@ -38,7 +38,7 @@ class sweep_rec(IntEnum):
 
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
-SLICE_LEN   = 500
+SLICE_LEN   = 1000
 
 
 # python research/sweeps/main.py ESM24_FUT_CME
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     precision               = get_precision(contract_id)
     df                      = pl.read_csv(f"./research/sweeps/store/{contract_id}.csv")
     df                      = df.filter(pl.col("timestamp") >= start_date)
-    
+
     #window_days            = int(argv[2])
     #start_date             = datetime.strptime(df["timestamp"].max().split("T")[0], "%Y-%m-%d") - timedelta(days = window_days)
     #start_date             = start_date.strftime("%Y-%m-%d")
@@ -76,8 +76,9 @@ if __name__ == "__main__":
         t_0             = t[0][0]
         t               = [ t_[0] - t_0 for t_ in t ]
         t_0             = t[0]
-        color           = [ "#FF00FF" if t_ - t_0 < 1000 else "#0000FF" for t_ in t ]
-        text            = [ f"{z[i]}<br>+{str(t[i])[:-3]} ms<br>{ds[i]}" for i in range(len(t)) ]
+        ms              = [ t_ // 1000 for t_ in t]
+        color           = [ "#FF00FF" if ms_ == 0 else "#0000FF" for ms_ in ms ]
+        text            = [ f"{z[i]}<br>{ms[i]} ms<br>{ds[i]}" for i in range(len(z)) ]
 
         x               = [ i for i in range(len(x)) ]
 
