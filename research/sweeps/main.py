@@ -147,8 +147,8 @@ if __name__ == "__main__":
     )
 
     up      = [ rec for rec in rets if rec[0] ]
-    highest = [ rec[2] for rec in down ]
-    last    = [ rec[3] for rec in down ]
+    highest = [ rec[2] for rec in up ]
+    last    = [ rec[3] for rec in up ]
     name    = "up"
     color   = "#0000FF"
 
