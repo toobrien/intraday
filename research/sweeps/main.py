@@ -1,6 +1,8 @@
-from    datetime                import  datetime, timedelta
+# from    datetime                import  datetime, timedelta
+from    bisect                  import  bisect_right
 from    enum                    import  IntEnum
 import  plotly.graph_objects    as      go
+from    plotly.subplots         import  make_subplots
 import  polars                  as      pl
 from    sys                     import  argv, path
 from    time                    import  time
@@ -39,6 +41,7 @@ class sweep_rec(IntEnum):
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 SLICE_LEN   = 1000
+DURATION    = 1000
 
 
 # python research/sweeps/main.py ESM24_FUT_CME
@@ -64,12 +67,15 @@ if __name__ == "__main__":
     df                      = df.with_columns(df["timestamp"].str.slice(11).alias("time"))
     df                      = df.filter(pl.col("time") >= start_time) if start_time else df
     df                      = df.filter(pl.col("time") <= end_time) if end_time else df
-    fig                     = go.Figure()
+    rets                    = []
+    fig                     = make_subplots(rows = 2, cols = 1)
 
     for row in df.iter_rows():
 
         recs            = quick_tas(contract_id, multiplier, None, row[sweep_rec.start_rec], row[sweep_rec.end_rec] + SLICE_LEN)
         ts              = recs[0][tas_rec.timestamp]
+        side            = row[sweep_rec.side]
+        ticks           = row[sweep_rec.ticks]
         x, y, z, t, _   = tick_series(recs)
         
         ds              = [ ts_to_ds(t_[0], FMT) for t_ in t ]
@@ -85,6 +91,28 @@ if __name__ == "__main__":
         y_0             = y[0]
         y               = [ (y_ - y_0) / tick_size for y_ in y ]
 
+        j               = bisect_right(ms, 1)           # first non-sweep trade
+        k               = bisect_right(ms, DURATION)
+
+        x       = x[:k]
+        y       = y[:k]
+        color   = color[:k]
+        text    = text[:k]
+
+        sweep_j     = y[j]
+        min_price   = min(y[j:])
+        max_price   = max(y[j:])
+        last        = y[-1]
+
+        rets.append(
+            [
+                side,
+                min_price,
+                max_price,
+                last               
+            ]
+        )
+
         fig.add_trace(
             go.Scattergl(
                 {
@@ -98,10 +126,49 @@ if __name__ == "__main__":
             )
         )
 
-        pass
+    down    = [ rec for rec in rets if not rec[0] ]
+    lowest  = [ rec[1] for rec in down ]
+    last    = [ rec[3] for rec in down ]
+    name    = "down"
+    color   = "#FF0000"
+
+    fig.add_trace(
+        go.Scattergl(
+            {
+                "x":        lowest,
+                "y":        last,
+                "name":     "down",
+                "mode":     "markers",
+                "marker":   { "color": "#FF0000" }
+            }
+        ),
+        row = 2,
+        col = 1
+    )
+
+    up      = [ rec for rec in rets if rec[0] ]
+    highest = [ rec[2] for rec in down ]
+    last    = [ rec[3] for rec in down ]
+    name    = "up"
+    color   = "#0000FF"
+
+    fig.add_trace(
+        go.Scattergl(
+            {
+                "x":        highest,
+                "y":        last,
+                "name":     "up",
+                "mode":     "markers",
+                "marker":   { "color": "#0000FF" }
+            }
+        ),
+        row = 2,
+        col = 1
+    )
 
     fig.show()
 
+    print(f"{len(df)} recs")
     print(f"{time() - t0:0.1f}s")
 
     pass
