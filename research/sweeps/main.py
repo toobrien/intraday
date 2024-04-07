@@ -40,8 +40,8 @@ class sweep_rec(IntEnum):
 
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
-SLICE_LEN   = 1000
-DURATION    = 1000
+SLICE_LEN   = 10000
+DURATION    = 10000
 
 
 # python research/sweeps/main.py ESM24_FUT_CME
