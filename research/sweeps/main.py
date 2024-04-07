@@ -48,15 +48,19 @@ if __name__ == "__main__":
 
     t0                      = time()
     contract_id             = argv[1]
-    window_days             = int(argv[2])
+    start_date              = argv[2]  
     start_time              = argv[3] if len(argv) > 3 else None
     end_time                = argv[4] if len(argv) > 4 else None
     multiplier, tick_size   = get_settings(contract_id)
     precision               = get_precision(contract_id)
     df                      = pl.read_csv(f"./research/sweeps/store/{contract_id}.csv")
-    start_date              = datetime.strptime(df["timestamp"].max().split("T")[0], "%Y-%m-%d") - timedelta(days = window_days)
-    start_date              = start_date.strftime("%Y-%m-%d")
     df                      = df.filter(pl.col("timestamp") >= start_date)
+    
+    #window_days            = int(argv[2])
+    #start_date             = datetime.strptime(df["timestamp"].max().split("T")[0], "%Y-%m-%d") - timedelta(days = window_days)
+    #start_date             = start_date.strftime("%Y-%m-%d")
+    #df                     = df.filter(pl.col("timestamp") >= start_date)
+    
     df                      = df.with_columns(df["timestamp"].str.slice(11).alias("time"))
     df                      = df.filter(pl.col("time") >= start_time) if start_time else df
     df                      = df.filter(pl.col("time") <= end_time) if end_time else df
