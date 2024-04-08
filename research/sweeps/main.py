@@ -46,7 +46,7 @@ WIN_MAX     = 10000
 MODE        = "best"
 
 
-# python research/sweeps/main.py ESM24_FUT_CME
+# python research/sweeps/main.py ESM24_FUT_CME 2024-03-18
     
 
 if __name__ == "__main__":
@@ -76,6 +76,7 @@ if __name__ == "__main__":
 
         recs            = quick_tas(contract_id, multiplier, None, row[sweep_rec.start_rec], row[sweep_rec.end_rec] + SLICE_LEN)
         ts              = recs[0][tas_rec.timestamp]
+        name            = ts_to_ds(ts, FMT)
         side            = row[sweep_rec.side]
         ticks           = row[sweep_rec.ticks]
         x, y, z, t, _   = tick_series(recs)
@@ -97,17 +98,17 @@ if __name__ == "__main__":
         k               = bisect_right(ms, WIN_MIN)
         m               = bisect_right(ms, WIN_MAX)
 
-        x       = x[:m]
-        y       = y[:m]
-        color   = color[:m]
-        text    = text[:m]
+        x               = x[:m]
+        y               = y[:m]
+        color           = color[:m]
+        text            = text[:m]
 
-        sweep_j     = y[j]
-        min_price   = min(y[j:])
-        max_price   = max(y[j:])
-        min_win     = min(y[k:m])
-        max_win     = max(y[k:m]) 
-        last        = y[-1]
+        sweep_j         = y[j]
+        min_price       = min(y[j:])
+        max_price       = max(y[j:])
+        min_win         = min(y[k:m]) if k < m else min_price
+        max_win         = max(y[k:m]) if k < m else max_price
+        last            = y[-1]
 
         rets.append(
             [
@@ -116,7 +117,8 @@ if __name__ == "__main__":
                 max_price,
                 min_win,
                 max_win,
-                last               
+                last,
+                name
             ]
         )
 
@@ -128,7 +130,7 @@ if __name__ == "__main__":
                     "marker":   { "color": color },
                     "text":     text,
                     "mode":     "markers",
-                    "name":     ts_to_ds(ts, FMT)
+                    "name":     name
                 }
             )
         )
@@ -137,6 +139,7 @@ if __name__ == "__main__":
     lowest  = [ rec[1] for rec in down ]
     last    = [ rec[5] for rec in down ]
     best    = [ rec[4] for rec in down ]
+    text    = [ rec[6] for rec in down ]
     name    = "down"
     color   = "#FF0000"
 
@@ -145,6 +148,7 @@ if __name__ == "__main__":
             {
                 "x":        lowest,
                 "y":        best if MODE == "best" else last,
+                "text":     text,
                 "name":     "down",
                 "mode":     "markers",
                 "marker":   { "color": "#FF0000" }
@@ -158,6 +162,7 @@ if __name__ == "__main__":
     highest = [ rec[2] for rec in up ]
     last    = [ rec[5] for rec in up ]
     best    = [ rec[3] for rec in up ]
+    text    = [ rec[6] for rec in up ]
     name    = "up"
     color   = "#0000FF"
 
@@ -166,6 +171,7 @@ if __name__ == "__main__":
             {
                 "x":        highest,
                 "y":        best if MODE == "best" else last,
+                "text":     text,
                 "name":     "up",
                 "mode":     "markers",
                 "marker":   { "color": "#0000FF" }
