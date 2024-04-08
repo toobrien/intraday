@@ -103,7 +103,6 @@ if __name__ == "__main__":
         color           = color[:m]
         text            = text[:m]
 
-        sweep_j         = y[j]
         min_price       = min(y[j:])
         max_price       = max(y[j:])
         min_win         = min(y[k:m]) if k < m else min_price
@@ -119,7 +118,7 @@ if __name__ == "__main__":
                 max_win,
                 last,
                 name,
-                sweep_j
+                ticks if side else -ticks
             ]
         )
 
