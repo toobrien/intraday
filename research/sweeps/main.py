@@ -41,7 +41,9 @@ class sweep_rec(IntEnum):
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 SLICE_LEN   = 10000
-DURATION    = 10000
+WIN_MIN     = 2000
+WIN_MAX     = 10000
+MODE        = "best"
 
 
 # python research/sweeps/main.py ESM24_FUT_CME
@@ -92,16 +94,19 @@ if __name__ == "__main__":
         y               = [ (y_ - y_0) / tick_size for y_ in y ]
 
         j               = bisect_right(ms, 1)           # first non-sweep trade
-        k               = bisect_right(ms, DURATION)
+        k               = bisect_right(ms, WIN_MIN)
+        m               = bisect_right(ms, WIN_MAX)
 
-        x       = x[:k]
-        y       = y[:k]
-        color   = color[:k]
-        text    = text[:k]
+        x       = x[:m]
+        y       = y[:m]
+        color   = color[:m]
+        text    = text[:m]
 
         sweep_j     = y[j]
         min_price   = min(y[j:])
         max_price   = max(y[j:])
+        min_win     = min(y[k:m])
+        max_win     = max(y[k:m]) 
         last        = y[-1]
 
         rets.append(
@@ -109,6 +114,8 @@ if __name__ == "__main__":
                 side,
                 min_price,
                 max_price,
+                min_win,
+                max_win,
                 last               
             ]
         )
@@ -128,7 +135,8 @@ if __name__ == "__main__":
 
     down    = [ rec for rec in rets if not rec[0] ]
     lowest  = [ rec[1] for rec in down ]
-    last    = [ rec[3] for rec in down ]
+    last    = [ rec[5] for rec in down ]
+    best    = [ rec[4] for rec in down ]
     name    = "down"
     color   = "#FF0000"
 
@@ -136,7 +144,7 @@ if __name__ == "__main__":
         go.Scattergl(
             {
                 "x":        lowest,
-                "y":        last,
+                "y":        best if MODE == "best" else last,
                 "name":     "down",
                 "mode":     "markers",
                 "marker":   { "color": "#FF0000" }
@@ -148,7 +156,8 @@ if __name__ == "__main__":
 
     up      = [ rec for rec in rets if rec[0] ]
     highest = [ rec[2] for rec in up ]
-    last    = [ rec[3] for rec in up ]
+    last    = [ rec[5] for rec in up ]
+    best    = [ rec[3] for rec in up ]
     name    = "up"
     color   = "#0000FF"
 
@@ -156,7 +165,7 @@ if __name__ == "__main__":
         go.Scattergl(
             {
                 "x":        highest,
-                "y":        last,
+                "y":        best if MODE == "best" else last,
                 "name":     "up",
                 "mode":     "markers",
                 "marker":   { "color": "#0000FF" }
