@@ -118,7 +118,8 @@ if __name__ == "__main__":
                 min_win,
                 max_win,
                 last,
-                name
+                name,
+                sweep_j
             ]
         )
 
@@ -136,6 +137,7 @@ if __name__ == "__main__":
         )
 
     down    = [ rec for rec in rets if not rec[0] ]
+    x       = [ rec[7] for rec in down ]
     lowest  = [ rec[1] for rec in down ]
     last    = [ rec[5] for rec in down ]
     best    = [ rec[4] for rec in down ]
@@ -146,7 +148,7 @@ if __name__ == "__main__":
     fig.add_trace(
         go.Scattergl(
             {
-                "x":        lowest,
+                "x":        x,
                 "y":        best if MODE == "best" else last,
                 "text":     text,
                 "name":     "down",
@@ -159,6 +161,7 @@ if __name__ == "__main__":
     )
 
     up      = [ rec for rec in rets if rec[0] ]
+    x       = [ rec[7] for rec in up ]
     highest = [ rec[2] for rec in up ]
     last    = [ rec[5] for rec in up ]
     best    = [ rec[3] for rec in up ]
@@ -169,7 +172,7 @@ if __name__ == "__main__":
     fig.add_trace(
         go.Scattergl(
             {
-                "x":        highest,
+                "x":        x,
                 "y":        best if MODE == "best" else last,
                 "text":     text,
                 "name":     "up",
