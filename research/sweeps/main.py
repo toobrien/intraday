@@ -137,7 +137,7 @@ def print_res(rets: List, target: int, side: int):
         avg         = mean(results)
         total       = sum(results)
         n           = len(results)
-        pct         = len(sum([ 1 for res in results if res == limit ]) / len(results))
+        pct         = sum([ 1 for res in results if res == limit ]) / len(results)
 
         print(f'{tick:<10}{avg:<10.1f}{total:<10}{pct:<10.2f}{n:<10}')
 
