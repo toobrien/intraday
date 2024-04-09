@@ -110,7 +110,7 @@ def print_res(rets: List, target: int, side: int):
     ticks   = sorted(list(set([ rec[0] for rec in recs])), reverse = not side)
     label   = "up" if side else "dn"
 
-    print(f'\n{label:10}{"avg":10}{"total":10}{"%":10}{"n":10}{"lim: " + target:10}\n')
+    print(f'\n{label:10}{"avg":10}{"total":10}{"%":10}{"n":10}{"lim: " + str(target):10}\n')
 
     for tick in ticks:
 
