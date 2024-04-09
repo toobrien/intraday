@@ -110,7 +110,7 @@ def print_res(rets: List, target: int, side: int):
     ticks   = sorted(list(set([ rec[0] for rec in recs])), reverse = not side)
     label   = "up" if side else "dn"
 
-    print(f'\n{label:10}{"avg":10}{"total":10}{"n":10}\n')
+    print(f'\n{label:10}{"avg":10}{"total":10}{"%":10}{"n":10}\n')
 
     for tick in ticks:
 
@@ -137,8 +137,9 @@ def print_res(rets: List, target: int, side: int):
         avg         = mean(results)
         total       = sum(results)
         n           = len(results)
+        pct         = len(sum([ 1 for res in results if res == limit ]) / len(results))
 
-        print(f'{tick:<10}{avg:<10.1f}{total:<10}{n:<10}')
+        print(f'{tick:<10}{avg:<10.1f}{total:<10}{pct:<10.2f}{n:<10}')
 
 
 if __name__ == "__main__":
@@ -234,9 +235,9 @@ if __name__ == "__main__":
     print_res(rets, target, 0)
     print_res(rets, target, 1)
 
+    print("\n")
+
     fig.show()
 
     print(f"{len(df)} recs")
     print(f"{time() - t0:0.1f}s")
-
-    pass
