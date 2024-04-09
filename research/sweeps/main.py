@@ -1,11 +1,13 @@
 # from    datetime                import  datetime, timedelta
 from    bisect                  import  bisect_right
 from    enum                    import  IntEnum
+from    numpy                   import  mean, sum
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 import  polars                  as      pl
 from    sys                     import  argv, path
 from    time                    import  time
+from    typing                  import  List
 
 path.append(".")
 
@@ -49,13 +51,104 @@ MODE        = "best"
 # python research/sweeps/main.py ESM24_FUT_CME 2024-03-18
     
 
+def plot_rets(
+    fig:    go.Figure,
+    rets:   List, 
+    side:   int
+):
+
+    recs    = [ rec for rec in rets if rec[0] == side ]
+    x       = [ rec[7] for rec in recs ]
+    last    = [ rec[5] for rec in recs ]
+    best    = [ rec[4] for rec in recs ] if not side else [ rec[4] for rec in recs ]
+    text    = [ rec[6] for rec in recs ]
+    name    = "down" if not side else "up"
+    color   = "#FF0000" if not side else "#0000FF"
+
+    fig.add_trace(
+        go.Scattergl(
+            {
+                "x":        x,
+                "y":        best if MODE == "best" else last,
+                "text":     text,
+                "name":     name,
+                "mode":     "markers",
+                "marker":   { "color": color }
+            }
+        ),
+        row = 2,
+        col = 1
+    )
+
+'''
+    0   side,
+    1   min_price,
+    2   max_price,
+    3   min_win,
+    4   max_win,
+    5   last,
+    6   name,
+    7   ticks if side else -ticks
+'''
+
+
+def print_res(rets: List, target: int, side: int):
+
+    if not target:
+
+        return
+    
+    recs = [ 
+        (
+            rec[7],                     # ticks
+            rec[3] if side else rec[4], # best
+            rec[5]                      # last
+        )
+        for rec in rets if rec[0] == side 
+    ]
+
+    ticks   = sorted(list(set([ rec[0] for rec in recs])), reverse = not side)
+    label   = "up" if side else "dn"
+
+    print(f'\n{label:10}{"avg":10}{"total":10}{"n":10}\n')
+
+    for tick in ticks:
+
+        results = []
+
+        if side: 
+        
+            limit   = tick - target
+            results = [ rec for rec in recs if rec[0] >= tick ]
+            results = [
+                        target if rec[1] <= limit else tick - rec[2]
+                        for rec in results
+                    ]
+        
+        else:
+
+            limit   = tick + target 
+            results = [ rec for rec in recs if rec[0] <= tick ]
+            results = [ 
+                        target if rec[1] >= limit else rec[2] - tick 
+                        for rec in results
+                    ]
+
+        avg         = mean(results)
+        total       = sum(results)
+        n           = len(results)
+
+        print(f'{tick:<10}{avg:<10.1f}{total:<10}{n:<10}')
+
+
 if __name__ == "__main__":
 
     t0                      = time()
     contract_id             = argv[1]
-    start_date              = argv[2]  
-    start_time              = argv[3] if len(argv) > 3 else None
-    end_time                = argv[4] if len(argv) > 4 else None
+    target                  = int(argv[2]) if argv[2] != "-" else None
+    start_date              = argv[3]  
+    start_time              = argv[4] if len(argv) > 4 else None
+    end_time                = argv[5] if len(argv) > 5 else None
     multiplier, tick_size   = get_settings(contract_id)
     precision               = get_precision(contract_id)
     df                      = pl.read_csv(f"./research/sweeps/store/{contract_id}.csv")
@@ -135,53 +228,11 @@ if __name__ == "__main__":
             )
         )
 
-    down    = [ rec for rec in rets if not rec[0] ]
-    x       = [ rec[7] for rec in down ]
-    lowest  = [ rec[1] for rec in down ]
-    last    = [ rec[5] for rec in down ]
-    best    = [ rec[4] for rec in down ]
-    text    = [ rec[6] for rec in down ]
-    name    = "down"
-    color   = "#FF0000"
+    plot_rets(fig, rets, 0)
+    plot_rets(fig, rets, 1)
 
-    fig.add_trace(
-        go.Scattergl(
-            {
-                "x":        x,
-                "y":        best if MODE == "best" else last,
-                "text":     text,
-                "name":     "down",
-                "mode":     "markers",
-                "marker":   { "color": "#FF0000" }
-            }
-        ),
-        row = 2,
-        col = 1
-    )
-
-    up      = [ rec for rec in rets if rec[0] ]
-    x       = [ rec[7] for rec in up ]
-    highest = [ rec[2] for rec in up ]
-    last    = [ rec[5] for rec in up ]
-    best    = [ rec[3] for rec in up ]
-    text    = [ rec[6] for rec in up ]
-    name    = "up"
-    color   = "#0000FF"
-
-    fig.add_trace(
-        go.Scattergl(
-            {
-                "x":        x,
-                "y":        best if MODE == "best" else last,
-                "text":     text,
-                "name":     "up",
-                "mode":     "markers",
-                "marker":   { "color": "#0000FF" }
-            }
-        ),
-        row = 2,
-        col = 1
-    )
+    print_res(rets, target, 0)
+    print_res(rets, target, 1)
 
     fig.show()
 
