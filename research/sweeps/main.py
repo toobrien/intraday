@@ -48,7 +48,7 @@ WIN_MAX     = 10000
 MODE        = "best"
 
 
-# python research/sweeps/main.py ESM24_FUT_CME 2024-03-18
+# python research/sweeps/main.py ESM24_FUT_CME 0.4 2024-03-18
     
 
 def plot_rets(
@@ -92,7 +92,13 @@ def plot_rets(
 '''
 
 
-def print_res(rets: List, target: int, side: int):
+def print_res(
+    rets:           List,
+    target:         int,
+    side:           int,
+    commissions:    float,
+    precision:      int
+):
 
     if not target:
 
@@ -134,12 +140,14 @@ def print_res(rets: List, target: int, side: int):
                         for rec in results
                     ]
 
-        avg         = mean(results)
-        total       = sum(results)
-        n           = len(results)
-        pct         = mean([ 1 if res == target else 0 for res in results ])
+        results = [ res - commissions for res in results ]
 
-        print(f'{tick:<10}{avg:<10.1f}{total:<10}{pct:<10.2f}{n:<10}')
+        avg         = mean(results)
+        n           = len(results)
+        total       = sum(results)
+        pct         = mean([ 1 if res > 0 else 0 for res in results ])
+
+        print(f'{tick:<10}{avg:<10.{precision}f}{total:<10.{precision}f}{pct:<10.2f}{n:<10}')
 
 
 if __name__ == "__main__":
@@ -147,11 +155,12 @@ if __name__ == "__main__":
     t0                      = time()
     contract_id             = argv[1]
     target                  = int(argv[2]) if argv[2] != "-" else None
-    start_date              = argv[3]  
-    start_time              = argv[4] if len(argv) > 4 else None
-    end_time                = argv[5] if len(argv) > 5 else None
+    commissions             = float(argv[3])
+    start_date              = argv[4]  
+    start_time              = argv[5] if len(argv) > 5 else None
+    end_time                = argv[6] if len(argv) > 6 else None
     multiplier, tick_size   = get_settings(contract_id)
-    precision               = get_precision(contract_id)
+    precision               = get_precision(str(tick_size))
     df                      = pl.read_csv(f"./research/sweeps/store/{contract_id}.csv")
     df                      = df.filter(pl.col("timestamp") >= start_date)
 
@@ -232,8 +241,8 @@ if __name__ == "__main__":
     plot_rets(fig, rets, 0)
     plot_rets(fig, rets, 1)
 
-    print_res(rets, target, 0)
-    print_res(rets, target, 1)
+    print_res(rets, target, 0, commissions, precision)
+    print_res(rets, target, 1, commissions, precision)
 
     print("\n")
 
