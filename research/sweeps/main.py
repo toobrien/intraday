@@ -1,7 +1,7 @@
 # from    datetime                import  datetime, timedelta
 from    bisect                  import  bisect_right
 from    enum                    import  IntEnum
-from    numpy                   import  mean, sum
+from    numpy                   import  cumsum, mean, sum
 import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 import  polars                  as      pl
@@ -92,12 +92,13 @@ def plot_rets(
 '''
 
 
-def print_res(
+def show_res(
     rets:           List,
     target:         int,
     side:           int,
     commissions:    float,
-    precision:      int
+    precision:      int,
+    fig:            go.Figure
 ):
 
     if not target:
@@ -108,7 +109,8 @@ def print_res(
         (
             rec[7],                     # ticks
             rec[3] if side else rec[4], # best
-            rec[5]                      # last
+            rec[5],                     # last
+            rec[6]                      # name
         )
         for rec in rets if rec[0] == side 
     ]
@@ -141,6 +143,26 @@ def print_res(
                     ]
 
         results = [ res - commissions for res in results ]
+        text    = [ f"{recs[i][3]}<br>{results[i]}" for i in range(len(results)) ]
+
+        if tick == ticks[0]:
+
+            name = f"ask {tick}" if side else f"bid {tick}" 
+
+            fig.add_trace(
+                go.Scattergl(
+                    {
+                        "x":        [ i for i in range(len(results)) ],
+                        "y":        cumsum(results),
+                        "name":     name,
+                        "mode":     "lines",
+                        "marker":   { "color": "#0000FF" if side else "#FF0000" },
+                        "text":     text
+                    }
+                ),
+                row = 3,
+                col = 1
+            )
 
         avg         = mean(results)
         n           = len(results)
@@ -173,7 +195,7 @@ if __name__ == "__main__":
     df                      = df.filter(pl.col("time") >= start_time) if start_time else df
     df                      = df.filter(pl.col("time") <= end_time) if end_time else df
     rets                    = []
-    fig                     = make_subplots(rows = 2, cols = 1)
+    fig                     = make_subplots(rows = 3, cols = 1)
 
     for row in df.iter_rows():
 
@@ -241,8 +263,8 @@ if __name__ == "__main__":
     plot_rets(fig, rets, 0)
     plot_rets(fig, rets, 1)
 
-    print_res(rets, target, 0, commissions, precision)
-    print_res(rets, target, 1, commissions, precision)
+    show_res(rets, target, 0, commissions, precision, fig)
+    show_res(rets, target, 1, commissions, precision, fig)
 
     print("\n")
 
