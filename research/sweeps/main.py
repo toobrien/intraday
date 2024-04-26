@@ -156,7 +156,7 @@ def show_res(
                         "y":        cumsum(results),
                         "name":     name,
                         "mode":     "lines",
-                        "marker":   { "color": "#0000FF" if side else "#FF0000" },
+                        "marker":   { "color": "#FF0000" if side else "#0000FF" },
                         "text":     text
                     }
                 ),
