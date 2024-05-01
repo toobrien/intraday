@@ -55,6 +55,8 @@ if __name__ == "__main__":
 
             up_cross += 1
 
+        prev_offset = cur_offset
+
     print(f"up_cross: {up_cross}")
     print(f"dn_cross: {dn_cross}")
 
