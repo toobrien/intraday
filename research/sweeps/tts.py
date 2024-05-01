@@ -1,6 +1,7 @@
 from    bisect                  import  bisect_left
 import  plotly.graph_objects    as      go
 from    sys                     import  argv, path
+from    time                    import  time
 
 path.append(".")
 
@@ -18,6 +19,7 @@ FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 if __name__ == "__main__":
 
+    t0                      = time()
     contract_id             = argv[1]
     min_offset              = int(argv[2])
     t_lag                   = int(argv[3])
@@ -73,5 +75,7 @@ if __name__ == "__main__":
     fig.add_hline(y = -min_offset)
 
     fig.show()
+
+    print(f"{time() - t0:0.1f}s")
 
     pass
