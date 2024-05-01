@@ -41,7 +41,7 @@ if __name__ == "__main__":
         lag         = bisect_left(t, t_)
         y_cur       = y[i]
         y_lag       = y[lag]
-        cur_offset  = y - y_lag
+        cur_offset  = y_cur - y_lag
         
         offsets.append(cur_offset)
 
