@@ -43,7 +43,7 @@ if __name__ == "__main__":
         lag         = bisect_left(t, t_)
         y_cur       = y[i]
         y_lag       = y[lag]
-        cur_offset  = y_cur - y_lag
+        cur_offset  = (y_cur - y_lag) / tick_size
         
         offsets.append(cur_offset)
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
             {
                 "x":        [ i for i in range(len(offsets))],
                 "y":        offsets,
-                "text":     [ f"{ts_to_ds(t[i], FMT)}<br>{y[i]}" for i in range(len(t)) ],
+                "text":     [ f"{ts_to_ds(t[i] * 1000, FMT)}<br>{y[i]}" for i in range(len(t)) ],
                 "mode":     "lines",
                 "marker":   { "color": "#0000FF" },
                 "name":     f"offset"
