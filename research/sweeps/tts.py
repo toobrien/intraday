@@ -57,8 +57,31 @@ if __name__ == "__main__":
 
         prev_offset = cur_offset
 
+    vline_x = []
+    i       = 0
+
+    while i < len(t):
+
+        cur_t   = t[i]
+        j       = i + 1
+
+        while j < len(t) and t[j] == cur_t:
+
+            j += 1
+
+        chg = abs((y[j - 1] - y[i]) / tick_size)
+
+        if chg >= min_offset:
+
+            vline_x.append(i)
+            
+            print(f"{ts_to_ds(cur_t * 1000, FMT)}\t{chg}")
+
+        i = j
+
     print(f"up_cross: {up_cross}")
     print(f"dn_cross: {dn_cross}")
+    print(f"matches:  {len(vline_x)}")
 
     fig.add_trace(
         go.Scattergl(
@@ -76,8 +99,10 @@ if __name__ == "__main__":
     fig.add_hline(y = min_offset)
     fig.add_hline(y = -min_offset)
 
+    for x in vline_x:
+
+        fig.add_vline(x, line_color = "#FF00FF", opacity = 0.5)
+
     fig.show()
 
     print(f"{time() - t0:0.1f}s")
-
-    pass
