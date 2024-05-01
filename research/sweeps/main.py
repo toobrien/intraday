@@ -48,7 +48,7 @@ WIN_MAX     = 10000
 MODE        = "best"
 
 
-# python research/sweeps/main.py ESM24_FUT_CME 0.4 2024-03-18
+# python research/sweeps/main.py ESM24_FUT_CME 5 0.4 2024-03-18
     
 
 def plot_rets(
