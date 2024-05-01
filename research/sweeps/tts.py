@@ -33,7 +33,7 @@ if __name__ == "__main__":
     prev_offset = 0
     up_cross    = 0
     dn_cross    = 0
-    t           = [ t_ // 1000 for t_ in t ]
+    t           = [ t_[0] // 1000 for t_ in t ]
 
     for i in range(len(t)):
 
