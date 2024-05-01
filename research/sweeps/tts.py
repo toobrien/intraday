@@ -14,7 +14,7 @@ from util.sc_dt                 import ts_to_ds
 FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
-# python research/sweeps/tts.py ESM24_FUT_CME 5 500 2024-04-30T06 2024-04-30T13:00:00
+# python research/sweeps/tts.py ESM24_FUT_CME 5 500 2024-04-30T06 2024-04-30T13
 
 
 if __name__ == "__main__":
