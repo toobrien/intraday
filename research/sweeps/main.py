@@ -44,8 +44,8 @@ class sweep_rec(IntEnum):
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 SLICE_LEN   = 10000
 WIN_MIN     = 2000
-WIN_MAX     = 10000
-MODE        = "best"
+WIN_MAX     = 5000
+MODE        = "last"
 
 
 # python research/sweeps/main.py ESM24_FUT_CME 5 0.4 2024-03-18
@@ -129,7 +129,7 @@ def show_res(
             limit   = tick - target
             results = [ rec for rec in recs if rec[0] >= tick ]
             results = [
-                        target if rec[1] <= limit else tick - rec[2]
+                        target if (rec[1] <= limit and MODE == "best") else tick - rec[2]
                         for rec in results
                     ]
         
@@ -138,7 +138,7 @@ def show_res(
             limit   = tick + target 
             results = [ rec for rec in recs if rec[0] <= tick ]
             results = [ 
-                        target if rec[1] >= limit else rec[2] - tick 
+                        target if (rec[1] >= limit and MODE == "best") else rec[2] - tick 
                         for rec in results
                     ]
 
