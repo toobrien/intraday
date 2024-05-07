@@ -44,11 +44,11 @@ class sweep_rec(IntEnum):
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 SLICE_LEN   = 10000
 WIN_MIN     = 2000
-WIN_MAX     = 5000
+WIN_MAX     = 10000
 MODE        = "last"
 
 
-# python research/sweeps/main.py ESM24_FUT_CME 5 0.4 2024-03-18
+# python research/sweeps/main.py ESM24_FUT_CME 5 0.4 1 2024-03-18
     
 
 def plot_rets(
@@ -89,6 +89,7 @@ def plot_rets(
     5   last,
     6   name,
     7   ticks if side else -ticks
+    8   last_side
 '''
 
 
@@ -97,6 +98,7 @@ def show_res(
     target:         int,
     side:           int,
     commissions:    float,
+    slippage:       int,
     precision:      int,
     fig:            go.Figure
 ):
@@ -110,7 +112,8 @@ def show_res(
             rec[7],                     # ticks
             rec[3] if side else rec[4], # best
             rec[5],                     # last
-            rec[6]                      # name
+            rec[6],                     # name
+            rec[8]                      # last_side
         )
         for rec in rets if rec[0] == side 
     ]
@@ -143,6 +146,14 @@ def show_res(
                     ]
 
         results = [ res - commissions for res in results ]
+
+        # adjust for slippage
+
+        results = [ 
+            results[i] - slippage if recs[i][4] != side else results[i]
+            for i in range(len(results))
+        ]
+
         text    = [ f"{recs[i][3]}<br>{results[i]}" for i in range(len(results)) ]
 
         if tick == ticks[0]:
@@ -178,9 +189,10 @@ if __name__ == "__main__":
     contract_id             = argv[1]
     target                  = int(argv[2]) if argv[2] != "-" else None
     commissions             = float(argv[3])
-    start_date              = argv[4]  
-    start_time              = argv[5] if len(argv) > 5 else None
-    end_time                = argv[6] if len(argv) > 6 else None
+    slippage                = int(argv[4])
+    start_date              = argv[5]  
+    start_time              = argv[6] if len(argv) > 6 else None
+    end_time                = argv[7] if len(argv) > 7 else None
     multiplier, tick_size   = get_settings(contract_id)
     precision               = get_precision(str(tick_size))
     df                      = pl.read_csv(f"./research/sweeps/store/{contract_id}.csv")
@@ -204,7 +216,7 @@ if __name__ == "__main__":
         name            = ts_to_ds(ts, FMT)
         side            = row[sweep_rec.side]
         ticks           = row[sweep_rec.ticks]
-        x, y, z, t, _   = tick_series(recs)
+        x, y, z, t, c   = tick_series(recs)
         
         ds              = [ ts_to_ds(t_[0], FMT) for t_ in t ]
         t_0             = t[0][0]
@@ -225,6 +237,7 @@ if __name__ == "__main__":
 
         x               = x[:m]
         y               = y[:m]
+        c               = c[:m]
         color           = color[:m]
         text            = text[:m]
 
@@ -233,6 +246,7 @@ if __name__ == "__main__":
         min_win         = min(y[k:m]) if k < m else min_price
         max_win         = max(y[k:m]) if k < m else max_price
         last            = y[-1]
+        last_side       = 1 if c[-1] == "#FF0000" else 0
 
         rets.append(
             [
@@ -243,7 +257,8 @@ if __name__ == "__main__":
                 max_win,
                 last,
                 name,
-                ticks if side else -ticks
+                ticks if side else -ticks,
+                last_side
             ]
         )
 
@@ -263,8 +278,8 @@ if __name__ == "__main__":
     plot_rets(fig, rets, 0)
     plot_rets(fig, rets, 1)
 
-    show_res(rets, target, 0, commissions, precision, fig)
-    show_res(rets, target, 1, commissions, precision, fig)
+    show_res(rets, target, 0, commissions, slippage, precision, fig)
+    show_res(rets, target, 1, commissions, slippage, precision, fig)
 
     print("\n")
 
