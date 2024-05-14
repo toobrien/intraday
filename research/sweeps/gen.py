@@ -109,4 +109,4 @@ if __name__ == "__main__":
 
         
         
-    print(f"{len(recs)} recs\t{time() - t0:0.1f}s")
+    print(f"{contract_id}\t{len(recs)} recs\t{time() - t0:0.1f}s")

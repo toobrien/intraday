@@ -241,6 +241,12 @@ if __name__ == "__main__":
         color           = color[:m]
         text            = text[:m]
 
+        if not y[j:]:
+
+            # no trades after sweep -- probably should handle better
+
+            continue
+
         min_price       = min(y[j:])
         max_price       = max(y[j:])
         min_win         = min(y[k:m]) if k < m else min_price
