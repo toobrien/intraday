@@ -43,8 +43,8 @@ class sweep_rec(IntEnum):
 
 FMT         = "%Y-%m-%dT%H:%M:%S.%f"
 SLICE_LEN   = 10000
-WIN_MIN     = 2000
-WIN_MAX     = 10000
+WIN_MIN     = 0
+WIN_MAX     = 1000
 MODE        = "last"
 
 
