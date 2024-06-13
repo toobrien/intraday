@@ -45,21 +45,24 @@ def update_index(instrument_id: str):
     index_fd    = None
     additive    = None
 
-    if index_fn not in INDEX_FNS:
 
-        # create new index
+    # create new index
 
-        index       = {}
-        scid_offset = 0
-        additive    = False
+    index       = {}
+    scid_offset = 0
+    additive    = False
 
-    else:
+    try:
 
-        # update existing index
+        # use existing index, if any
 
         index       = loads(open(index_path, "r").read())
         scid_offset = index[sorted(list(index.keys()))[-1]]
         additive    = True
+
+    except:
+
+        pass
 
     # add to index
     
