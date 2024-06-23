@@ -58,11 +58,12 @@ def trim_range(df, start: str, end: str):
 
 def get_bars(
     contract_id:    str, 
-    start:          str = None, 
-    end:            str = None
+    start:          str     = None, 
+    end:            str     = None,
+    give_df:        bool    = False
 ):
 
-    bars = None
+    df = None
 
     if ":" in contract_id:
 
@@ -70,17 +71,17 @@ def get_bars(
         contract_id = parts[0]
         resolution  = parts[1]
 
-        bars = get_frd_bars(contract_id, resolution, start, end)
+        df = get_frd_bars(contract_id, resolution, start, end)
 
     elif ".c." in contract_id:
 
-        bars = get_dbn_bars(contract_id, start, end)
+        df = get_dbn_bars(contract_id, start, end)
 
     else:
 
-        bars = get_sc_bars(contract_id, start, end)
+        df = get_sc_bars(contract_id, start, end)
 
-    return bars
+    return df if give_df else df.rows()
 
 
 def get_sc_bars(
@@ -121,7 +122,7 @@ def get_sc_bars(
 
     df = trim_range(df, start, end)
 
-    return df.rows()
+    return df
 
 
 # for ohlc from firstratedata
@@ -152,16 +153,16 @@ def get_frd_bars(
 
     df = trim_range(df, start, end)
 
-    return df.rows()
+    return df
 
 
 # for ohlc from databento
 # naming convention: <symbol>.c.<month>.csv
 
 def get_dbn_bars(
-    symbol: str,
-    start:  str = None,
-    end:    str = None
+    symbol:     str,
+    start:      str     = None,
+    end:        str     = None
 ):
     
     fn = f"{DBN_ROOT}/csvs/{symbol}.csv"
@@ -204,7 +205,7 @@ def get_dbn_bars(
 
     df = trim_range(df, start, end)
 
-    return df.rows()
+    return df
 
 
 def get_sessions(

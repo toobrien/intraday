@@ -9,5 +9,5 @@ CONFIG = {
     "frd_root":     "~/trading/index_data",
     "sleep_int":    0.01,
     "utc_offset":   -7,
-    "tz":           "America/Los_Angeles"
+    "tz":           "US/Pacific"
 }
