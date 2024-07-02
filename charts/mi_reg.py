@@ -92,8 +92,8 @@ if __name__ == "__main__":
                                 f"{ts_to_ds(t[i], FMT)}<br>m0: {m0_y[i]:0.{precision}f}<br>m_i: {y[i]:0.{precision}f}<br>{residuals[i]:0.4f}"
                                 for i in range(len(t)) 
                             ]
-        latest              = text[-1].split("T")[0]
-        c                   = [ "#FF0000" if latest in text[i] else "#0000FF" for i in range(len(text)) ]
+        latest              = text[-1].split(":")[0][-2:] # most recent hour
+        c                   = [ "#FF0000" if latest in text[i].split(":")[0][-2:] else "#0000FF" for i in range(len(text)) ]
 
         fig.add_trace(
             go.Scattergl(
