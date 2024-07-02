@@ -48,7 +48,7 @@ if __name__ == "__main__":
     m0_logs = [ log(m0_i / m0_0) for m0_i in recs[m0_id]["y"] ]
     x_min   = min(m0_logs)
     x_max   = max(m0_logs)
-    X       = arange(x_min, x_max, step = 0.001)
+    X       = arange(x_min, x_max, step = 0.0001)
     X_      = X.reshape(-1, 1)
 
     fig = make_subplots(
