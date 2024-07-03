@@ -49,7 +49,7 @@ async function init() {
 
         let header = `ts,${CONFIG.symbols.join(",")}\n`;
         
-        fs.writeFileSync(filePath, header, 'utf8');
+        fs.writeFileSync(FN, header, 'utf8');
 
     }
 
