@@ -2,13 +2,15 @@ const { base_client, mdf }  = require("./ibkr/base_client");
 const { format }            = require("date-fns");
 const fs                    = require("node:fs");
 const CONFIG                = JSON.parse(process.argv[2]);
-const CLIENT                = new base_client(host = CONFIG.host)
-let   TS                    = null;
+const CLIENT                = new base_client(host = CONFIG.host);
 const DATA                  = {};
 const SYM_MAP               = {};
+const TODAY                 = format(new Date(), "yyyy-MM-dd");
+const FN                    = `./csvs/${TODAY}.csv`;
+const FMT                   = "yyyy-MM-dd'T'HH:mm:ss";
 
 
-// node main.js '{ "conids": [ 568550526, 637533542 ], "symbols": [ "ES", "EMD" ], "interval": 1000, "host": "localhost" }'
+// node main.js '{ "conids": [ 568550526, 637533542 ], "symbols": [ "ES", "EMD" ], "interval": 1000, "host": "localhost", "debug": false }'
 
 
 function ws_handler(evt) {
@@ -19,7 +21,9 @@ function ws_handler(evt) {
 
     if (msg.topic.includes('smd+')) {
 
-        console.log(JSON.stringify(msg, null, 2));
+        if (CONFIG.debug)
+
+            console.log(JSON.stringify(msg, null, 2));
 
         let conid = msg.conid;
 
@@ -40,6 +44,14 @@ function ws_handler(evt) {
 
 
 async function init() {
+
+    if (!fs.existsSync(FN)) {
+
+        let header = `ts,${CONFIG.symbols.join(",")}\n`;
+        
+        fs.writeFileSync(filePath, header, 'utf8');
+
+    }
 
     await CLIENT.set_ws_handlers(msg_handler = ws_handler);
 
@@ -62,7 +74,21 @@ async function init() {
 
 async function write_csv() {
 
-    //fs.writeFile();
+    let vals = [];
+
+    for (let [ _, data ] of Object.entries(DATA)) {
+
+        if (!data.mid) 
+            
+            return;
+
+        vals.push(data.mid);
+    
+    }
+
+    let row = `${format(Date.now(), FMT)},${vals.join(",")}\n`;
+
+    fs.appendFileSync(FN, row, "utf-8");
 
 }
 
