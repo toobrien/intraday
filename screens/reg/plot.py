@@ -35,7 +35,7 @@ def regress(
 
     model.fit(x_.reshape(-1, 1), y_)
 
-    X           = arange(min(x_), max(x_), step = 0.0001)
+    X           = arange(min(x_), max(x_), step = 0.00001)
     Y           = model.predict(X.reshape(-1, 1))
     b           = model.coef_[0]
     a           = model.intercept_
