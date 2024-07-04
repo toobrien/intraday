@@ -5,12 +5,11 @@ const CONFIG                = JSON.parse(process.argv[2]);
 const CLIENT                = new base_client(host = CONFIG.host);
 const DATA                  = {};
 const SYM_MAP               = {};
-const TODAY                 = format(new Date(), "yyyy-MM-dd");
-const FN                    = `./csvs/${TODAY}.csv`;
-const FMT                   = "yyyy-MM-dd'T'HH:mm:ss";
+const DATE_FMT              = "yyyy-MM-dd";
+const TS_FMT                = `${DATE_FMT}'T'HH:mm:ss`;
 
 
-// node main.js '{ "conids": [ 568550526, 637533542 ], "symbols": [ "ES", "EMD" ], "interval": 1000, "host": "localhost", "debug": false }'
+// node ./screens/reg/main.js '{ "conids": [ 568550526, 637533542 ], "symbols": [ "ES", "EMD" ], "interval": 1000, "host": "localhost", "debug": false }'
 
 
 function ws_handler(evt) {
@@ -31,8 +30,8 @@ function ws_handler(evt) {
 
             let data = DATA[conid];
 
-            msg[mdf.bid] ? data[mdf.bid] = msg[mdf.bid] : null;
-            msg[mdf.ask] ? data[mdf.ask] = msg[mdf.ask] : null;
+            msg[mdf.bid] ? data[mdf.bid] = parseFloat(msg[mdf.bid]) : null;
+            msg[mdf.ask] ? data[mdf.ask] = parseFloat(msg[mdf.ask]) : null;
 
             data["mid"] = (data[mdf.bid] + data[mdf.ask]) / 2;
 
@@ -44,14 +43,6 @@ function ws_handler(evt) {
 
 
 async function init() {
-
-    if (!fs.existsSync(FN)) {
-
-        let header = `ts,${CONFIG.symbols.join(",")}\n`;
-        
-        fs.writeFileSync(FN, header, 'utf8');
-
-    }
 
     await CLIENT.set_ws_handlers(msg_handler = ws_handler);
 
@@ -74,9 +65,26 @@ async function init() {
 
 async function write_csv() {
 
-    let vals = [];
+    let entries = Object.entries(DATA);
+    let vals    = [];
+    let date    = Date.now();
+    let day     = format(date, DATE_FMT)
+    let ts      = format(Date.now(), TS_FMT);
+    let fn      = `./csvs/${day}.csv`;
 
-    for (let [ _, data ] of Object.entries(DATA)) {
+    if (entries.length == 0)
+
+        return;
+
+    if (!fs.existsSync(fn)) {
+
+        let header = `ts,${CONFIG.symbols.join(",")}\n`;
+        
+        fs.writeFileSync(fn, header, 'utf8');
+
+    }
+
+    for (let [ _, data ] of entries) {
 
         if (!data.mid) 
             
@@ -86,9 +94,9 @@ async function write_csv() {
     
     }
 
-    let row = `${format(Date.now(), FMT)},${vals.join(",")}\n`;
+    let row = `${ts},${vals.join(",")}\n`;
 
-    fs.appendFileSync(FN, row, "utf-8");
+    fs.appendFileSync(fn, row, "utf8");
 
 }
 
