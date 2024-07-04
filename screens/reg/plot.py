@@ -83,7 +83,7 @@ def regress(
                                 ],
                 "name":         f"model",
                 "mode":         "lines",
-                "line":         { "width": 0.5 },
+                "line":         { "width": 2 },
                 "line_color":   "#FF00FF",
                 "opacity":      0.75
             }
