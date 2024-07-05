@@ -18,11 +18,11 @@ function ws_handler(evt) {
     
     let msg = JSON.parse(evt.data);
 
+    if (CONFIG.debug)
+
+        console.log(JSON.stringify(msg, null, 2));
+
     if (msg.topic.includes('smd+')) {
-
-        if (CONFIG.debug)
-
-            console.log(JSON.stringify(msg, null, 2));
 
         let conid = msg.conid;
 
@@ -65,7 +65,7 @@ async function init() {
 
 async function write_csv() {
 
-    let entries = Object.entries(DATA);
+    let entries = Object.entries(SYM_MAP);
     let vals    = [];
     let date    = Date.now();
     let day     = format(date, DATE_FMT)
@@ -84,7 +84,9 @@ async function write_csv() {
 
     }
 
-    for (let [ _, data ] of entries) {
+    for (let [ conid, _ ] of entries) {
+
+        let data = DATA[conid];
 
         if (!data.mid) 
             
