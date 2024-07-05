@@ -8,7 +8,7 @@ from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv
 
 
-# python plot.py ES EMD 2024-07-03 06:15
+# python plot.py ES EMD 2024-07-03 06-15
 
 
 def regress(
@@ -143,6 +143,6 @@ if __name__ == "__main__":
     x_sym   = argv[1]
     y_sym   = argv[2]
     date    = argv[3]
-    rng     = argv[4].split(":")
+    rng     = argv[4].split("-")
 
     regress(x_sym, y_sym, date, rng[0], rng[1])
