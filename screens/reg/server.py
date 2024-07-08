@@ -1,12 +1,23 @@
-from flask                  import Flask, render_template
+from flask                  import Flask, jsonify, render_template
+from flask_cors             import CORS
 from math                   import log
 from bisect                 import bisect_left
 from numpy                  import arange, array
 from polars                 import read_csv
 from sklearn.linear_model   import LinearRegression
+from sys                    import argv
 
 
-app = Flask(__name__)
+# python server.py ES EMD 2024-07-03 06-15
+
+
+APP                         = Flask(
+                                __name__,
+                                static_folder   = "",
+                                static_url_path = ""
+                            )
+APP.config["CACHE_TYPE"]    = "null"
+CORS(APP)
 
 
 def regression_model(
@@ -45,14 +56,46 @@ def regression_model(
     return res
 
 
-@app.route("/")
+@APP.route("/get_model")
+def get_model():
+
+    pass
+
+
+@APP.route("/get_config")
+def get_config():
+
+    return jsonify(CONFIG)
+
+
+@APP.route("/")
 def index():
 
-    return render_template("index.html")
+    return APP.send_static_file("./index.html")
 
 
 if __name__ == "__main__":
 
-    app.run(debug = False, port = "8081")
+    x_sym           = argv[1]
+    y_sym           = argv[2]
+    date            = argv[3]
+    start_t, end_t  = argv[4].split("-") 
+    df              = read_csv(f"./csvs/{date}.csv")
+    ts              = list(df["ts"])
+    i               = bisect_left(ts, f"{date}T{start_t}")
+    j               = bisect_left(ts, f"{date}T{end_t}")
+    ts              = ts[i:j]
+    x               = list(df[x_sym])[i:j]
+    y               = list(df[y_sym])[i:j]
+    CONFIG          = {
+                        "date":     date,
+                        "x_sym":    x_sym,
+                        "y_sym":    y_sym,
+                        "ts":       ts,
+                        "x":        x,
+                        "y":        y,
+                    }
+
+    APP.run(debug = False, port = "8081")
 
     pass
