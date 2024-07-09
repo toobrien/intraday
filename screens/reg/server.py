@@ -1,4 +1,4 @@
-from flask                  import Flask, jsonify, render_template
+from flask                  import Flask, jsonify, request
 from flask_cors             import CORS
 from math                   import log
 from bisect                 import bisect_left
@@ -22,16 +22,9 @@ CORS(APP)
 
 def regression_model(
     x:          str,
-    y:          str,
-    ts:         str,
-    date:       str,
-    start_t:    str,
-    end_t:      str
+    y:          str
 ):
     
-    i       = bisect_left(ts, f"{date}T{start_t}")
-    j       = bisect_left(ts, f"{date}T{end_t}")
-    ts      = ts[i:j]
     model   = LinearRegression()
     x0      = x[0]
     y0      = y[0]
@@ -56,10 +49,16 @@ def regression_model(
     return res
 
 
-@APP.route("/get_model")
+@APP.route("/get_model", methods = [ "POST" ])
 def get_model():
 
-    pass
+    data    = request.get_json()
+    x       = data["x"]
+    y       = data["y"]
+
+    res = regression_model(x, y)
+
+    return jsonify(res)
 
 
 @APP.route("/get_config")
