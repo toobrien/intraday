@@ -8,7 +8,7 @@ from sklearn.linear_model   import LinearRegression
 from sys                    import argv
 
 
-# python server.py ES EMD 2024-07-03 06-15
+# python server.py 568550526:ES 637533542:EMD 2024-07-03 06-15 pi0.local 0 1000:10000
 
 
 APP                         = Flask(
@@ -75,10 +75,13 @@ def index():
 
 if __name__ == "__main__":
 
-    x_sym           = argv[1]
-    y_sym           = argv[2]
+    x_sym, x_id     = argv[1].split(":")
+    y_sym, y_id     = argv[2].split(":")
     date            = argv[3]
-    start_t, end_t  = argv[4].split("-") 
+    start_t, end_t  = argv[4].split("-")
+    host            = argv[5]
+    debug           = int(argv[6])
+    intervals       = argv[7].split(":")
     df              = read_csv(f"./csvs/{date}.csv")
     ts              = list(df["ts"])
     i               = bisect_left(ts, f"{date}T{start_t}")
@@ -87,12 +90,18 @@ if __name__ == "__main__":
     x               = list(df[x_sym])[i:j]
     y               = list(df[y_sym])[i:j]
     CONFIG          = {
-                        "date":     date,
-                        "x_sym":    x_sym,
-                        "y_sym":    y_sym,
-                        "ts":       ts,
-                        "x":        x,
-                        "y":        y,
+                        "date":             date,
+                        "x_sym":            x_sym,
+                        "x_id":             x_id,
+                        "y_sym":            y_sym,
+                        "y_id":             y_id,
+                        "ts":               ts,
+                        "x":                x,
+                        "y":                y,
+                        "host":             host,
+                        "debug":            debug,
+                        "quote_interval":   int(intervals[0]),
+                        "model_interval":   int(intervals[1]) 
                     }
 
     APP.run(debug = False, port = "8081")
