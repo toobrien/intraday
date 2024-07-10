@@ -1,15 +1,15 @@
 const   ROOT            = "http://localhost:8081";
-const   CLIENT          = new base_client();
 const   L1              = {};
+const   DATE_FMT        = "yyyy-MM-dd'T'HH:mm:ss";
+let     CLIENT          = null;
 let     TS              = null;
 let     DEBUG           = null;
 let     x_id            = null;
 let     y_id            = null;
-let     quote_interval  = null;
-let     model_interval  = null;
 let     X               = null;
 let     Y               = null;
 let     residuals       = null;
+let     debug           = null;
 
 
 async function update_chart() {}
@@ -18,9 +18,9 @@ async function update_chart() {}
 async function update_model() {
 
     let body = {
-        x: L1[x_id]["mids"],
-        y: L1[y_id]["mids"]
-    }
+                x: L1[x_id]["mids"],
+                y: L1[y_id]["mids"]
+            };
 
     let res = await (await fetch(
                 `${ROOT}/get_model`,
@@ -31,8 +31,9 @@ async function update_model() {
                 }
             )).json();
         
-    X = res.x;
-    Y = res.y;
+    X           = res.x;
+    Y           = res.y;
+    residuals   = res.residuals;
 
 }
 
@@ -49,20 +50,20 @@ function update_data() {
 
     for ( let quote of quotes)
 
-        quote.mids.append(quote.mid);
+        quote.mids.push(quote.mid);
 
-    TS.append(/* ... */);
+    TS.push(dateFns.format(new Date(), DATE_FMT));
 
 }
 
 
-function m_handler(evt) {
+async function m_handler(evt) {
 
     if (!evt.data) return;
     
-    let msg = JSON.parse(evt.data);
+    let msg = JSON.parse(await evt.data.text());
 
-    if (CONFIG.debug)
+    if (debug)
 
         console.log(JSON.stringify(msg, null, 2));
 
@@ -89,15 +90,14 @@ function m_handler(evt) {
 async function init() {
 
     const config    = await (await fetch(`${ROOT}/get_config`)).json();
-
+    debug           = config["debug"];
+    TS              = config["ts"];
     x_sym           = config["x_sym"];
-    x_id            = config["x_id"];
-    x               = config["x"];
+    x_id            = parseInt(config["x_id"]);
+    let x           = config["x"];
     y_sym           = config["y_sym"];
-    y_id            = config["y_id"];
-    y               = config["y"];
-    quote_interval  = config["quote_interval"];
-    model_interval  = config["model_interval"];
+    y_id            = parseInt(config["y_id"]);
+    let y           = config["y"];
 
     for (let cfg of [ [ x_id, x_sym, x ], [ y_id, y_sym, y] ]) {
 
@@ -113,12 +113,16 @@ async function init() {
 
     }
 
+    CLIENT  = new base_client(config["host"]);
+
     await CLIENT.set_ws_handlers(msg_handler = m_handler);
+    
+    CLIENT.sub_market_data(x_id, [ mdf.bid, mdf.ask ]);
+    CLIENT.sub_market_data(y_id, [ mdf.bid, mdf.ask ]);
+
+    setInterval(update_data,  config["quote_interval"]);
+    setInterval(update_model, config["model_interval"]);
 
 }
 
-
 init();
-
-setInterval(update_data,  quote_interval);
-setInterval(update_model, model_interval);

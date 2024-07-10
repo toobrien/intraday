@@ -41,9 +41,9 @@ def regression_model(
     res         = {
         "alpha":        a,
         "beta":         b,
-        "model_x":      X,
-        "model_y":      Y,
-        "residuals":    residuals,
+        "model_x":      list(X),
+        "model_y":      list(Y),
+        "residuals":    list(residuals),
     }
 
     return res
@@ -75,8 +75,8 @@ def index():
 
 if __name__ == "__main__":
 
-    x_sym, x_id     = argv[1].split(":")
-    y_sym, y_id     = argv[2].split(":")
+    x_id, x_sym     = argv[1].split(":")
+    y_id, y_sym     = argv[2].split(":")
     date            = argv[3]
     start_t, end_t  = argv[4].split("-")
     host            = argv[5]

@@ -1,5 +1,3 @@
-const WebSocket = require("ws");
-
 // market data fields
 
 const mdf = {
@@ -369,5 +367,3 @@ class base_client {
 
 
 }
-
-module.exports = { base_client, mdf };
