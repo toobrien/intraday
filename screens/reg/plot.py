@@ -42,7 +42,7 @@ def regress(
     residuals   = y_ - model.predict(x_.reshape(-1, 1))
     
     text        = [
-                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>{residuals[i]:0.4f}"
+                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>c:{x[i]-y[i]:>10.2f}<br>{residuals[i]:0.4f}"
                     for i in range(len(ts))
                 ]
     latest      = text[-1].split(":")[0][-2:] # most recent hour
