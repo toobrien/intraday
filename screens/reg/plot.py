@@ -26,6 +26,7 @@ def regress(
     ts      = ts[i:j]
     x       = list(df[x_sym])[i:j]
     y       = list(df[y_sym])[i:j]
+    spread  = list(df[y_sym][i:j] - df[x_sym][i:j])
     model   = LinearRegression()
 
     x0  = x[0]
@@ -40,9 +41,10 @@ def regress(
     b           = model.coef_[0]
     a           = model.intercept_
     residuals   = y_ - model.predict(x_.reshape(-1, 1))
+    res_x       = [ i for i in range(len(residuals)) ]
     
     text        = [
-                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>c:{x[i]-y[i]:>10.2f}<br>{residuals[i]:0.4f}"
+                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>c:{spread[i]:>10.2f}<br>{residuals[i]:0.4f}"
                     for i in range(len(ts))
                 ]
     latest      = text[-1].split(":")[0][-2:] # most recent hour
@@ -54,7 +56,16 @@ def regress(
                     row_heights         = [ 0.6, 0.4 ],
                     vertical_spacing    = 0.025,
                     horizontal_spacing  = 0.025,
-                    specs               = [ [ {}, {} ], [ { "colspan": 2 }, None ] ]
+                    specs               = [ 
+                                            [ {}, {} ], 
+                                            [ 
+                                                { 
+                                                    "colspan":      2, 
+                                                    "secondary_y":  True
+                                                },
+                                                None
+                                            ] 
+                                        ]
                 )
     
     fig.add_trace(
@@ -121,15 +132,30 @@ def regress(
     fig.add_trace(
         go.Scattergl(
             {
-                "x":        [ i for i in range(len(residuals)) ],
-                "y":        residuals,
-                "text":     text,
-                "mode":     "markers",
-                "name":     f"res plot",
+                "x":            res_x,
+                "y":            residuals,
+                "text":         text,
+                "name":         f"res plot"
             }
         ),
-        row = 2,
-        col = 1
+        secondary_y = False,
+        row         = 2,
+        col         = 1
+    )
+
+    fig.add_trace(
+        go.Scattergl(
+            {
+                "x":            res_x,
+                "y":            spread,
+                "text":         text,
+                "name":         "spread"
+                
+            }
+        ),
+        secondary_y = True,
+        row         = 2,
+        col         = 1
     )
 
     fig.add_hline(y = 0, row = 2, col = 1, line_color = "#FF0000")
