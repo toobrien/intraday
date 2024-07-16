@@ -3,7 +3,7 @@ import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    polars                  import  read_csv
 from    math                    import  e, log
-from    numpy                   import  arange, array
+from    numpy                   import  arange, array, mean
 from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv
 
@@ -159,6 +159,7 @@ def regress(
     )
 
     fig.add_hline(y = 0, row = 2, col = 1, line_color = "#FF0000")
+    fig.add_hline(y = mean(spread), row = 2, col = 1, line_color = "#000000", secondary_y = True)
 
     title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}"
 
