@@ -44,7 +44,7 @@ def regress(
     res_x       = [ i for i in range(len(residuals)) ]
     
     text        = [
-                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>c:{spread[i]:>10.2f}<br>{residuals[i]:0.4f}"
+                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>s:{spread[i]:>10.2f}<br>{residuals[i]:0.4f}"
                     for i in range(len(ts))
                 ]
     latest      = text[-1].split(":")[0][-2:] # most recent hour
