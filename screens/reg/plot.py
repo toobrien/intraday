@@ -26,7 +26,8 @@ def regress(
     ts      = ts[i:j]
     x       = list(df[x_sym])[i:j]
     y       = list(df[y_sym])[i:j]
-    spread  = list(df[y_sym][i:j] - df[x_sym][i:j])
+    spread  = df[y_sym][i:j] - df[x_sym][i:j]
+    spread  = list(spread - spread[0])
     model   = LinearRegression()
 
     x0  = x[0]
