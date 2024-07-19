@@ -1,6 +1,8 @@
 const   ROOT            = "http://localhost:8081";
 const   L1              = {};
 const   DATE_FMT        = "yyyy-MM-dd'T'HH:mm:ss";
+let     top_chart       = null;
+let     bot_chart       = null;
 let     CLIENT          = null;
 let     TS              = null;
 let     DEBUG           = null;
@@ -86,6 +88,12 @@ async function m_handler(evt) {
 
 }
 
+function init_charts() {
+
+    
+
+}
+
 
 async function init() {
 
@@ -119,6 +127,8 @@ async function init() {
     
     CLIENT.sub_market_data(x_id, [ mdf.bid, mdf.ask ]);
     CLIENT.sub_market_data(y_id, [ mdf.bid, mdf.ask ]);
+
+    init_charts();
 
     setInterval(update_data,  config["quote_interval"]);
     setInterval(update_model, config["model_interval"]);

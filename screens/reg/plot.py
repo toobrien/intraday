@@ -43,6 +43,7 @@ def regress(
     a           = model.intercept_
     residuals   = y_ - model.predict(x_.reshape(-1, 1))
     res_x       = [ i for i in range(len(residuals)) ]
+    m_spread    = mean(spread)
     
     text        = [
                     f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>s:{spread[i]:>10.2f}<br>{residuals[i]:0.4f}"
@@ -148,7 +149,7 @@ def regress(
         go.Scattergl(
             {
                 "x":            res_x,
-                "y":            spread,
+                "y":            [ x - m_spread for x in spread ],
                 "text":         text,
                 "name":         "spread"
                 
@@ -160,7 +161,6 @@ def regress(
     )
 
     fig.add_hline(y = 0, row = 2, col = 1, line_color = "#FF0000")
-    fig.add_hline(y = mean(spread), row = 2, col = 1, line_color = "#000000", secondary_y = True)
 
     title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}"
 
