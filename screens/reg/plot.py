@@ -3,7 +3,7 @@ import  plotly.graph_objects    as      go
 from    plotly.subplots         import  make_subplots
 from    polars                  import  read_csv
 from    math                    import  e, log
-from    numpy                   import  arange, array, mean
+from    numpy                   import  arange, array, mean, std
 from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv
 
@@ -44,7 +44,9 @@ def regress(
     residuals   = y_ - model.predict(x_.reshape(-1, 1))
     res_x       = [ i for i in range(len(residuals)) ]
     m_spread    = mean(spread)
-    
+    r_spread    = max(spread) - min(spread)
+    s_spread    = std(spread)
+
     text        = [
                     f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>s:{spread[i]:>10.2f}<br>{residuals[i]:0.4f}"
                     for i in range(len(ts))
@@ -162,7 +164,7 @@ def regress(
 
     fig.add_hline(y = 0, row = 2, col = 1, line_color = "#FF0000")
 
-    title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}\tmu: {m_spread}"
+    title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}\ts_mu: {m_spread:0.2f}\ts_sig: {s_spread:0.2f}\ts_rng: {r_spread:0.2f}"
 
     fig.update_layout(title_text = title)
     fig.show()
