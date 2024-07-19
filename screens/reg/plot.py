@@ -162,7 +162,7 @@ def regress(
 
     fig.add_hline(y = 0, row = 2, col = 1, line_color = "#FF0000")
 
-    title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}"
+    title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}\tmu: {m_spread}"
 
     fig.update_layout(title_text = title)
     fig.show()
