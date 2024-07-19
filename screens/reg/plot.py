@@ -8,12 +8,14 @@ from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv
 
 
-# python plot.py ES EMD 2024-07-03 06-15
+# python plot.py ES:5 NQ:2 2024-07-03 06-15
 
 
 def regress(
     x_sym:      str,
+    x_mult:     float,
     y_sym:      str,
+    y_mult:     float,
     date:       str,
     start_t:    str,
     end_t:      str
@@ -26,8 +28,7 @@ def regress(
     ts      = ts[i:j]
     x       = list(df[x_sym])[i:j]
     y       = list(df[y_sym])[i:j]
-    spread  = df[y_sym][i:j] - df[x_sym][i:j]
-    spread  = list(spread - spread[0])
+    spread  = list(df[y_sym][i:j] * y_mult - df[x_sym][i:j] * x_mult)
     model   = LinearRegression()
 
     x0  = x[0]
@@ -172,9 +173,11 @@ def regress(
 
 if __name__ == "__main__":
 
-    x_sym   = argv[1]
-    y_sym   = argv[2]
-    date    = argv[3]
-    rng     = argv[4].split("-")
+    x_sym, x_mult   = argv[1].split(":")
+    y_sym, y_mult   = argv[2].split(":")
+    x_mult          = float(x_mult)
+    y_mult          = float(y_mult)
+    date            = argv[3]
+    rng             = argv[4].split("-")
 
-    regress(x_sym, y_sym, date, rng[0], rng[1])
+    regress(x_sym, x_mult, y_sym, y_mult, date, rng[0], rng[1])
