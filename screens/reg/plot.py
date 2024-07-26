@@ -47,9 +47,10 @@ def regress(
     m_spread    = mean(spread)
     r_spread    = max(spread) - min(spread)
     s_spread    = std(spread)
+    z_spread    = (spread - m_spread) / s_spread
 
     text        = [
-                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>s:{spread[i]:>10.2f}<br>{residuals[i]:0.4f}"
+                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>s:{spread[i]:>10.2f}<br>z:{z_spread[i]:>10.2f}<br>{residuals[i]:0.4f}"
                     for i in range(len(ts))
                 ]
     latest      = text[-1].split(":")[0][-2:] # most recent hour
