@@ -44,6 +44,7 @@ def regress(
     a           = model.intercept_
     residuals   = y_ - model.predict(x_.reshape(-1, 1))
     res_x       = [ i for i in range(len(residuals)) ]
+    ratio       = x[-1] / y[-1]
     m_spread    = mean(spread)
     r_spread    = max(spread) - min(spread)
     s_spread    = std(spread)
@@ -166,7 +167,7 @@ def regress(
 
     fig.add_hline(y = 0, row = 2, col = 1, line_color = "#FF0000")
 
-    title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}\ts_mu: {m_spread:0.2f}\ts_sig: {s_spread:0.2f}\ts_rng: {r_spread:0.2f}"
+    title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}\ts_mu: {m_spread:0.2f}\ts_rng: {r_spread:0.2f}\tratio:{ratio:0.2f}"
 
     fig.update_layout(title_text = title)
     fig.show()
