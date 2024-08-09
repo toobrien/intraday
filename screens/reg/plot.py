@@ -46,9 +46,10 @@ def regress(
     res_x       = [ i for i in range(len(residuals)) ]
     m_spread    = mean(spread)
     r_spread    = max(spread) - min(spread)
+    o_spread    = [ x - m_spread for x in spread ]
 
     text        = [
-                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>r:{residuals[i]:>10.4f}<br>s:{spread[i]:>10.2f}"
+                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>s:{spread[i]:>10.2f}<br>r:{residuals[i]:>10.4f}<br>o:{o_spread[i]:>10.2f}"
                     for i in range(len(ts))
                 ]
     latest      = text[-1].split(":")[0][-2:] # most recent hour
@@ -151,7 +152,7 @@ def regress(
         go.Scattergl(
             {
                 "x":            res_x,
-                "y":            [ x - m_spread for x in spread ],
+                "y":            o_spread,
                 "text":         text,
                 "name":         "spread"
                 
