@@ -1,4 +1,3 @@
-from    bisect      import  bisect_left
 from    databento   import  Historical
 from    datetime    import  datetime, timedelta
 import  numpy       as      np
