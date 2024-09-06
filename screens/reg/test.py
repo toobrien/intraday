@@ -45,7 +45,8 @@ if __name__ == "__main__":
                 {
                     "x":    ts,
                     "y":    demeaned,
-                    "name": date
+                    "name": date,
+                    "text": [ f"{i:0.2f}" for i in spread ]
                 }
             )
         )        
