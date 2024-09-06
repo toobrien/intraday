@@ -161,7 +161,7 @@ if __name__ == "__main__":
                     ]
                 )
         
-        out_df.write_csv(f"./screens/reg/historical/{folder}/{start_date}.csv")
+        out_df.write_csv(f"./screens/reg/csvs/{folder}/{start_date}.csv")
 
         print(f"{start_date:<15}{time() - t_i:0.1f}s\n")
 

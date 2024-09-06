@@ -82,7 +82,7 @@ if __name__ == "__main__":
     host            = argv[5]
     debug           = int(argv[6])
     intervals       = argv[7].split(":")
-    df              = read_csv(f"./csvs/{date}.csv")
+    df              = read_csv(f"./csvs/live/{date}.csv")
     ts              = list(df["ts"])
     i               = bisect_left(ts, f"{date}T{start_t}")
     j               = bisect_left(ts, f"{date}T{end_t}")

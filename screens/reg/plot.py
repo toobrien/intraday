@@ -8,7 +8,7 @@ from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv
 
 
-# python screens/reg/plot.py ES:5 NQ:2 2024-07-03 06-15 csvs
+# python screens/reg/plot.py ES:5 NQ:2 2024-07-03 06-15 live
 
 
 def regress(
@@ -22,7 +22,7 @@ def regress(
     folder:     str
 ):
     
-    df      = read_csv(f"./screens/reg/{folder}/{date}.csv")
+    df      = read_csv(f"./screens/reg/csvs/{folder}/{date}.csv")
     ts      = list(df["ts"])
     i       = bisect_left(ts, f"{date}T{start_t}")
     j       = bisect_left(ts, f"{date}T{end_t}")

@@ -69,7 +69,7 @@ async function write_csv() {
     let date    = Date.now();
     let day     = format(date, DATE_FMT)
     let ts      = format(Date.now(), TS_FMT);
-    let fn      = `./csvs/${day}.csv`;
+    let fn      = `./csvs/live/${day}.csv`;
 
     if (syms.length == 0)
 
