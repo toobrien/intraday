@@ -50,7 +50,7 @@ if __name__ == "__main__":
             )
         )        
 
-    
+    fig.add_hline(y = 0, line_color = "#FF0000")
     fig.show()
 
     print(f"{time() - t0:0.1f}s")
