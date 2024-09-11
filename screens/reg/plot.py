@@ -8,7 +8,7 @@ from    sklearn.linear_model    import  LinearRegression
 from    sys                     import  argv
 
 
-# python plot.py ES:5 NQ:2 2024-07-03 06-15
+# python screens/reg/plot.py ES:5 NQ:2 2024-07-03 06-15 live
 
 
 def regress(
@@ -18,10 +18,11 @@ def regress(
     y_mult:     float,
     date:       str,
     start_t:    str,
-    end_t:      str
+    end_t:      str,
+    folder:     str
 ):
     
-    df      = read_csv(f"./screens/reg/csvs/{date}.csv")
+    df      = read_csv(f"./screens/reg/csvs/{folder}/{date}.csv")
     ts      = list(df["ts"])
     i       = bisect_left(ts, f"{date}T{start_t}")
     j       = bisect_left(ts, f"{date}T{end_t}")
@@ -44,14 +45,12 @@ def regress(
     a           = model.intercept_
     residuals   = y_ - model.predict(x_.reshape(-1, 1))
     res_x       = [ i for i in range(len(residuals)) ]
-    ratio       = x[-1] / y[-1]
     m_spread    = mean(spread)
     r_spread    = max(spread) - min(spread)
-    s_spread    = std(spread)
-    z_spread    = (spread - m_spread) / s_spread
+    o_spread    = [ x - m_spread for x in spread ]
 
     text        = [
-                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>s:{spread[i]:>10.2f}<br>z:{z_spread[i]:>10.2f}<br>{residuals[i]:0.4f}"
+                    f"{ts[i]}<br>x:{x[i]:>10.2f}<br>y:{y[i]:>10.2f}<br>s:{spread[i]:>10.2f}<br>r:{residuals[i]:>10.4f}<br>o:{o_spread[i]:>10.2f}"
                     for i in range(len(ts))
                 ]
     latest      = text[-1].split(":")[0][-2:] # most recent hour
@@ -154,7 +153,7 @@ def regress(
         go.Scattergl(
             {
                 "x":            res_x,
-                "y":            [ x - m_spread for x in spread ],
+                "y":            o_spread,
                 "text":         text,
                 "name":         "spread"
                 
@@ -167,7 +166,7 @@ def regress(
 
     fig.add_hline(y = 0, row = 2, col = 1, line_color = "#FF0000")
 
-    title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}\ts_mu: {m_spread:0.2f}\ts_rng: {r_spread:0.2f}\tratio:{ratio:0.2f}"
+    title = f"{x_sym}, {y_sym}\t{date}T{start_t} - {end_t}\tb: {b:0.4f}\ta: {a:0.4f}\ts_mu: {m_spread:0.2f}\ts_rng: {r_spread:0.2f}"
 
     fig.update_layout(title_text = title)
     fig.show()
@@ -181,5 +180,6 @@ if __name__ == "__main__":
     y_mult          = float(y_mult)
     date            = argv[3]
     rng             = argv[4].split("-")
+    folder          = argv[5]
 
-    regress(x_sym, x_mult, y_sym, y_mult, date, rng[0], rng[1])
+    regress(x_sym, x_mult, y_sym, y_mult, date, rng[0], rng[1], folder)
