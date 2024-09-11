@@ -54,6 +54,7 @@ def continuous(dfs: List[pl.DataFrame]):
     fig         = go.Figure()
     interval    = 60
     Y           = []
+    A           = []
     T           = []
     i_          = 0
 
@@ -66,8 +67,10 @@ def continuous(dfs: List[pl.DataFrame]):
         x           = np.array(df[x_sym])[i:j]
         y           = np.array(df[y_sym])[i:j]
         spread      = y * float(y_mult) - x * float(x_mult)
+        mu          = np.cumsum(spread) / np.array([ i for i in range(1, len(spread) + 1) ])
         rng         = range(0, len(spread), interval)
         spread      = [ spread[i] for i in rng ]
+        mu          = [ mu[i] for i in rng ]
         text        = [ ts[i] for i in rng ]
         i_          = i_ + len(spread)
         
@@ -78,20 +81,27 @@ def continuous(dfs: List[pl.DataFrame]):
         )
 
         Y.extend(spread)
+        A.extend(mu)
         T.extend(text)
 
-    X = [ i for i in range(len(Y)) ]
+    X       = [ i for i in range(len(Y)) ]
+    traces  = [
+                ( Y, "spread" ),
+                ( A, "mean" )
+            ]
 
-    fig.add_trace(
-        go.Scattergl(
-            {
-                "x":    X,
-                "y":    Y,
-                "name": "spread",
-                "text": T
-            }
+    for trace in traces:
+
+        fig.add_trace(
+            go.Scattergl(
+                {
+                    "x":    X,
+                    "y":    trace[0],
+                    "name": trace[1],
+                    "text": T
+                }
+            )
         )
-    )
 
     fig.show()
 
