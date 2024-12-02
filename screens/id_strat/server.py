@@ -24,7 +24,7 @@ CORS(APP)
 
 CONFIG = {
     "expiry":       None,
-    "host":         "pi0.local",
+    "host":         "localhost",
     "increment":    None,
     "offsets":      None,
     "port":         8080,

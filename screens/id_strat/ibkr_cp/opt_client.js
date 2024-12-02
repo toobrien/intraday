@@ -4,7 +4,7 @@ class opt_client {
 
 
     constructor(
-        host = "pi0.local",
+        host = "localhost",
         port = 5000
     ) {
 
