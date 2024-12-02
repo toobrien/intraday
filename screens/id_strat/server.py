@@ -10,7 +10,7 @@ from research.id_strat_txt import run
 
 
 #                                   sym    start_t  end_t    exp_t    date_start date_end   mode offsets model_inc width def_inc expiry   lo_str hi_str
-# python screens/id_strat/server.py SPX:1m 14:50:00 15:59:00 15:59:00 2023-06-01 2023-10-01 FIN  -15:16  1.0       5.0   1       20230905 4065   4170
+# python screens/id_strat/server.py SPX:1m 14:50:00 15:59:00 15:59:00 2024-10-01 2025-01-01 FIN  -15:16  1.0       5.0   1       20241201 6000   6100
 
 
 APP                         = Flask(
